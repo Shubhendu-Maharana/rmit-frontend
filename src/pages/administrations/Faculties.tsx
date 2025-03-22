@@ -1,135 +1,27 @@
 import { useEffect, useState } from "react";
 import FacultyModal from "../../components/FacultyModal";
 import FacultyCard from "../../components/FacultyCard";
+import supabase from "../../supabase";
+import Skeleton from "../../components/Skeleton";
+import { IoSearch } from "react-icons/io5";
 
-// Define TypeScript types for faculty data
-type Department =
-  | "Computer Science"
-  | "Business"
-  | "Engineering"
-  | "Arts & Sciences"
-  | "Medicine";
-type Designation =
-  | "Professor"
-  | "Associate Professor"
-  | "Assistant Professor"
-  | "Lecturer"
-  | "Visiting Faculty";
+type Department = "Degree" | "Diploma" | "ITI";
 
 type Faculty = {
   id: string;
   name: string;
   image: string;
-  designation: Designation;
   department: Department;
   specialization: string;
   email: string;
   phone: string;
-  education: string[];
-  isHoD: boolean;
+  education: string;
+  is_hod: boolean;
+  joining_date: string;
 };
 
-const sampleFaculties: Faculty[] = [
-  {
-    id: "1",
-    name: "Dr. Alice Johnson",
-    image: "https://randomuser.me/api/portraits/women/1.jpg",
-    designation: "Professor",
-    department: "Computer Science",
-    specialization: "Artificial Intelligence",
-    email: "alice.johnson@university.edu",
-    phone: "+1 (555) 123-4567",
-    education: [
-      "Ph.D. in Computer Science, MIT",
-      "M.S. in Artificial Intelligence, Stanford University",
-      "B.Tech in Computer Science, IIT Delhi",
-    ],
-    isHoD: true,
-  },
-  {
-    id: "1",
-    name: "Dr. Alice Wordy",
-    image: "https://randomuser.me/api/portraits/women/1.jpg",
-    designation: "Professor",
-    department: "Computer Science",
-    specialization: "Artificial Intelligence",
-    email: "alice.johnson@university.edu",
-    phone: "+1 (555) 123-4567",
-    education: [
-      "Ph.D. in Computer Science, MIT",
-      "M.S. in Artificial Intelligence, Stanford University",
-      "B.Tech in Computer Science, IIT Delhi",
-    ],
-    isHoD: false,
-  },
-  {
-    id: "2",
-    name: "Dr. Robert Smith",
-    image: "https://randomuser.me/api/portraits/men/2.jpg",
-    designation: "Associate Professor",
-    department: "Business",
-    specialization: "Marketing Analytics",
-    email: "robert.smith@university.edu",
-    phone: "+1 (555) 234-5678",
-    education: [
-      "Ph.D. in Business Administration, Harvard University",
-      "MBA in Marketing, Wharton Business School",
-      "BBA in Business Management, University of Chicago",
-    ],
-    isHoD: false,
-  },
-  {
-    id: "3",
-    name: "Dr. Emily Carter",
-    image: "https://randomuser.me/api/portraits/women/3.jpg",
-    designation: "Assistant Professor",
-    department: "Engineering",
-    specialization: "Structural Engineering",
-    email: "emily.carter@university.edu",
-    phone: "+1 (555) 345-6789",
-    education: [
-      "Ph.D. in Civil Engineering, University of California, Berkeley",
-      "M.S. in Structural Engineering, Stanford University",
-      "B.Tech in Civil Engineering, IIT Bombay",
-    ],
-    isHoD: true,
-  },
-  {
-    id: "4",
-    name: "Dr. James Anderson",
-    image: "https://randomuser.me/api/portraits/men/4.jpg",
-    designation: "Lecturer",
-    department: "Arts & Sciences",
-    specialization: "Philosophy",
-    email: "james.anderson@university.edu",
-    phone: "+1 (555) 456-7890",
-    education: [
-      "Ph.D. in Philosophy, University of Oxford",
-      "M.A. in Ethics, University of Cambridge",
-      "B.A. in Philosophy, Yale University",
-    ],
-    isHoD: false,
-  },
-  {
-    id: "5",
-    name: "Dr. Linda Thompson",
-    image: "https://randomuser.me/api/portraits/women/5.jpg",
-    designation: "Visiting Faculty",
-    department: "Medicine",
-    specialization: "Cardiology",
-    email: "linda.thompson@university.edu",
-    phone: "+1 (555) 567-8901",
-    education: [
-      "M.D. in Cardiology, Johns Hopkins University",
-      "M.S. in Medical Sciences, Harvard Medical School",
-      "B.Sc. in Biology, University of Toronto",
-    ],
-    isHoD: true,
-  },
-];
-
 const Faculties = () => {
-  // State for department filter
+  const [faculties, setFaculties] = useState<Faculty[]>();
   const [activeDepartment, setActiveDepartment] = useState<Department | "All">(
     "All"
   );
@@ -137,51 +29,66 @@ const Faculties = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
   const [filteredFaculties, setFilteredFaculties] = useState<Faculty[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const getFaculties = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase.from("faculty").select("*");
+        if (error) {
+          throw error;
+        } else {
+          setFaculties(data);
+          setFilteredFaculties(data);
+        }
+      } catch (error) {
+        console.error("Error fetching faculties:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getFaculties();
+  }, []);
 
   // Department options
   const departments = [
     { id: "All", label: "All Departments" },
-    { id: "Computer Science", label: "Computer Science" },
-    { id: "Business", label: "Business" },
-    { id: "Engineering", label: "Engineering" },
-    { id: "Arts & Sciences", label: "Arts & Sciences" },
-    { id: "Medicine", label: "Medicine" },
+    { id: "Degree", label: "Degree" },
+    { id: "Diploma", label: "Diploma" },
+    { id: "ITI", label: "ITI" },
   ];
 
   // Filter faculties based on department
   useEffect(() => {
     if (activeDepartment === "All") {
-      setFilteredFaculties(sampleFaculties);
+      setFilteredFaculties(faculties ?? []);
     } else {
       setFilteredFaculties(
-        sampleFaculties.filter(
+        faculties?.filter(
           (faculty) => faculty.department === activeDepartment
-        )
+        ) ?? []
       );
     }
   }, [activeDepartment]);
 
   // Filter faculties based on search query
   useEffect(() => {
-    const filtered = sampleFaculties.filter((faculty) =>
+    const filtered = faculties?.filter((faculty) =>
       faculty.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredFaculties(filtered);
+    setFilteredFaculties(filtered ?? []);
   }, [searchQuery]);
 
   // Get department color based on department name
   const getDepartmentColor = (department: Department): string => {
     switch (department) {
-      case "Computer Science":
+      case "Degree":
         return "bg-blue-100 text-blue-800";
-      case "Business":
+      case "Diploma":
         return "bg-amber-100 text-amber-800";
-      case "Engineering":
+      case "ITI":
         return "bg-green-100 text-green-800";
-      case "Arts & Sciences":
-        return "bg-purple-100 text-purple-800";
-      case "Medicine":
-        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -221,18 +128,7 @@ const Faculties = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <IoSearch className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="faculty-search"
@@ -282,88 +178,34 @@ const Faculties = () => {
         {/* Faculty grid with placeholder cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
           {/* This would normally map over filtered faculty data */}
-          {filteredFaculties.map((faculty) => (
-            <FacultyCard
-              key={faculty.id}
-              faculty={faculty}
-              openFacultyModal={openFacultyModal}
-              getDepartmentColor={getDepartmentColor}
-            />
-          ))}
-        </div>
-
-        {/* Department sections */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Faculty by Department
-          </h2>
-
-          <div className="space-y-8">
-            {departments
-              .filter((dept) => dept.id !== "All")
-              .filter((dept) =>
-                filteredFaculties.some(
-                  (faculty) => faculty.department === dept.id && faculty.isHoD
-                )
-              )
-              .map((dept) => (
-                <div
-                  key={dept.id}
-                  className="bg-white rounded-xl shadow-md overflow-hidden"
-                >
-                  <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                      {dept.label}
-                    </h3>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Our {dept.label} department consists of expert faculty
-                      members dedicated to excellence in teaching and research.
-                    </p>
-                  </div>
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-4">
-                        <img
-                          src="https://picsum.photos/500/500"
-                          alt="Department Head"
-                          className="w-16 h-16 rounded-full object-cover"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            {
-                              filteredFaculties.find(
-                                (faculty) =>
-                                  faculty.department === dept.id &&
-                                  faculty.isHoD
-                              )?.name
-                            }
-                          </p>
-                          <p className="text-gray-600 text-sm">
-                            Department Head
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                          <span className="font-bold text-xl">
-                            {
-                              filteredFaculties.filter(
-                                (faculty) => faculty.department === dept.id
-                              ).length
-                            }
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">
-                            Faculty Members
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} />
+            ))
+          ) : filteredFaculties.length === 0 ? (
+            <div className="col-span-4">
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    No faculty members found
+                  </h3>
+                  <p className="text-gray-600 text-sm mt-1">
+                    We couldn't find any faculty members that match your search
+                    criteria.
+                  </p>
                 </div>
-              ))}
-          </div>
+              </div>
+            </div>
+          ) : (
+            filteredFaculties.map((faculty) => (
+              <FacultyCard
+                key={faculty.id}
+                faculty={faculty}
+                openFacultyModal={openFacultyModal}
+                getDepartmentColor={getDepartmentColor}
+              />
+            ))
+          )}
         </div>
 
         {/* Faculty Profile Modal */}

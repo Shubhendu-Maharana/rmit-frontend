@@ -12,7 +12,7 @@ const Navbar = () => {
   const navLinks = [
     {
       title: "Academics",
-      children: ["Programs", "Time Table", "Notices"],
+      children: ["Programs", "Time Tables", "Notices"],
     },
     {
       title: "Administration",
@@ -83,7 +83,7 @@ const Navbar = () => {
                         {link.children.map((child, childIndex) => (
                           <NavLink
                             key={childIndex}
-                            to={child.toLowerCase().replace(" ", "")}
+                            to={`/${child.toLowerCase().replace(" ", "")}`}
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             onClick={() => toggleDropdown(null)}
                           >
@@ -104,19 +104,11 @@ const Navbar = () => {
               className="inline-flex items-center justify-center p-2 rounded-md text-white focus:outline-none"
               onClick={toggleMenu}
             >
-              <svg
-                className="h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                {isMenuOpen ? (
-                  <IoMdClose color="white" size={24} />
-                ) : (
-                  <IoMdMenu color="white" size={24} />
-                )}
-              </svg>
+              {isMenuOpen ? (
+                <IoMdClose color="white" size={24} />
+              ) : (
+                <IoMdMenu color="white" size={24} />
+              )}
             </button>
           </div>
         </div>
@@ -161,7 +153,7 @@ const Navbar = () => {
                     {link.children.map((child, childIndex) => (
                       <NavLink
                         key={childIndex}
-                        to={child.toLowerCase().replace(" ", "")}
+                        to={`/${child.toLowerCase().replace(" ", "")}`}
                         className="block px-4 py-2 text-sm text-gray-100"
                         onClick={() => setIsMenuOpen(false)}
                       >

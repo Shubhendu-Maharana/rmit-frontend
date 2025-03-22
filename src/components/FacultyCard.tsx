@@ -1,28 +1,16 @@
-type Department =
-  | "Computer Science"
-  | "Business"
-  | "Engineering"
-  | "Arts & Sciences"
-  | "Medicine";
-
-type Designation =
-  | "Professor"
-  | "Associate Professor"
-  | "Assistant Professor"
-  | "Lecturer"
-  | "Visiting Faculty";
+type Department = "Degree" | "Diploma" | "ITI";
 
 type Faculty = {
   id: string;
   name: string;
   image: string;
-  designation: Designation;
   department: Department;
   specialization: string;
   email: string;
   phone: string;
-  education: string[];
-  isHoD: boolean;
+  education: string;
+  is_hod: boolean;
+  joining_date: string;
 };
 
 const FacultyCard = ({
@@ -39,7 +27,7 @@ const FacultyCard = ({
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg">
       <div className="relative">
-        {faculty.isHoD && (
+        {faculty.is_hod && (
           <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-2 py-1 rounded-bl-lg text-white">
             HOD
           </div>
@@ -51,7 +39,6 @@ const FacultyCard = ({
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <h3 className="text-white font-bold text-lg">{faculty.name}</h3>
-          <p className="text-white/90 text-sm">{faculty.designation}</p>
         </div>
       </div>
 

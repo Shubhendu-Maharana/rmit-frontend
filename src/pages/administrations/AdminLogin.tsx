@@ -1,28 +1,27 @@
 import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router";
 
 const AdminLogin = () => {
+  const navigator = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { signIn } = useAuth();
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMessage("");
-
-    // Simulate authentication process
-    setTimeout(() => {
-      // This would be replaced with actual authentication logic
-      if (email === "admin@college.edu" && password === "password") {
-        // Redirect or handle successful login
-        window.location.href = "/admin/dashboard";
-      } else {
-        setErrorMessage("Invalid email or password. Please try again.");
-        setIsLoading(false);
-      }
-    }, 1000);
+    const { error } = await signIn(email, password);
+    if (error) {
+      setErrorMessage(error.message);
+    } else {
+      navigator("/admin/dashboard");
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -68,7 +67,7 @@ const AdminLogin = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleLogin}>
               <div className="mb-4">
                 <label
                   htmlFor="email"

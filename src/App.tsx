@@ -8,21 +8,83 @@ import TimeTables from "./pages/academics/TimeTables";
 import Faculties from "./pages/administrations/Faculties";
 import AdminLogin from "./pages/administrations/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
-const App = () => {
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import { AuthProvider } from "./contexts/AuthContext";
+import Index from "./pages/dashboard/Index";
+
+const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/programs" element={<Programs />} />
-        <Route path="/notices" element={<Notices />} />
-        <Route path="/timetable" element={<TimeTables />} />
-        <Route path="/faculties" element={<Faculties />} />
-        <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/studentlogin" element={<StudentLogin />} />
-      </Routes>
+      {children}
       <Footer />
     </>
+  );
+};
+
+const App = () => {
+  return (
+    <AuthProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <PublicLayout>
+              <Home />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/programs"
+          element={
+            <PublicLayout>
+              <Programs />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/notices"
+          element={
+            <PublicLayout>
+              <Notices />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/timetables"
+          element={
+            <PublicLayout>
+              <TimeTables />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/faculties"
+          element={
+            <PublicLayout>
+              <Faculties />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/adminlogin"
+          element={
+            <PublicLayout>
+              <AdminLogin />
+            </PublicLayout>
+          }
+        />
+        <Route
+          path="/studentlogin"
+          element={
+            <PublicLayout>
+              <StudentLogin />
+            </PublicLayout>
+          }
+        />
+        <Route path="/admin/dashboard" element={<Index />} />
+      </Routes>
+    </AuthProvider>
   );
 };
 

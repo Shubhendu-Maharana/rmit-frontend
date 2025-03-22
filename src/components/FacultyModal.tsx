@@ -1,31 +1,18 @@
-import { GiGraduateCap } from "react-icons/gi";
-import { MdEmail, MdPhone } from "react-icons/md";
+import { MdEmail, MdOutlineClose, MdPhone } from "react-icons/md";
 
-type Department =
-  | "Computer Science"
-  | "Business"
-  | "Engineering"
-  | "Arts & Sciences"
-  | "Medicine";
-
-type Designation =
-  | "Professor"
-  | "Associate Professor"
-  | "Assistant Professor"
-  | "Lecturer"
-  | "Visiting Faculty";
+type Department = "Degree" | "Diploma" | "ITI";
 
 type Faculty = {
   id: string;
   name: string;
   image: string;
-  designation: Designation;
   department: Department;
   specialization: string;
   email: string;
   phone: string;
-  education: string[];
-  isHoD: boolean;
+  education: string;
+  is_hod: boolean;
+  joining_date: string;
 };
 
 type FacultyModalProps = {
@@ -69,27 +56,6 @@ const FacultyModal = ({
 
         {/* Modal panel */}
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          {/* Close button */}
-          <button
-            onClick={closeModal}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 focus:outline-none"
-          >
-            <svg
-              className="h-6 w-6"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
           {/* Header with image */}
           <div className="relative">
             <div className="h-48 w-full bg-gradient-to-r from-blue-600 to-indigo-700"></div>
@@ -108,9 +74,6 @@ const FacultyModal = ({
               <h3 className="text-2xl font-bold text-gray-900">
                 {selectedFaculty.name}
               </h3>
-              <p className="text-lg text-gray-600">
-                {selectedFaculty.designation}
-              </p>
               <span
                 className={`inline-flex items-center px-3 py-1 mt-2 rounded-full text-sm font-medium ${departmentColor}`}
               >
@@ -134,14 +97,7 @@ const FacultyModal = ({
                   <h4 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-3">
                     Education
                   </h4>
-                  <ul className="space-y-2">
-                    {selectedFaculty.education.map((edu, index) => (
-                      <li key={index} className="flex">
-                        <GiGraduateCap className="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{edu}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="text-gray-700">{selectedFaculty.education}</p>
                 </div>
               </div>
 
@@ -171,21 +127,6 @@ const FacultyModal = ({
                         <p className="text-gray-700">{selectedFaculty.phone}</p>
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mb-3">
-                    Additional Information
-                  </h4>
-                  <div className="text-gray-700">
-                    <p>
-                      Dr. {selectedFaculty.name.split(" ")[1]} is a{" "}
-                      {selectedFaculty.designation.toLowerCase()} specializing
-                      in {selectedFaculty.specialization}. With extensive
-                      research and teaching experience, they are dedicated to
-                      advancing knowledge in their field and mentoring students.
-                    </p>
                   </div>
                 </div>
               </div>
