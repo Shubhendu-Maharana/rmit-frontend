@@ -1,4 +1,4 @@
-import { MdEmail, MdOutlineClose, MdPhone } from "react-icons/md";
+import { MdEmail, MdPhone } from "react-icons/md";
 
 type Department = "Degree" | "Diploma" | "ITI";
 

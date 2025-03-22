@@ -14,16 +14,6 @@ type Department =
   | "Medicine"
   | "";
 
-interface Faculty {
-  id: string;
-  name: string;
-  email: string;
-  department: Department;
-  position: string;
-  joined: string;
-  initials: string;
-}
-
 interface Student {
   id: string;
   rollNumber: string;
@@ -39,65 +29,6 @@ interface Student {
   guardianPhone: number;
   admissionDate: string;
 }
-
-type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";
-
-type Notice = {
-  id: string;
-  title: string;
-  date: string;
-  category: Exclude<NoticeCategory, "all">;
-  file_path: string | "";
-  important: boolean;
-};
-
-const FacultyData: Faculty[] = [
-  {
-    id: "FAC-2020-0018",
-    name: "Dr. Jane Wilson",
-    email: "jane.wilson@college.edu",
-    department: "Computer Science",
-    position: "Associate Professor",
-    joined: "Sep 2020",
-    initials: "JW",
-  },
-  {
-    id: "FAC-2019-0042",
-    name: "Dr. Robert Chen",
-    email: "robert.chen@college.edu",
-    department: "Engineering",
-    position: "Professor",
-    joined: "Jan 2019",
-    initials: "RC",
-  },
-  {
-    id: "FAC-2021-0103",
-    name: "Dr. Maria Garcia",
-    email: "maria.garcia@college.edu",
-    department: "Business",
-    position: "Assistant Professor",
-    joined: "Mar 2021",
-    initials: "MG",
-  },
-  {
-    id: "FAC-2022-0076",
-    name: "Dr. James Smith",
-    email: "james.smith@college.edu",
-    department: "Arts & Sciences",
-    position: "Lecturer",
-    joined: "Aug 2022",
-    initials: "JS",
-  },
-  {
-    id: "FAC-2018-0009",
-    name: "Dr. Sarah Johnson",
-    email: "sarah.johnson@college.edu",
-    department: "Computer Science",
-    position: "Professor",
-    joined: "Feb 2018",
-    initials: "SJ",
-  },
-];
 
 const StudentData: Student[] = [
   {
@@ -159,73 +90,6 @@ const StudentData: Student[] = [
     guardianName: "Ramesh Das",
     guardianPhone: 9865321471,
     admissionDate: "2022-06-25",
-  },
-];
-
-const notices: Notice[] = [
-  {
-    id: "n001",
-    title: "Final Examination Schedule Released",
-    date: "2025-03-15",
-    category: "Exams",
-    file_path: "",
-    important: true,
-  },
-  {
-    id: "n002",
-    title: "Campus Closure: Spring Break",
-    date: "2025-03-10",
-    category: "Administrative",
-    file_path: "",
-    important: false,
-  },
-  {
-    id: "n003",
-    title: "New Course Registration Opens",
-    date: "2025-03-05",
-    category: "Academic",
-    file_path: "",
-    important: true,
-  },
-  {
-    id: "n004",
-    title: "Annual Technology Symposium",
-    date: "2025-03-01",
-    category: "Events",
-    file_path: "",
-    important: false,
-  },
-  {
-    id: "n005",
-    title: "Library Extended Hours",
-    date: "2025-02-28",
-    category: "Administrative",
-    file_path: "",
-    important: false,
-  },
-  {
-    id: "n006",
-    title: "Scholarship Application Deadline",
-    date: "2025-02-25",
-    category: "Academic",
-    file_path: "",
-    important: true,
-  },
-  {
-    id: "n007",
-    title: "Mid-Term Grades Released",
-    date: "2025-02-20",
-    category: "Exams",
-    file_path: "",
-    important: false,
-  },
-  {
-    id: "n008",
-    title: "Career Fair: Spring Edition",
-    date: "2025-02-15",
-    category: "Events",
-    file_path: "",
-    important: true,
   },
 ];
 

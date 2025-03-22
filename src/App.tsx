@@ -8,7 +8,6 @@ import TimeTables from "./pages/academics/TimeTables";
 import Faculties from "./pages/administrations/Faculties";
 import AdminLogin from "./pages/administrations/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/dashboard/Index";
 
