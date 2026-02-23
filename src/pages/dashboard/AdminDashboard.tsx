@@ -3,6 +3,7 @@ import SideBar from "../../components/layout/SideBar";
 import FacultyTab from "./tabs/Faculty/FacultyTab";
 import StudentTab from "./tabs/Student/StudentTab";
 import NoticesTab from "./tabs/Notice/NoticesTab";
+import TimetablesTab from "./tabs/Timetable/TimetablesTab";
 import { FiMenu } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router";
@@ -146,6 +147,8 @@ const AdminDashboard = () => {
             )}
 
             {activeTab === "notices" && <NoticesTab />}
+
+            {activeTab === "timetables" && <TimetablesTab />}
           </div>
         </main>
       </div>
