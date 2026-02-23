@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { signIn } from "../../services/auth";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
 
 const AdminLogin = () => {
   const navigator = useNavigate();
@@ -10,14 +11,14 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<"admin" | "faculty">("admin");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setIsLoading(true);
-      const { error } = await signIn(email, password);
-      if (error) throw error;
-      toast.success("Login successful");
+      const data = await signIn(email, password, role);
+      if (data) toast.success("Login successful");
       navigator("/admin/dashboard");
     } catch (error) {
       const errorMessage =
@@ -64,6 +65,36 @@ const AdminLogin = () => {
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
               Log in to your account
             </h2>
+
+            {/* Role selector pills */}
+            <div className="flex justify-center mb-6">
+              <div className="flex bg-gray-100 rounded-full p-1 relative">
+                {["admin", "faculty"].map((r) => (
+                  <button
+                    key={r}
+                    className={`relative px-6 py-2 rounded-full cursor-pointer transition-colors duration-200 z-10 text-sm font-medium ${
+                      role === r
+                        ? "text-white"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                    onClick={() => setRole(r as "admin" | "faculty")}
+                  >
+                    {role === r && (
+                      <motion.div
+                        layoutId="active-role"
+                        className="absolute inset-0 bg-primary-600 rounded-full shadow-sm"
+                        transition={{
+                          type: "spring",
+                          duration: 0.5,
+                          bounce: 0.2,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10 capitalize">{r}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <form onSubmit={handleLogin}>
               <div className="mb-4">
