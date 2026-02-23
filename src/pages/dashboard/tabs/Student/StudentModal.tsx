@@ -15,7 +15,7 @@ import {
 import { Student } from "@app/types/dataTypes";
 import { toast } from "react-toastify";
 import { addStudent, updateStudent } from "@services/student";
-import supabase from "@services/supabase";
+import { uploadFile } from "@services/fileUpload";
 
 interface StudentModalProps {
   editMode: boolean;
@@ -69,26 +69,15 @@ const StudentModal = ({
     setUploadError(null);
 
     try {
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const publicUrlData = await uploadFile({
+        file: imageFile,
+        bucket: "student-images",
+      });
 
-      const { error } = await supabase.storage
-        .from("student-images")
-        .upload(fileName, imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (error) throw error;
-
-      const { data } = supabase.storage
-        .from("student-images")
-        .getPublicUrl(fileName);
-
-      if (data && data.publicUrl) {
-        setImageUrl(data.publicUrl);
+      if (publicUrlData) {
+        setImageUrl(publicUrlData);
         const e = {
-          target: { name: "image", value: data.publicUrl },
+          target: { name: "image", value: publicUrlData },
         } as React.ChangeEvent<HTMLInputElement>;
         handleInputChange(e);
       }

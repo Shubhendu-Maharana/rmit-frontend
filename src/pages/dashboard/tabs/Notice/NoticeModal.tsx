@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
-import supabase from "@services/supabase";
 import { Notice } from "@app/types/dataTypes";
 import { motion } from "motion/react";
 import { FiX, FiUpload, FiFileText } from "react-icons/fi";
+import { uploadFile } from "@services/fileUpload";
 
 const categoryOptions = [
   { value: "all", label: "All Category" },
@@ -47,38 +47,20 @@ const NoticeModal = ({
     setUploadError(null);
 
     try {
-      // Create a unique file name to prevent overwriting existing files
-      const fileExt = pdfFile.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2, 15)}.${fileExt}`;
-
-      // Upload the file to Supabase storage
-      const { error } = await supabase.storage
-        .from("notices")
-        .upload(fileName, pdfFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      // Get the public URL for the uploaded file
-      const { data: publicUrlData } = supabase.storage
-        .from("notices")
-        .getPublicUrl(fileName);
+      const publicUrlData = await uploadFile({
+        file: pdfFile,
+        bucket: "notices",
+      });
 
       // Update the file URL with the public URL
-      if (publicUrlData && publicUrlData.publicUrl) {
-        setPdfUrl(publicUrlData.publicUrl);
+      if (publicUrlData) {
+        setPdfUrl(publicUrlData);
 
         // Update the currentNotice object with the new file URL
         const e = {
           target: {
             name: "file_path",
-            value: publicUrlData.publicUrl,
+            value: publicUrlData,
           },
         } as React.ChangeEvent<HTMLInputElement>;
 

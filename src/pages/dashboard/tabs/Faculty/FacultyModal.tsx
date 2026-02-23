@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import supabase from "@services/supabase";
 import { motion } from "motion/react";
 import {
   FiX,
@@ -16,6 +15,7 @@ import {
 import { Faculty } from "@app/types/dataTypes";
 import { createFaculty, updateFaculty } from "@services/faculty";
 import { toast } from "react-toastify";
+import { uploadFile } from "@services/fileUpload";
 
 interface FacultyModalProps {
   editMode: boolean;
@@ -51,26 +51,15 @@ const FacultyModal = ({
     setUploadError(null);
 
     try {
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const publicUrlData = await uploadFile({
+        file: imageFile,
+        bucket: "faculty-images",
+      });
 
-      const { error } = await supabase.storage
-        .from("faculty-images")
-        .upload(fileName, imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (error) throw error;
-
-      const { data: publicUrlData } = supabase.storage
-        .from("faculty-images")
-        .getPublicUrl(fileName);
-
-      if (publicUrlData && publicUrlData.publicUrl) {
-        setImageUrl(publicUrlData.publicUrl);
+      if (publicUrlData) {
+        setImageUrl(publicUrlData);
         const e = {
-          target: { name: "image", value: publicUrlData.publicUrl },
+          target: { name: "image", value: publicUrlData },
         } as React.ChangeEvent<HTMLInputElement>;
         handleInputChange(e);
       }

@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
-import supabase from "@services/supabase";
 import { Timetable, ProgramType, Semester } from "@app/types/dataTypes";
 import { motion } from "motion/react";
 import { FiX, FiUpload, FiFileText } from "react-icons/fi";
+import { uploadFile } from "@services/fileUpload";
 
 const programTypeOptions: { value: ProgramType; label: string }[] = [
   { value: "Degree", label: "Degree" },
@@ -56,33 +56,18 @@ const TimetableModal = ({
     setUploadError(null);
 
     try {
-      const fileExt = pdfFile.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2, 15)}.${fileExt}`;
+      const publicUrlData = await uploadFile({
+        file: pdfFile,
+        bucket: "timetables",
+      });
 
-      const { error } = await supabase.storage
-        .from("timetables")
-        .upload(fileName, pdfFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("timetables")
-        .getPublicUrl(fileName);
-
-      if (publicUrlData && publicUrlData.publicUrl) {
-        setPdfUrl(publicUrlData.publicUrl);
+      if (publicUrlData) {
+        setPdfUrl(publicUrlData);
 
         const e = {
           target: {
             name: "file_link",
-            value: publicUrlData.publicUrl,
+            value: publicUrlData,
           },
         } as React.ChangeEvent<HTMLInputElement>;
 
