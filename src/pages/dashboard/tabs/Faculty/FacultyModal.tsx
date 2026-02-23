@@ -139,7 +139,7 @@ const FacultyModal = ({
           </div>
           <button
             onClick={() => setShowModal(false)}
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
           >
             <FiX size={24} />
           </button>
@@ -340,17 +340,17 @@ const FacultyModal = ({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 sticky shadow-[0_-20px_20px_-20px_rgba(0,0,0,0.1)] bottom-[-32px] bg-white pb-0">
+          <div className="flex justify-end gap-3 pt-4 sticky bottom-[-29px] shadow-[0_-20px_20px_-20px_rgba(0,0,0,0.1)] bg-white pb-0">
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="px-6 py-3 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20"
+              className="px-8 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20 cursor-pointer"
             >
               {editMode ? "Update Faculty" : "Add Faculty Member"}
             </button>

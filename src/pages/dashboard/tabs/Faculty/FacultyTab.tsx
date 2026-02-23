@@ -196,7 +196,7 @@ const FacultyTab = () => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleAddFaculty}
-          className="bg-primary-600 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 font-medium"
+          className="bg-primary-600 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 font-medium cursor-pointer"
         >
           <FiPlus size={20} />
           <span>Add New Faculty</span>
@@ -296,7 +296,7 @@ const FacultyTab = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                <AnimatePresence mode="popLayout">
+                <AnimatePresence mode="sync">
                   {currentItems.map((member) => (
                     <motion.tr
                       key={member.id}
