@@ -27,7 +27,7 @@ const NoticesTab = () => {
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("All Category");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [filteredNotices, setFilteredNotices] = useState<Notice[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
   const [warningModal, setWarningModal] = useState(false);
@@ -72,7 +72,8 @@ const NoticesTab = () => {
         .toLowerCase()
         .startsWith(searchTerm.toLowerCase());
       const matchesCategory =
-        categoryFilter === "All Category" || notice.category === categoryFilter;
+        categoryFilter === "all" ||
+        notice.category.toLowerCase().includes(categoryFilter);
       return matchesSearch && matchesCategory;
     });
 
@@ -230,7 +231,7 @@ const NoticesTab = () => {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-500 transition-all text-sm outline-none appearance-none cursor-pointer"
             >
-              <option>All Category</option>
+              <option value="all">All Category</option>
               <option value="academic">Academic</option>
               <option value="administrative">Administrative</option>
               <option value="events">Events</option>
@@ -332,9 +333,9 @@ const NoticesTab = () => {
           <button
             onClick={() => {
               setSearchTerm("");
-              setCategoryFilter("All Category");
+              setCategoryFilter("all");
             }}
-            className="mt-6 text-primary-600 font-medium hover:underline"
+            className="mt-6 text-primary-600 font-medium hover:underline cursor-pointer"
           >
             Clear all filters
           </button>
