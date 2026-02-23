@@ -10,6 +10,7 @@ import AdminLogin from "./pages/administrations/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/dashboard/Index";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -82,6 +83,7 @@ const App = () => {
           }
         />
         <Route path="/admin/dashboard" element={<Index />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </AuthProvider>
   );
