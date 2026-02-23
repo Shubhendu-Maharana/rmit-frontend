@@ -159,7 +159,7 @@ const FacultyTab = () => {
           prev.map((m) => (m.id === currentFaculty.id ? currentFaculty : m)),
         );
       } else {
-        const { id, ...facultyData } = currentFaculty;
+        const { ...facultyData } = currentFaculty;
         const { data, error } = await supabase
           .from("faculty")
           .insert([facultyData])
@@ -176,8 +176,11 @@ const FacultyTab = () => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    const { name, value, type } = e.target as any;
-    const finalValue = type === "checkbox" ? (e.target as any).checked : value;
+    const { name, value, type } = e.target as
+      | HTMLInputElement
+      | HTMLSelectElement;
+    const finalValue =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
     setCurrentFaculty({ ...currentFaculty, [name]: finalValue });
   };
 

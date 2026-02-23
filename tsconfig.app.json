@@ -23,7 +23,8 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@app/types/*": ["src/types/*"]
     }
   },
   "include": ["src"]

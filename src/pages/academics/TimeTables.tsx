@@ -1,27 +1,20 @@
 import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdOutlineDateRange } from "react-icons/md";
-import supabase from "@services/supabase";
 import TimetableCard from "../../components/TimeTableCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "lucide-react";
+import type { Timetable, ProgramType } from "@app/types/dataTypes";
+import { getTimeTables } from "@services/timeTables";
 
-// Define TypeScript types for timetable data
-type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
-type ProgramType = "Degree" | "Diploma" | "ITI";
-
-type Timetable = {
-  id: string;
-  program: string;
-  program_type: ProgramType;
-  semester: Semester;
-  academic_year: string;
-  last_updated: string;
-  file_link: string;
-};
+const programTypes = [
+  { id: "All", label: "All Types" },
+  { id: "Degree", label: "Degree" },
+  { id: "Diploma", label: "Diploma" },
+  { id: "ITI", label: "ITI" },
+];
 
 const TimeTables = () => {
-  // State for active filters
   const [timeTables, setTimeTables] = useState<Timetable[]>([]);
   const [filteredTimetables, setFilteredTimetables] = useState<Timetable[]>([]);
   const [activeType, setActiveType] = useState<ProgramType | "All">("All");
@@ -29,15 +22,12 @@ const TimeTables = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const getTimeTables = async () => {
+    const fetchTimeTables = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase.from("timetables").select("*");
-        if (error) throw error;
-        if (data) {
-          setTimeTables(data);
-          setFilteredTimetables(data);
-        }
+        const data = await getTimeTables();
+        setTimeTables(data);
+        setFilteredTimetables(data);
       } catch (error) {
         console.error("Error fetching timetables:", error);
       } finally {
@@ -45,10 +35,9 @@ const TimeTables = () => {
       }
     };
 
-    getTimeTables();
+    fetchTimeTables();
   }, []);
 
-  // Filter timetables based on active type and search query
   useEffect(() => {
     const filtered = timeTables.filter((timetable) => {
       const matchesType =
@@ -59,15 +48,7 @@ const TimeTables = () => {
       return matchesType && matchesQuery;
     });
     setFilteredTimetables(filtered);
-  }, [activeType, searchQuery]);
-
-  // Program type filters
-  const programTypes = [
-    { id: "All", label: "All Types" },
-    { id: "Degree", label: "Degree" },
-    { id: "Diploma", label: "Diploma" },
-    { id: "ITI", label: "ITI" },
-  ];
+  }, [activeType, searchQuery, timeTables]);
 
   return (
     <div className="bg-gray-50 min-h-screen">

@@ -47,7 +47,7 @@ const SideBar = ({
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [setIsOpen]);
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);

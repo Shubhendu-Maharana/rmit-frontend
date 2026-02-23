@@ -1,51 +1,30 @@
 import { useEffect, useState } from "react";
 import { IoDocumentText, IoDocumentTextOutline } from "react-icons/io5";
-import supabase from "@services/supabase";
+import { getNotices } from "@services/notices";
 import Skeleton from "../../components/ui/Skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Define TypeScript types for notice data
-type NoticeCategory =
-  | "academic"
-  | "administrative"
-  | "events"
-  | "exams"
-  | "all";
-
-type Notice = {
-  id: string;
-  title: string;
-  date: string;
-  category: NoticeCategory;
-  file_path: string;
-  important: boolean;
-};
+import type { Notice, NoticeCategory } from "@app/types/dataTypes";
 
 const Notices = () => {
-  // State for category filter
   const [notices, setNotices] = useState<Notice[]>([]);
   const [activeCategory, setActiveCategory] = useState<NoticeCategory>("all");
   const [isLoading, setIsLoading] = useState(false);
   const [filteredNotices, setFilteredNotices] = useState<Notice[]>([]);
 
   useEffect(() => {
-    const getNotices = async () => {
+    const fetchNotices = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase.from("notices").select("*");
-        if (error) {
-          console.error("Error fetching notices:", error);
-        } else {
-          setNotices(data);
-          setFilteredNotices(data);
-        }
+        const data = await getNotices();
+        setNotices(data);
+        setFilteredNotices(data);
       } catch (error) {
         console.error("Error fetching notices:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    getNotices();
+    fetchNotices();
   }, []);
 
   useEffect(() => {

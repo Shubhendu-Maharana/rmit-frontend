@@ -104,7 +104,7 @@ const AdminDashboard = () => {
     if (!isLoading && !user) {
       navigator("/adminlogin");
     }
-  }, [user, isLoading]);
+  }, [navigator, user, isLoading]);
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">

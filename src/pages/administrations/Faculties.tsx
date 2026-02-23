@@ -1,25 +1,11 @@
 import { useEffect, useState } from "react";
 import FacultyModal from "../../components/FacultyModal";
 import FacultyCard from "../../components/FacultyCard";
-import supabase from "@services/supabase";
 import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
-
-type Department = "Degree" | "Diploma" | "ITI";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
+import type { Department, Faculty } from "@app/types/dataTypes";
+import { getFaculties } from "@services/faculty";
 
 const Faculties = () => {
   const [faculties, setFaculties] = useState<Faculty[]>();
@@ -33,23 +19,19 @@ const Faculties = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const getFaculties = async () => {
+    const fetchFaculties = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase.from("faculty").select("*");
-        if (error) {
-          throw error;
-        } else {
-          setFaculties(data);
-          setFilteredFaculties(data);
-        }
+        const data = await getFaculties();
+        setFaculties(data);
+        setFilteredFaculties(data);
       } catch (error) {
         console.error("Error fetching faculties:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    getFaculties();
+    fetchFaculties();
   }, []);
 
   const departments = [
@@ -69,14 +51,14 @@ const Faculties = () => {
         ) ?? [],
       );
     }
-  }, [activeDepartment]);
+  }, [activeDepartment, faculties]);
 
   useEffect(() => {
     const filtered = faculties?.filter((faculty) =>
       faculty.name.toLowerCase().startsWith(searchQuery.toLowerCase()),
     );
     setFilteredFaculties(filtered ?? []);
-  }, [searchQuery]);
+  }, [searchQuery, faculties]);
 
   const getDepartmentColor = (department: Department): string => {
     switch (department) {

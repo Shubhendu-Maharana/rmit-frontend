@@ -76,7 +76,7 @@ const NoticesTab = () => {
     });
 
     setFilteredNotices(filtered);
-  }, [searchTerm, categoryFilter]);
+  }, [notices, searchTerm, categoryFilter]);
 
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
