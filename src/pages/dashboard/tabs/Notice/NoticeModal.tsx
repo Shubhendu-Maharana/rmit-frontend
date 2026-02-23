@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import supabase from "@services/supabase";
 import { Notice } from "@app/types/dataTypes";
+import { motion } from "motion/react";
+import { FiX, FiUpload, FiFileText } from "react-icons/fi";
 
 interface NoticeModalProps {
   editMode: boolean;
@@ -25,6 +27,7 @@ const NoticeModal = ({
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async () => {
     if (!pdfFile) {
@@ -89,160 +92,204 @@ const NoticeModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-[#000000aa] backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="my-8 bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 mx-auto">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          {editMode ? "Edit Notice" : "Add New Notice"}
-        </h3>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60] overflow-y-auto"
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        {/* Header */}
+        <div className="px-8 py-6 bg-primary-600 text-white flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold">
+              {editMode ? "Edit Notice" : "Add New Notice"}
+            </h3>
+            <p className="text-primary-100 text-sm mt-0.5">
+              Please fill in the details below
+            </p>
+          </div>
+          <button
+            onClick={() => setShowModal(false)}
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+          >
+            <FiX size={24} />
+          </button>
+        </div>
+
         <form
           onSubmit={handleSubmit}
-          className="max-h-[80vh] overflow-y-auto pr-2"
+          className="flex-1 overflow-y-auto px-8 py-8 space-y-8 custom-scrollbar"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Left Column */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Enter Notice Title"
-                  value={currentNotice.title}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={currentNotice.date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                Notice Title
+              </label>
+              <input
+                type="text"
+                name="title"
+                placeholder="e.g. End Semester Examination Schedule"
+                value={currentNotice.title}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                required
+              />
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  value={currentNotice.category}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                >
-                  <option value="">Select Category</option>
-                  <option>Academic</option>
-                  <option>Administrative</option>
-                  <option>Events</option>
-                  <option>Exams</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Important
-                </label>
-                <select
-                  name="important"
-                  value={currentNotice.important ? "Yes" : "No"}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                >
-                  <option value="">Select</option>
-                  <option>Yes</option>
-                  <option>No</option>
-                </select>
-              </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                Date
+              </label>
+              <input
+                type="date"
+                name="date"
+                value={currentNotice.date}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                Category
+              </label>
+              <select
+                name="category"
+                value={currentNotice.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm appearance-none cursor-pointer"
+                required
+              >
+                <option value="">Select Category</option>
+                <option value="academic">Academic</option>
+                <option value="administrative">Administrative</option>
+                <option value="events">Events</option>
+                <option value="exams">Exams</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                Important
+              </label>
+              <select
+                name="important"
+                value={currentNotice.important ? "Yes" : "No"}
+                onChange={(e) => {
+                  handleInputChange({
+                    ...e,
+                    target: {
+                      ...e.target,
+                      name: "important",
+                      value: e.target.value,
+                    },
+                  } as unknown as React.ChangeEvent<HTMLSelectElement>);
+                }}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm appearance-none cursor-pointer"
+                required
+              >
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
             </div>
           </div>
 
+          <div className="h-px bg-gray-100 w-full" />
+
           {/* PDF Upload Section - Full Width */}
-          <div className="mt-4 space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Notice PDF
+          <div className="space-y-4">
+            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+              <FiFileText className="text-primary-500" /> Notice PDF
             </label>
+
+            <div className="flex flex-col md:flex-row gap-4 items-start">
+              <div className="w-full flex gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  name="pdfFile"
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 border-dashed rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-600 flex justify-center items-center gap-2"
+                >
+                  <FiUpload /> {pdfFile ? pdfFile.name : "Select PDF File"}
+                </button>
+                {pdfFile && (
+                  <button
+                    type="button"
+                    disabled={isUploading}
+                    onClick={handleUpload}
+                    className={`px-6 py-3 text-sm text-white bg-green-600 rounded-xl font-bold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all ${
+                      isUploading ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {isUploading ? "Uploading..." : "Upload"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {uploadError && (
+              <p className="text-red-500 text-sm ml-1">{uploadError}</p>
+            )}
 
             {/* Current PDF info */}
             {pdfUrl && (
-              <div className="text-sm mb-2">
-                Current file:
+              <div className="text-sm flex items-center gap-2 ml-1 text-gray-600 bg-gray-50 px-4 py-2 rounded-lg mt-2 border border-gray-100">
+                <span>Current file:</span>
                 <a
                   href={pdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-2 text-primary-600 hover:underline"
+                  className="text-primary-600 font-medium hover:underline flex items-center gap-1"
                 >
-                  View PDF
+                  <FiFileText /> View PDF
                 </a>
               </div>
             )}
-
-            {uploadError && (
-              <p className="text-red-500 text-sm">{uploadError}</p>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <input
-                type="file"
-                name="pdfFile"
-                accept="application/pdf"
-                onChange={handleFileChange}
-                className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              />
-              <button
-                type="button"
-                disabled={!pdfFile || isUploading}
-                onClick={handleUpload}
-                className={`px-4 py-2 text-sm text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                  !pdfFile || isUploading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {isUploading ? "Uploading..." : "Upload PDF"}
-              </button>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Upload a PDF file (max 10MB)
+            <p className="text-xs text-gray-400 mt-1 ml-1 leading-relaxed">
+              Upload a valid PDF file containing the notice contents. Max 10MB.
             </p>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 sticky bottom-[-29px] shadow-[0_-20px_20px_-20px_rgba(0,0,0,0.1)] bg-white pb-0">
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+              className="px-6 py-3 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className={`px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-8 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20 cursor-pointer ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {editMode
                 ? loading
                   ? "Updating..."
-                  : "Update"
+                  : "Update Notice"
                 : loading
                   ? "Adding..."
-                  : "Add"}
+                  : "Add Notice"}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
