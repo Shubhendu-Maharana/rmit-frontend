@@ -3,6 +3,8 @@ import { IoSearch } from "react-icons/io5";
 import { MdOutlineDateRange } from "react-icons/md";
 import supabase from "../../supabase";
 import TimetableCard from "../../components/TimeTableCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader } from "lucide-react";
 
 // Define TypeScript types for timetable data
 type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
@@ -24,10 +26,12 @@ const TimeTables = () => {
   const [filteredTimetables, setFilteredTimetables] = useState<Timetable[]>([]);
   const [activeType, setActiveType] = useState<ProgramType | "All">("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const getTimeTables = async () => {
       try {
+        setIsLoading(true);
         const { data, error } = await supabase.from("timetables").select("*");
         if (error) throw error;
         if (data) {
@@ -36,6 +40,8 @@ const TimeTables = () => {
         }
       } catch (error) {
         console.error("Error fetching timetables:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -106,7 +112,7 @@ const TimeTables = () => {
                 <button
                   key={type.id}
                   onClick={() => setActiveType(type.id as ProgramType | "All")}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium 
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer 
                     ${
                       activeType === type.id
                         ? "bg-green-100 text-green-800 border border-green-300"
@@ -133,14 +139,47 @@ const TimeTables = () => {
         </div>
 
         {/* Timetables grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredTimetables.map((timetable) => (
-            <TimetableCard key={timetable.id} timetable={timetable} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader className="animate-spin text-green-600" />
+          </div>
+        ) : (
+          <motion.div
+            key={activeType}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredTimetables.map((timetable) => (
+                <motion.div
+                  key={timetable.id}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, scale: 0.95 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TimetableCard timetable={timetable} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
         {/* Empty state */}
-        {filteredTimetables.length === 0 && (
+        {filteredTimetables.length === 0 && !isLoading && (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm">
             <MdOutlineDateRange className="h-12 w-12 mx-auto text-gray-400" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">
