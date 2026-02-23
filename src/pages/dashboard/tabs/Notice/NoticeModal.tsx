@@ -1,16 +1,6 @@
 import { useState } from "react";
 import supabase from "@services/supabase";
-
-type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";
-
-type Notice = {
-  id: string;
-  title: string;
-  date: string;
-  category: NoticeCategory;
-  file_path: string;
-  important: boolean;
-};
+import { Notice } from "@app/types/dataTypes";
 
 interface NoticeModalProps {
   editMode: boolean;
@@ -20,6 +10,7 @@ interface NoticeModalProps {
   ) => void;
   currentNotice: Notice;
   setShowModal: (modal: boolean) => void;
+  loading: boolean;
 }
 
 const NoticeModal = ({
@@ -28,6 +19,7 @@ const NoticeModal = ({
   handleInputChange,
   currentNotice,
   setShowModal,
+  loading,
 }: NoticeModalProps) => {
   const [pdfUrl, setPdfUrl] = useState<string>(currentNotice.file_path);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
@@ -236,9 +228,16 @@ const NoticeModal = ({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+              disabled={loading}
+              className={`px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
-              {editMode ? "Update" : "Add"}
+              {editMode
+                ? loading
+                  ? "Updating..."
+                  : "Update"
+                : loading
+                  ? "Adding..."
+                  : "Add"}
             </button>
           </div>
         </form>

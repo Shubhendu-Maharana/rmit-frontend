@@ -6,19 +6,17 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import NoticeModal from "./NoticeModal";
-import supabase from "@services/supabase";
 import NoticeRow from "../../../../components/NoticeRow";
-
-type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";
-
-type Notice = {
-  id: string;
-  title: string;
-  date: string;
-  category: NoticeCategory;
-  file_path: string;
-  important: boolean;
-};
+import {
+  deleteNotice,
+  getNotices,
+  postNotice,
+  updateNotice,
+} from "@services/notices";
+import { Notice } from "@app/types/dataTypes";
+import SkeletonTable from "../../../../components/ui/SkeletonTable";
+import { toast } from "react-toastify";
+import WarningModal from "../../../../components/ui/WarningModal";
 
 const NoticesTab = () => {
   // State for search and filters
@@ -27,6 +25,8 @@ const NoticesTab = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("All Category");
   const [filteredNotices, setFilteredNotices] = useState<Notice[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [warningModal, setWarningModal] = useState(false);
 
   // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,22 +39,18 @@ const NoticesTab = () => {
     id: "",
     title: "",
     date: "",
-    category: "Academic",
+    category: "academic",
     file_path: "",
     important: false,
   });
 
   useEffect(() => {
-    const getNotices = async () => {
+    const fetchNotices = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase.from("notices").select("*");
-        if (error) {
-          throw error;
-        } else {
-          setNotices(data);
-          setFilteredNotices(data);
-        }
+        const data = await getNotices();
+        setNotices(data);
+        setFilteredNotices(data);
       } catch (error) {
         console.error("Error fetching notices:", error);
       } finally {
@@ -62,7 +58,7 @@ const NoticesTab = () => {
       }
     };
 
-    getNotices();
+    fetchNotices();
   }, []);
 
   // Filter faculty based on search term and filters
@@ -94,7 +90,7 @@ const NoticesTab = () => {
       id: "",
       title: "",
       date: "",
-      category: "",
+      category: "academic",
       file_path: "",
       important: false,
     });
@@ -108,68 +104,59 @@ const NoticesTab = () => {
     setShowModal(true);
   };
 
+  const handleDeleteClick = (notice: Notice) => {
+    setCurrentNotice(notice);
+    setWarningModal(true);
+  };
+
   // Handle delete faculty
-  const handleDeleteNotice = async (id: string) => {
+  const handleDeleteNotice = async () => {
     try {
-      if (window.confirm("Are you sure you want to delete this notice?")) {
-        const { error } = await supabase.from("notices").delete().eq("id", id);
-        if (error) {
-          console.error("Error deleting notice:", error);
-        } else {
-          const res = notices.filter((notice) => notice.id !== id);
-          setFilteredNotices(res);
-          setNotices(res);
-        }
-      }
+      setModalLoading(true);
+      await deleteNotice(currentNotice.id);
+      const res = notices.filter((notice) => notice.id !== currentNotice.id);
+      setFilteredNotices(res);
+      setNotices(res);
+      toast.success("Notice deleted successfully");
     } catch (error) {
-      console.error("Error deleting notice:", error);
+      const errorMessage = (error as Error)?.message || "Something went wrong";
+      toast.error(errorMessage);
+    } finally {
+      setModalLoading(false);
+      setWarningModal(false);
     }
   };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setModalLoading(true);
     try {
       if (editMode) {
-        const { error } = await supabase
-          .from("notices")
-          .update(currentNotice)
-          .eq("id", currentNotice.id);
-        if (error) throw error;
+        const data = await updateNotice(currentNotice);
 
-        const res = notices.map((notice) =>
-          notice.id === currentNotice.id ? currentNotice : notice,
+        const updatedNotices = notices.map((notice) =>
+          notice.id === currentNotice.id ? data : notice,
         );
 
-        setFilteredNotices(res);
-        setNotices(res);
+        setFilteredNotices(updatedNotices);
+        setNotices(updatedNotices);
       } else {
-        const { data, error } = await supabase
-          .from("notices")
-          .insert([
-            {
-              title: currentNotice.title,
-              date: currentNotice.date,
-              category: currentNotice.category,
-              file_path: currentNotice.file_path,
-              important: currentNotice.important,
-            },
-          ])
-          .select();
-        if (error) throw error;
-
-        setFilteredNotices([...notices, data[0]]);
-        setNotices([...notices, data[0]]);
+        const data = await postNotice(currentNotice);
+        setFilteredNotices([...notices, data]);
+        setNotices([...notices, data]);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      const errorMessage = (error as Error)?.message || "Something went wrong";
+      toast.error(errorMessage);
     } finally {
+      setModalLoading(false);
       setShowModal(false);
       setCurrentNotice({
         id: "",
         title: "",
         date: "",
-        category: "",
+        category: "academic",
         file_path: "",
         important: false,
       });
@@ -258,14 +245,7 @@ const NoticesTab = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
-                    Loading...
-                  </td>
-                </tr>
+                <SkeletonTable rows={5} columns={6} />
               ) : currentItems.length === 0 ? (
                 <tr>
                   <td
@@ -280,7 +260,7 @@ const NoticesTab = () => {
                   <NoticeRow
                     key={notice.id}
                     notice={notice}
-                    handleDeleteNotice={handleDeleteNotice}
+                    handleDeleteNotice={handleDeleteClick}
                     handleEditNotice={handleEditNotice}
                   />
                 ))
@@ -368,6 +348,18 @@ const NoticesTab = () => {
           handleInputChange={handleInputChange}
           currentNotice={currentNotice}
           setShowModal={setShowModal}
+          loading={modalLoading}
+        />
+      )}
+
+      {/* Warning Modal */}
+      {warningModal && (
+        <WarningModal
+          title="Delete Notice"
+          description="Are you sure you want to delete this notice?"
+          handleDelete={handleDeleteNotice}
+          setShowModal={setWarningModal}
+          isLoading={modalLoading}
         />
       )}
     </div>

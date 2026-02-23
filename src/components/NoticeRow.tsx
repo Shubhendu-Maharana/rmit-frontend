@@ -1,20 +1,10 @@
+import { Notice } from "@app/types/dataTypes";
 import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
-
-type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";
-
-type Notice = {
-  id: string;
-  title: string;
-  date: string;
-  category: NoticeCategory;
-  file_path: string;
-  important: boolean;
-};
 
 type NoticeRowProps = {
   notice: Notice;
   handleEditNotice: (notice: Notice) => void;
-  handleDeleteNotice: (id: string) => void;
+  handleDeleteNotice: (notice: Notice) => void;
 };
 
 const NoticeRow = ({
@@ -51,7 +41,7 @@ const NoticeRow = ({
           Edit
         </button>
         <button
-          onClick={() => handleDeleteNotice(notice.id)}
+          onClick={() => handleDeleteNotice(notice)}
           className="text-red-600 hover:text-red-900 flex items-center sm:inline-flex cursor-pointer"
         >
           <FiTrash2 className="mr-1" />
