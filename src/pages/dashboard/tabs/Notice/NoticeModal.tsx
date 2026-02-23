@@ -1,5 +1,5 @@
 import { useState } from "react";
-import supabase from "../../../../services/supabase";
+import supabase from "@services/supabase";
 
 type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";
 
@@ -16,7 +16,7 @@ interface NoticeModalProps {
   editMode: boolean;
   handleSubmit: (e: React.FormEvent) => void;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   currentNotice: Notice;
   setShowModal: (modal: boolean) => void;

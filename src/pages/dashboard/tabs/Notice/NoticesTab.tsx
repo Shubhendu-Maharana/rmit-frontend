@@ -6,7 +6,7 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import NoticeModal from "./NoticeModal";
-import supabase from "../../../../services/supabase";
+import supabase from "@services/supabase";
 import NoticeRow from "../../../../components/NoticeRow";
 
 type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";

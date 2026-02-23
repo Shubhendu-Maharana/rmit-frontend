@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoDocumentText, IoDocumentTextOutline } from "react-icons/io5";
-import supabase from "../../services/supabase";
+import supabase from "@services/supabase";
 import Skeleton from "../../components/ui/Skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 
