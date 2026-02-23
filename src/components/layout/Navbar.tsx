@@ -50,7 +50,10 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-primary-900 text-white shadow-lg z-50 sticky top-0" ref={navRef}>
+    <nav
+      className="bg-primary-900 text-white shadow-lg z-50 sticky top-0"
+      ref={navRef}
+    >
       <div className="max-w-7xl mx-auto px-6   py-2">
         <div className="flex justify-between h-16">
           {/* Logo and College Name */}
@@ -70,29 +73,46 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center">
             <div className="ml-10 flex items-baseline space-x-4">
               {navLinks.map((link, index) => (
-                <div key={index} className="relative">
-                  <button
-                    className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary-800 cursor-pointer"
-                    onClick={() => toggleDropdown(index)}
-                  >
+                <div
+                  key={index}
+                  className="relative group"
+                  onMouseEnter={() => setActiveDropdown(index)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <button className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary-800 cursor-pointer transition-colors duration-300 flex items-center gap-1">
                     {link.title}
+                    <IoMdArrowDropdown
+                      className={`transition-transform duration-300 ${
+                        activeDropdown === index ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
-                  {activeDropdown === index && (
-                    <div className="absolute z-10 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                      <div className="py-1">
-                        {link.children.map((child, childIndex) => (
-                          <NavLink
-                            key={childIndex}
-                            to={`/${child.toLowerCase().replace(" ", "")}`}
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => toggleDropdown(null)}
-                          >
-                            {child}
-                          </NavLink>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {activeDropdown === index && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute z-10 left-0 mt-0 pt-2 w-48"
+                      >
+                        <div className="rounded-md shadow-lg bg-white overflow-hidden">
+                          <div className="py-1">
+                            {link.children.map((child, childIndex) => (
+                              <NavLink
+                                key={childIndex}
+                                to={`/${child.toLowerCase().replace(" ", "")}`}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors duration-200"
+                                onClick={() => setActiveDropdown(null)}
+                              >
+                                {child}
+                              </NavLink>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
@@ -125,56 +145,56 @@ const Navbar = () => {
               duration: 0.3,
               ease: [0.04, 0.62, 0.23, 0.98], // Better spring-like easing
             }}
-            className="md:hidden overflow-hidden"
+            className="lg:hidden overflow-hidden"
           >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navLinks.map((link, index) => (
-              <div key={index}>
-                <button
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white"
-                  onClick={() => toggleDropdown(index)}
-                >
-                  {link.title}
-                  <IoMdArrowDropdown
-                    className="float-right transition duration-300 ease-in-out"
-                    color="white"
-                    style={{
-                      transform:
-                        activeDropdown === index
-                          ? "rotate(180deg)"
-                          : "rotate(0deg)",
-                    }}
-                  />
-                </button>
-                <AnimatePresence>
-                  {activeDropdown === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ 
-                        duration: 0.3, 
-                        ease: [0.04, 0.62, 0.23, 0.98] 
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {navLinks.map((link, index) => (
+                <div key={index}>
+                  <button
+                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white"
+                    onClick={() => toggleDropdown(index)}
+                  >
+                    {link.title}
+                    <IoMdArrowDropdown
+                      className="float-right transition duration-300 ease-in-out"
+                      color="white"
+                      style={{
+                        transform:
+                          activeDropdown === index
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
                       }}
-                      className="pl-4 space-y-1 overflow-hidden"
-                    >
-                      {link.children.map((child, childIndex) => (
-                        <NavLink
-                          key={childIndex}
-                          to={`/${child.toLowerCase().replace(" ", "")}`}
-                          className="block px-4 py-2 text-sm text-gray-100"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {child}
-                        </NavLink>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {activeDropdown === index && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                          duration: 0.3,
+                          ease: [0.04, 0.62, 0.23, 0.98],
+                        }}
+                        className="pl-4 space-y-1 overflow-hidden"
+                      >
+                        {link.children.map((child, childIndex) => (
+                          <NavLink
+                            key={childIndex}
+                            to={`/${child.toLowerCase().replace(" ", "")}`}
+                            className="block px-4 py-2 text-sm text-gray-100"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            {child}
+                          </NavLink>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </nav>
