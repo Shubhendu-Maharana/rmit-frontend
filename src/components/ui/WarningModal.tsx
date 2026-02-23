@@ -1,3 +1,5 @@
+import { motion } from "motion/react";
+
 const WarningModal = ({
   title,
   description,
@@ -12,11 +14,18 @@ const WarningModal = ({
   isLoading: boolean;
 }) => {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50"
       onClick={() => setShowModal(false)}
     >
-      <div
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        transition={{ duration: 0.3 }}
         className="bg-white p-6 rounded-lg shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
@@ -41,8 +50,8 @@ const WarningModal = ({
             {isLoading ? "Deleting..." : "Delete"}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
