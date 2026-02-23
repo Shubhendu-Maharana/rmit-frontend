@@ -81,8 +81,6 @@ const NoticeModal = ({
 
         handleInputChange(e);
       }
-
-      console.log("PDF uploaded successfully");
     } catch (error) {
       console.error("Error uploading PDF:", error);
       setUploadError("Failed to upload PDF. Please try again.");

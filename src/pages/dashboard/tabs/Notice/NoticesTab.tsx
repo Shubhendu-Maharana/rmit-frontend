@@ -56,7 +56,7 @@ const NoticesTab = () => {
           setFilteredNotices(data);
         }
       } catch (error) {
-        console.log("Error fetching notices:", error);
+        console.error("Error fetching notices:", error);
       } finally {
         setIsLoading(false);
       }
@@ -114,7 +114,7 @@ const NoticesTab = () => {
       if (window.confirm("Are you sure you want to delete this notice?")) {
         const { error } = await supabase.from("notices").delete().eq("id", id);
         if (error) {
-          console.log("Error deleting notice:", error);
+          console.error("Error deleting notice:", error);
         } else {
           const res = notices.filter((notice) => notice.id !== id);
           setFilteredNotices(res);
@@ -122,7 +122,7 @@ const NoticesTab = () => {
         }
       }
     } catch (error) {
-      console.log("Error deleting notice:", error);
+      console.error("Error deleting notice:", error);
     }
   };
 
@@ -162,7 +162,7 @@ const NoticesTab = () => {
         setNotices([...notices, data[0]]);
       }
     } catch (error) {
-      console.log("Error submitting form:", error);
+      console.error("Error submitting form:", error);
     } finally {
       setShowModal(false);
       setCurrentNotice({
