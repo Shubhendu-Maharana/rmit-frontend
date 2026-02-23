@@ -4,7 +4,12 @@ import {
   FiSearch,
   FiChevronLeft,
   FiChevronRight,
+  FiFilter,
+  FiUser,
+  FiEdit,
+  FiTrash2,
 } from "react-icons/fi";
+import { motion, AnimatePresence } from "motion/react";
 import FacultyModal from "./FacultyModal";
 import supabase from "../../../../supabase";
 import FacultyRow from "../../../../components/FacultyRow";
@@ -25,18 +30,15 @@ type Faculty = {
 };
 
 const FacultyTab = () => {
-  // State for search and filters
   const [faculty, setFaculty] = useState<Faculty[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [filteredFaculty, setFilteredFaculty] = useState<Faculty[]>([]);
 
-  // State for pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(8);
 
-  // State for modal
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentFaculty, setCurrentFaculty] = useState<Faculty>({
@@ -57,14 +59,15 @@ const FacultyTab = () => {
       try {
         setIsLoading(true);
         const { data, error } = await supabase.from("faculty").select("*");
-        if (error) {
-          throw error;
-        } else {
-          setFaculty(data.sort((a, b) => a.name.localeCompare(b.name)));
-          setFilteredFaculty(data.sort((a, b) => a.name.localeCompare(b.name)));
-        }
+        if (error) throw error;
+
+        const sortedData = (data || []).sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+        setFaculty(sortedData);
+        setFilteredFaculty(sortedData);
       } catch (error) {
-        console.log("Error fetching faculties:", error);
+        console.error("Error fetching faculties:", error);
       } finally {
         setIsLoading(false);
       }
@@ -73,30 +76,27 @@ const FacultyTab = () => {
     getFaculties();
   }, []);
 
-  // Filter faculty based on search term and filters
   useEffect(() => {
     const filtered = faculty.filter((member) => {
-      return (
-        member.name.toLowerCase().startsWith(searchTerm.toLowerCase()) &&
-        (departmentFilter === "All Departments" ||
-          member.department === departmentFilter)
-      );
+      const matchesSearch =
+        member.name.toLowerCase().startsWith(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().startsWith(searchTerm.toLowerCase());
+      const matchesDept =
+        departmentFilter === "All Departments" ||
+        member.department === departmentFilter;
+      return matchesSearch && matchesDept;
     });
     setFilteredFaculty(filtered);
-  }, [searchTerm, departmentFilter]);
+    setCurrentPage(1);
+  }, [searchTerm, departmentFilter, faculty]);
 
-  // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredFaculty.slice(indexOfFirstItem, indexOfLastItem);
-
-  // Calculate total pages
   const totalPages = Math.ceil(filteredFaculty.length / itemsPerPage);
 
-  // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  // Handle add new faculty
   const handleAddFaculty = () => {
     setEditMode(false);
     setCurrentFaculty({
@@ -109,138 +109,125 @@ const FacultyTab = () => {
       phone: "",
       education: "",
       is_hod: false,
-      joining_date: "",
+      joining_date: new Date().toISOString().split("T")[0],
     });
     setShowModal(true);
   };
 
-  // Handle edit faculty
   const handleEditFaculty = (member: Faculty) => {
     setEditMode(true);
     setCurrentFaculty(member);
     setShowModal(true);
   };
 
-  // Handle delete faculty
   const handleDeleteFaculty = async (id: string) => {
-    try {
-      if (
-        window.confirm("Are you sure you want to delete this faculty member?")
-      ) {
+    if (
+      window.confirm("Are you sure you want to delete this faculty member?")
+    ) {
+      try {
         const { error } = await supabase.from("faculty").delete().eq("id", id);
-        if (error) {
-          console.log("Error deleting faculty:", error);
-        } else {
-          const res = faculty.filter((member) => member.id !== id);
-          setFilteredFaculty(res);
-          setFaculty(res);
-        }
-      } else {
-        return;
+        if (error) throw error;
+
+        const updatedList = faculty.filter((member) => member.id !== id);
+        setFaculty(updatedList);
+      } catch (error) {
+        console.error("Error deleting faculty:", error);
       }
-    } catch (error) {
-      console.log("Error deleting faculty:", error);
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       if (editMode) {
         const { error } = await supabase
           .from("faculty")
           .update(currentFaculty)
           .eq("id", currentFaculty.id);
-
         if (error) throw error;
 
-        const res = faculty.map((member) =>
-          member.id === currentFaculty.id ? currentFaculty : member
+        setFaculty((prev) =>
+          prev.map((m) => (m.id === currentFaculty.id ? currentFaculty : m)),
         );
-        setFilteredFaculty(res);
-        setFaculty(res);
       } else {
+        const { id, ...facultyData } = currentFaculty;
         const { data, error } = await supabase
           .from("faculty")
-          .insert([
-            {
-              name: currentFaculty.name,
-              image: currentFaculty.image,
-              department: currentFaculty.department,
-              specialization: currentFaculty.specialization,
-              email: currentFaculty.email,
-              phone: currentFaculty.phone,
-              education: currentFaculty.education,
-              is_hod: currentFaculty.is_hod,
-              joining_date:
-                currentFaculty.joining_date.length === 0
-                  ? new Date().toISOString().split("T")[0]
-                  : currentFaculty.joining_date,
-            },
-          ])
+          .insert([facultyData])
           .select();
-
         if (error) throw error;
-
-        setFilteredFaculty([...faculty, data[0]]);
-        setFaculty([...faculty, data[0]]);
+        if (data) setFaculty((prev) => [...prev, data[0]]);
       }
+      setShowModal(false);
     } catch (error) {
-      console.log("Error submitting form:", error);
+      console.error("Error submitting form:", error);
     }
-
-    setShowModal(false);
   };
 
-  // Handle input change
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    const { name, value } = e.target;
-    setCurrentFaculty({ ...currentFaculty, [name]: value });
+    const { name, value, type } = e.target as any;
+    const finalValue = type === "checkbox" ? (e.target as any).checked : value;
+    setCurrentFaculty({ ...currentFaculty, [name]: finalValue });
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden w-full max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="p-4 sm:p-6 border-b border-gray-200">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-xl font-bold text-gray-800">
-            Faculty Management
+    <div className="space-y-6 max-w-7xl mx-auto px-1 sm:px-0 pb-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Faculty Directory
           </h2>
-          <button
-            onClick={handleAddFaculty}
-            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center w-full sm:w-auto justify-center cursor-pointer"
-          >
-            <FiPlus className="mr-2" />
-            Add New Faculty
-          </button>
+          <p className="text-gray-500 text-sm mt-1">
+            Manage and view all faculty members across departments.
+          </p>
         </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleAddFaculty}
+          className="bg-primary-600 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition-colors flex items-center justify-center gap-2 font-medium"
+        >
+          <FiPlus size={20} />
+          <span>Add New Faculty</span>
+        </motion.button>
       </div>
 
-      {/* Main content */}
-      <div className="p-4 sm:p-6">
-        {/* Search and filters */}
-        <div className="flex flex-col lg:flex-row justify-between gap-4 mb-4">
-          <div className="relative w-full lg:w-auto">
-            <input
-              type="text"
-              placeholder="Search faculty..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 w-full"
+      {/* Filters Section */}
+      <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative w-full md:flex-1">
+          <FiSearch
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            size={18}
+          />
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-500 transition-all text-sm outline-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="relative w-full md:w-56">
+            <FiFilter
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
             />
-            <div className="absolute left-3 top-2.5 text-gray-400">
-              <FiSearch size={18} />
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 p-2 w-full sm:w-auto"
+              className="w-full pl-11 pr-4 py-3 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-primary-500 transition-all text-sm outline-none appearance-none cursor-pointer"
             >
               <option>All Departments</option>
               <option>Degree</option>
@@ -249,143 +236,215 @@ const FacultyTab = () => {
             </select>
           </div>
         </div>
-
-        {/* Faculty table */}
-        <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                  Department
-                </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
-                  Position
-                </th>
-                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
-                  Joined
-                </th>
-                <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {isLoading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
-                    Loading...
-                  </td>
-                </tr>
-              ) : currentItems.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-6 py-4 text-center text-gray-500"
-                  >
-                    No faculty members found
-                  </td>
-                </tr>
-              ) : (
-                (currentItems ?? []).map((member) => (
-                  <FacultyRow
-                    member={member}
-                    key={member.id}
-                    handleEditFaculty={handleEditFaculty}
-                    handleDeleteFaculty={handleDeleteFaculty}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
-          <div className="text-sm text-gray-500 text-center sm:text-left">
-            Showing <span className="font-medium">{indexOfFirstItem + 1}</span>{" "}
-            to{" "}
-            <span className="font-medium">
-              {Math.min(indexOfLastItem, filteredFaculty.length)}
-            </span>{" "}
-            of <span className="font-medium">{filteredFaculty.length}</span>{" "}
-            faculty members
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 border border-gray-300 rounded-md ${
-                currentPage === 1
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "hover:bg-gray-50 cursor-pointer"
-              }`}
-            >
-              <FiChevronLeft />
-            </button>
-            {[...Array(Math.min(totalPages, 3)).keys()].map((number) => {
-              const pageNumber = number + 1;
-              return (
-                <button
-                  key={pageNumber}
-                  onClick={() => paginate(pageNumber)}
-                  className={`px-3 py-1 border border-gray-300 rounded-md cursor-pointer ${
-                    currentPage === pageNumber
-                      ? "bg-primary-600 text-white"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
-            {totalPages > 3 && (
-              <button className="px-3 py-1 border border-gray-300 rounded-md">
-                ...
-              </button>
-            )}
-            {totalPages > 3 && (
-              <button
-                onClick={() => paginate(totalPages)}
-                className={`px-3 py-1 border border-gray-300 rounded-md cursor-pointer ${
-                  currentPage === totalPages
-                    ? "bg-primary-600 text-white"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                {totalPages}
-              </button>
-            )}
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages || totalPages === 0}
-              className={`px-3 py-1 border border-gray-300 rounded-md ${
-                currentPage === totalPages || totalPages === 0
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "hover:bg-gray-50 cursor-pointer"
-              }`}
-            >
-              <FiChevronRight />
-            </button>
-          </div>
-        </div>
       </div>
 
-      {/* Modal for adding/editing faculty */}
-      {showModal && (
-        <FacultyModal
-          editMode={editMode}
-          handleSubmit={handleSubmit}
-          handleInputChange={handleInputChange}
-          currentFaculty={currentFaculty}
-          setShowModal={setShowModal}
-        />
+      {/* Main Content Area */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-2xl h-64 animate-pulse border border-gray-100"
+            />
+          ))}
+        </div>
+      ) : filteredFaculty.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white rounded-2xl p-20 text-center border border-gray-100 shadow-sm"
+        >
+          <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiUser size={40} className="text-gray-300" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            No Faculty Found
+          </h3>
+          <p className="text-gray-500 mt-2 max-w-xs mx-auto">
+            We couldn't find any faculty members matching your search or
+            filters.
+          </p>
+          <button
+            onClick={() => {
+              setSearchTerm("");
+              setDepartmentFilter("All Departments");
+            }}
+            className="mt-6 text-primary-600 font-medium hover:underline"
+          >
+            Clear all filters
+          </button>
+        </motion.div>
+      ) : (
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-gray-50/50">
+                <tr>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Faculty Details
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Department
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Specialization
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                <AnimatePresence mode="popLayout">
+                  {currentItems.map((member) => (
+                    <motion.tr
+                      key={member.id}
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="group hover:bg-gray-50/80 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-4">
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white shadow-sm"
+                          />
+                          <div>
+                            <div className="font-bold text-gray-900 group-hover:text-primary-700 transition-colors flex items-center gap-2">
+                              {member.name}
+                              {member.is_hod && (
+                                <span className="bg-primary-100 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                                  HOD
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
+                              {member.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-xs font-semibold ${
+                            member.department === "Degree"
+                              ? "bg-blue-100 text-blue-700"
+                              : member.department === "Diploma"
+                                ? "bg-indigo-100 text-indigo-700"
+                                : "bg-purple-100 text-purple-700"
+                          }`}
+                        >
+                          {member.department}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-800">
+                          {member.specialization}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {member.education}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleEditFaculty(member)}
+                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
+                            title="Edit"
+                          >
+                            <FiEdit size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteFaculty(member.id)}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            title="Delete"
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile/Tablet Grid View */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-5"
+          >
+            {currentItems.map((member) => (
+              <FacultyRow
+                key={member.id}
+                member={member}
+                handleEditFaculty={handleEditFaculty}
+                handleDeleteFaculty={handleDeleteFaculty}
+              />
+            ))}
+          </motion.div>
+
+          {/* Pagination Section */}
+          <div className="flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 gap-4 mt-6">
+            <p className="text-sm text-gray-500 font-medium italic">
+              Showing {indexOfFirstItem + 1}-
+              {Math.min(indexOfLastItem, filteredFaculty.length)} of{" "}
+              {filteredFaculty.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 hover:bg-primary-50 hover:text-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <FiChevronLeft size={20} />
+              </button>
+              <div className="flex gap-1">
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => paginate(i + 1)}
+                    className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
+                      currentPage === i + 1
+                        ? "bg-primary-600 text-white shadow-lg shadow-primary-500/30 ring-2 ring-primary-100"
+                        : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-600 hover:bg-primary-50 hover:text-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <FiChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </>
       )}
+
+      {/* Modal Integration */}
+      <AnimatePresence>
+        {showModal && (
+          <FacultyModal
+            editMode={editMode}
+            handleSubmit={handleSubmit}
+            handleInputChange={handleInputChange}
+            currentFaculty={currentFaculty}
+            setShowModal={setShowModal}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

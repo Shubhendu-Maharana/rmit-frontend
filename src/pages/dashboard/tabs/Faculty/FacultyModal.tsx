@@ -1,5 +1,18 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import supabase from "../../../../supabase";
+import { motion } from "motion/react";
+import {
+  FiX,
+  FiUpload,
+  FiTrash2,
+  FiUser,
+  FiMail,
+  FiPhone,
+  FiBook,
+  FiBriefcase,
+  FiCalendar,
+  FiCheck,
+} from "react-icons/fi";
 
 type Department = "Degree" | "Diploma" | "ITI" | "";
 
@@ -33,10 +46,13 @@ const FacultyModal = ({
   currentFaculty,
   setShowModal,
 }: FacultyModalProps) => {
-  const [imageUrl, setImageUrl] = useState<string>(currentFaculty.image);
+  const [imageUrl, setImageUrl] = useState<string>(
+    currentFaculty.image || "https://placehold.co/128x128",
+  );
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async () => {
     if (!imageFile) {
@@ -48,13 +64,9 @@ const FacultyModal = ({
     setUploadError(null);
 
     try {
-      // Create a unique file name to prevent overwriting existing files
       const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Date.now()}_${Math.random()
-        .toString(36)
-        .substring(2, 15)}.${fileExt}`;
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
 
-      // Upload the file to Supabase storage
       const { error } = await supabase.storage
         .from("faculty-images")
         .upload(fileName, imageFile, {
@@ -62,36 +74,25 @@ const FacultyModal = ({
           upsert: false,
         });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Get the public URL for the uploaded file
       const { data: publicUrlData } = supabase.storage
         .from("faculty-images")
         .getPublicUrl(fileName);
 
-      // Update the image URL with the public URL
       if (publicUrlData && publicUrlData.publicUrl) {
         setImageUrl(publicUrlData.publicUrl);
-
-        // Update the currentFaculty object with the new image URL
         const e = {
-          target: {
-            name: "image",
-            value: publicUrlData.publicUrl,
-          },
+          target: { name: "image", value: publicUrlData.publicUrl },
         } as React.ChangeEvent<HTMLInputElement>;
-
         handleInputChange(e);
       }
-
-      console.log("Image uploaded successfully");
     } catch (error) {
       console.error("Error uploading image:", error);
-      setUploadError("Failed to upload image. Please try again.");
+      setUploadError("Failed to upload image.");
     } finally {
       setIsUploading(false);
+      setImageFile(null);
     }
   };
 
@@ -99,224 +100,264 @@ const FacultyModal = ({
     const file = e.target.files?.[0];
     if (file) {
       setImageFile(file);
-      // Create a temporary URL for preview
       setImageUrl(URL.createObjectURL(file));
+      setUploadError(null);
     }
   };
 
+  const removeImage = () => {
+    setImageUrl("https://placehold.co/128x128");
+    setImageFile(null);
+    const e = {
+      target: { name: "image", value: "https://placehold.co/128x128" },
+    } as React.ChangeEvent<HTMLInputElement>;
+    handleInputChange(e);
+  };
+
   return (
-    <div className="fixed inset-0 bg-[#000000aa] backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="my-8 bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 mx-auto">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          {editMode ? "Edit Faculty Member" : "Add New Faculty Member"}
-        </h3>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60] overflow-y-auto"
+    >
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        {/* Header */}
+        <div className="px-8 py-6 bg-primary-600 text-white flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-bold">
+              {editMode ? "Edit Faculty Member" : "Add New Faculty Member"}
+            </h3>
+            <p className="text-primary-100 text-sm mt-0.5">
+              Please fill in the details below
+            </p>
+          </div>
+          <button
+            onClick={() => setShowModal(false)}
+            className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+          >
+            <FiX size={24} />
+          </button>
+        </div>
+
+        {/* Content */}
         <form
           onSubmit={handleSubmit}
-          className="max-h-[80vh] overflow-y-auto pr-2"
+          className="flex-1 overflow-y-auto px-8 py-8 space-y-8 custom-scrollbar"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Left Column - Image Upload & Personal Info */}
-            <div className="space-y-4">
-              <div className="flex flex-col items-center mb-4">
+          {/* Top Section: Photo & Identity */}
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="w-full md:w-1/3 space-y-4">
+              <div className="relative group mx-auto md:mx-0 w-40 h-40">
                 <img
                   src={imageUrl}
                   alt="Faculty preview"
-                  className="w-32 h-32 rounded-full object-cover mb-2"
-                  loading="lazy"
+                  className="w-full h-full rounded-3xl object-cover ring-4 ring-gray-50 shadow-xl"
                 />
-                {uploadError && (
-                  <p className="text-red-500 text-sm mb-2">{uploadError}</p>
-                )}
-                <div className="flex flex-col items-center gap-3 w-full">
-                  <input
-                    type="file"
-                    name="imageFile"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  />
-                  <div className="flex gap-2 w-full">
-                    <button
-                      type="button"
-                      disabled={imageUrl === "https://placehold.co/128x128"}
-                      onClick={() => {
-                        setImageUrl("https://placehold.co/128x128");
-                        setImageFile(null);
-
-                        // Update the currentFaculty object with the placeholder image
-                        const e = {
-                          target: {
-                            name: "image",
-                            value: "https://placehold.co/128x128",
-                          },
-                        } as React.ChangeEvent<HTMLInputElement>;
-
-                        handleInputChange(e);
-                      }}
-                      className={`flex-1 px-3 py-1 text-sm text-red-600 border border-red-600 rounded-md hover:bg-red-50 ${
-                        imageUrl === "https://placehold.co/128x128"
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      Remove Image
-                    </button>
-                    <button
-                      type="button"
-                      disabled={!imageFile || isUploading}
-                      onClick={handleUpload}
-                      className={`flex-1 px-3 py-1 text-sm text-green-600 border border-green-600 rounded-md hover:bg-green-50 ${
-                        !imageFile || isUploading
-                          ? "opacity-50 cursor-not-allowed"
-                          : ""
-                      }`}
-                    >
-                      {isUploading ? "Uploading..." : "Upload Image"}
-                    </button>
-                  </div>
+                <div className="absolute inset-0 bg-black/40 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-2 bg-white text-gray-900 rounded-full hover:scale-110 transition-transform"
+                  >
+                    <FiUpload size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="p-2 bg-white text-red-600 rounded-full hover:scale-110 transition-transform"
+                  >
+                    <FiTrash2 size={18} />
+                  </button>
                 </div>
               </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              {imageFile && (
+                <button
+                  type="button"
+                  onClick={handleUpload}
+                  disabled={isUploading}
+                  className="w-full py-2 bg-primary-50 text-primary-600 rounded-xl border border-primary-200 text-sm font-bold flex items-center justify-center gap-2 hover:bg-primary-100 transition-colors shadow-sm"
+                >
+                  {isUploading ? "Uploading..." : "Save Photo"}
+                </button>
+              )}
+              {uploadError && (
+                <p className="text-red-500 text-xs text-center">
+                  {uploadError}
+                </p>
+              )}
+              <p className="text-[10px] text-gray-400 text-center md:text-left leading-relaxed">
+                Recommended: Square image (512x512px). Max 2MB.
+              </p>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
+            <div className="w-full md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                  <FiUser className="text-primary-500" /> Full Name
                 </label>
                 <input
                   type="text"
                   name="name"
                   value={currentFaculty.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                  placeholder="e.g. Dr. John Doe"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                  <FiMail className="text-primary-500" /> Email
                 </label>
                 <input
                   type="email"
                   name="email"
                   value={currentFaculty.email}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                  placeholder="john@example.com"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone
+                <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                  <FiPhone className="text-primary-500" /> Phone
                 </label>
                 <input
                   type="text"
                   name="phone"
                   value={currentFaculty.phone}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                  placeholder="+91 XXXXX XXXXX"
                   required
                 />
-              </div>
-            </div>
-
-            {/* Right Column - Professional Info */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Education
-                </label>
-                <input
-                  type="text"
-                  name="education"
-                  value={currentFaculty.education}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Department
-                </label>
-                <select
-                  name="department"
-                  value={
-                    currentFaculty.department.length === 0
-                      ? ""
-                      : currentFaculty.department
-                  }
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                >
-                  <option value="">Select Department</option>
-                  <option>Degree</option>
-                  <option>Diploma</option>
-                  <option>ITI</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Specialization
-                </label>
-                <input
-                  type="text"
-                  name="specialization"
-                  value={currentFaculty.specialization}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Joining Date
-                </label>
-                <input
-                  type="date"
-                  name="joining_date"
-                  value={currentFaculty.joining_date}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Head of Department
-                </label>
-                <select
-                  name="is_hod"
-                  value={currentFaculty.is_hod ? "Yes" : "No"}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  required
-                >
-                  <option value="">Select</option>
-                  <option>Yes</option>
-                  <option>No</option>
-                </select>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+          <div className="h-px bg-gray-100 w-full" />
+
+          {/* Bottom Section: Professional Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                <FiBook className="text-primary-500" /> Education
+              </label>
+              <input
+                type="text"
+                name="education"
+                value={currentFaculty.education}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                placeholder="e.g. Ph.D. in Computer Science"
+                required
+              />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                <FiBriefcase className="text-primary-500" /> Specialization
+              </label>
+              <input
+                type="text"
+                name="specialization"
+                value={currentFaculty.specialization}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                placeholder="e.g. Machine Learning"
+                required
+              />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                <FiBriefcase className="text-primary-500" /> Department
+              </label>
+              <select
+                name="department"
+                value={currentFaculty.department}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm appearance-none cursor-pointer"
+                required
+              >
+                <option value="">Select Department</option>
+                <option value="Degree">Degree</option>
+                <option value="Diploma">Diploma</option>
+                <option value="ITI">ITI</option>
+              </select>
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                <FiCalendar className="text-primary-500" /> Joining Date
+              </label>
+              <input
+                type="date"
+                name="joining_date"
+                value={currentFaculty.joining_date}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                required
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`p-2 rounded-lg ${currentFaculty.is_hod ? "bg-primary-100 text-primary-600" : "bg-gray-200 text-gray-500"}`}
+                  >
+                    <FiCheck size={18} />
+                  </div>
+                  <div>
+                    <span className="text-sm font-bold text-gray-900 block">
+                      Head of Department
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Check if this member leads the department
+                    </span>
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  name="is_hod"
+                  checked={currentFaculty.is_hod}
+                  onChange={handleInputChange}
+                  className="w-6 h-6 rounded-lg border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-4 sticky shadow-[0_-20px_20px_-20px_rgba(0,0,0,0.1)] bottom-[-32px] bg-white pb-0">
             <button
               type="button"
               onClick={() => setShowModal(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+              className="px-6 py-3 border border-gray-200 rounded-xl text-gray-600 font-bold text-sm hover:bg-gray-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+              className="px-8 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20"
             >
-              {editMode ? "Update" : "Add"}
+              {editMode ? "Update Faculty" : "Add Faculty Member"}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
