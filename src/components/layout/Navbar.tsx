@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import Logo from "../../assets/logo.png";
+import Logo from "@assets/logo.png";
 import { motion, AnimatePresence } from "motion/react";
 import { IoMdArrowDropdown, IoMdClose, IoMdMenu } from "react-icons/io";
 import { NavLink } from "react-router";

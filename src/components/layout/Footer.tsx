@@ -1,6 +1,6 @@
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 import { NavLink } from "react-router";
-import Logo from "../../assets/logo.png";
+import Logo from "@assets/logo.png";
 
 const socialMediaLinks = [
   { icon: <FaFacebook size={24} />, link: "https://www.facebook.com" },

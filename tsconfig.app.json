@@ -24,7 +24,8 @@
     "baseUrl": ".",
     "paths": {
       "@services/*": ["src/services/*"],
-      "@app/types/*": ["src/types/*"]
+      "@app/types/*": ["src/types/*"],
+      "@assets/*": ["src/assets/*"]
     }
   },
   "include": ["src"]

@@ -1,8 +1,8 @@
-import HeroImage from "../../assets/home-bg.jpg";
+import HeroImage from "@assets/home-bg.jpg";
 import HomePageSection from "../../components/HomePageSection";
-import Image1 from "../../assets/IMG_5591.jpg";
-import Image2 from "../../assets/IMG_7077.jpg";
-import Image3 from "../../assets/IMG_7423.jpg";
+import Image1 from "@assets/IMG_5591.jpg";
+import Image2 from "@assets/IMG_7077.jpg";
+import Image3 from "@assets/IMG_7423.jpg";
 import HeroSection from "../../components/HeroSection";
 
 interface HomePageSectionData {
