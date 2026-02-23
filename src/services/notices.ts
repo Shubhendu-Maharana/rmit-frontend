@@ -1,4 +1,4 @@
-import supabase from "./supabase";
+import supabase from "@services/supabase";
 import type { Notice } from "@app/types/dataTypes";
 
 export const getNotices = async (): Promise<Notice[]> => {
@@ -8,4 +8,3 @@ export const getNotices = async (): Promise<Notice[]> => {
   }
   return data as Notice[];
 };
-

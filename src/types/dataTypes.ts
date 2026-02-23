@@ -25,11 +25,11 @@ export interface Timetable {
   academic_year: string;
   last_updated: string;
   file_link: string;
-};
+}
 
 export type Department = "Degree" | "Diploma" | "ITI";
 
-export interface Faculty  {
+export interface Faculty {
   id: string;
   name: string;
   image: string;
@@ -40,4 +40,4 @@ export interface Faculty  {
   education: string;
   is_hod: boolean;
   joining_date: string;
-};
+}

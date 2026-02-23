@@ -5,21 +5,22 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { SupabaseClient, Session, User } from "@supabase/supabase-js";
-import supabase from "../services/supabase";
+import { Session, User } from "@supabase/supabase-js";
+import { DatabaseUser } from "@app/types/users";
+import supabase from "@services/supabase";
 
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
-  supabase: SupabaseClient;
+  databaseUser: DatabaseUser | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
-  supabase,
+  databaseUser: null,
 });
 
 interface AuthProviderProps {
@@ -29,6 +30,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [databaseUser, setDatabaseUser] = useState<DatabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -43,6 +45,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (error) {
           throw error;
+        }
+
+        if (session) {
+          getDatabaseUser(session.user.email);
         }
 
         setSession(session);
@@ -61,6 +67,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      getDatabaseUser(session?.user.email);
     });
 
     return () => {
@@ -68,11 +75,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, []);
 
+  const getDatabaseUser = async (email: string | undefined) => {
+    if (!email) return;
+    const { data: databaseUser } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+    setDatabaseUser(databaseUser);
+  };
+
   const value: AuthContextType = {
     session,
     user,
     isLoading,
-    supabase,
+    databaseUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
