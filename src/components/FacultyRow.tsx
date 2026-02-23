@@ -19,7 +19,7 @@ type Faculty = {
 type FacultyRowProps = {
   member: Faculty;
   handleEditFaculty: (member: Faculty) => void;
-  handleDeleteFaculty: (id: string) => void;
+  handleDeleteFaculty: () => void;
 };
 
 const itemVariants = {
@@ -57,7 +57,7 @@ const FacultyRow = ({
                 <FiEdit size={16} />
               </button>
               <button
-                onClick={() => handleDeleteFaculty(member.id)}
+                onClick={handleDeleteFaculty}
                 className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg"
               >
                 <FiTrash2 size={16} />

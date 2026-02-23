@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "motion/react";
 import FacultyModal from "./FacultyModal";
 import supabase from "../../../../supabase";
 import FacultyRow from "../../../../components/FacultyRow";
+import WarningModal from "../../../../components/ui/WarningModal";
 
 type Department = "Degree" | "Diploma" | "ITI" | "";
 
@@ -53,6 +54,9 @@ const FacultyTab = () => {
     is_hod: false,
     joining_date: "",
   });
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const getFaculties = async () => {
@@ -120,19 +124,24 @@ const FacultyTab = () => {
     setShowModal(true);
   };
 
-  const handleDeleteFaculty = async (id: string) => {
-    if (
-      window.confirm("Are you sure you want to delete this faculty member?")
-    ) {
-      try {
-        const { error } = await supabase.from("faculty").delete().eq("id", id);
-        if (error) throw error;
+  const handleDeleteFaculty = async () => {
+    try {
+      setIsDeleting(true);
+      const { error } = await supabase
+        .from("faculty")
+        .delete()
+        .eq("id", currentFaculty.id);
+      if (error) throw error;
 
-        const updatedList = faculty.filter((member) => member.id !== id);
-        setFaculty(updatedList);
-      } catch (error) {
-        console.error("Error deleting faculty:", error);
-      }
+      const updatedList = faculty.filter(
+        (member) => member.id !== currentFaculty.id,
+      );
+      setFaculty(updatedList);
+    } catch (error) {
+      console.error("Error deleting faculty:", error);
+    } finally {
+      setShowDeleteModal(false);
+      setIsDeleting(false);
     }
   };
 
@@ -240,13 +249,89 @@ const FacultyTab = () => {
 
       {/* Main Content Area */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-2xl h-64 animate-pulse border border-gray-100"
-            />
-          ))}
+        <div className="space-y-6">
+          {/* Desktop Table Skeleton */}
+          <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-gray-50/50">
+                <tr>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Faculty Details
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Department
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Specialization
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {[...Array(6)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-100" />
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-100 rounded w-32" />
+                          <div className="h-3 bg-gray-100 rounded w-48" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="h-6 bg-gray-100 rounded-lg w-20" />
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="space-y-2">
+                        <div className="h-4 bg-gray-100 rounded w-24" />
+                        <div className="h-3 bg-gray-100 rounded w-32" />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <div className="w-9 h-9 bg-gray-50 rounded-lg" />
+                        <div className="w-9 h-9 bg-gray-50 rounded-lg" />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-5">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 animate-pulse"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-20 h-20 bg-gray-100 rounded-2xl shadow-sm" />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-gray-100 rounded w-16" />
+                      <div className="flex gap-1">
+                        <div className="w-8 h-8 bg-gray-50 rounded-lg" />
+                        <div className="w-8 h-8 bg-gray-50 rounded-lg" />
+                      </div>
+                    </div>
+                    <div className="h-6 bg-gray-100 rounded w-3/4 mt-2" />
+                    <div className="h-4 bg-gray-100 rounded w-1/2 mt-2" />
+                    <div className="h-3 bg-gray-100 rounded w-2/3 mt-1" />
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-50 space-y-3">
+                  <div className="h-3 bg-gray-50 rounded w-full" />
+                  <div className="h-3 bg-gray-50 rounded w-2/3" />
+                  <div className="h-3 bg-gray-50 rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : filteredFaculty.length === 0 ? (
         <motion.div
@@ -353,14 +438,17 @@ const FacultyTab = () => {
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleEditFaculty(member)}
-                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
+                            className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all cursor-pointer"
                             title="Edit"
                           >
                             <FiEdit size={18} />
                           </button>
                           <button
-                            onClick={() => handleDeleteFaculty(member.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            onClick={() => {
+                              setCurrentFaculty(member);
+                              setShowDeleteModal(true);
+                            }}
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer"
                             title="Delete"
                           >
                             <FiTrash2 size={18} />
@@ -386,7 +474,10 @@ const FacultyTab = () => {
                 key={member.id}
                 member={member}
                 handleEditFaculty={handleEditFaculty}
-                handleDeleteFaculty={handleDeleteFaculty}
+                handleDeleteFaculty={() => {
+                  setCurrentFaculty(member);
+                  setShowDeleteModal(true);
+                }}
               />
             ))}
           </motion.div>
@@ -442,6 +533,15 @@ const FacultyTab = () => {
             handleInputChange={handleInputChange}
             currentFaculty={currentFaculty}
             setShowModal={setShowModal}
+          />
+        )}
+        {showDeleteModal && (
+          <WarningModal
+            title="Delete Faculty"
+            description="Are you sure you want to delete this faculty member?"
+            setShowModal={setShowDeleteModal}
+            handleDelete={handleDeleteFaculty}
+            isLoading={isDeleting}
           />
         )}
       </AnimatePresence>
