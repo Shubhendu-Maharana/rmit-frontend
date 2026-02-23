@@ -11,7 +11,7 @@ import {
   User,
   AuthError,
 } from "@supabase/supabase-js";
-import supabase from "../supabase";
+import supabase from "../services/supabase";
 
 // Define the shape of the auth context
 interface AuthContextType {
@@ -20,14 +20,14 @@ interface AuthContextType {
   isLoading: boolean;
   signUp: (
     email: string,
-    password: string
+    password: string,
   ) => Promise<{ error: AuthError | null }>;
   signIn: (
     email: string,
-    password: string
+    password: string,
   ) => Promise<{ error: AuthError | null }>;
   signInWithOAuth: (
-    provider: "google" | "github" | "facebook"
+    provider: "google" | "github" | "facebook",
   ) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<{ error: AuthError | null }>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Sign in with OAuth function
   const signInWithOAuth = async (
-    provider: "google" | "github" | "facebook"
+    provider: "google" | "github" | "facebook",
   ) => {
     return await supabase.auth.signInWithOAuth({ provider });
   };

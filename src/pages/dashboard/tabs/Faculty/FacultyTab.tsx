@@ -11,7 +11,7 @@ import {
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "motion/react";
 import FacultyModal from "./FacultyModal";
-import supabase from "../../../../supabase";
+import supabase from "../../../../services/supabase";
 import FacultyRow from "../../../../components/FacultyRow";
 import WarningModal from "../../../../components/ui/WarningModal";
 

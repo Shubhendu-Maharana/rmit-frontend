@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdOutlineDateRange } from "react-icons/md";
-import supabase from "../../supabase";
+import supabase from "../../services/supabase";
 import TimetableCard from "../../components/TimeTableCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "lucide-react";

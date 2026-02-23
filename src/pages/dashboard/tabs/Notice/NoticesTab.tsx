@@ -6,7 +6,7 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import NoticeModal from "./NoticeModal";
-import supabase from "../../../../supabase";
+import supabase from "../../../../services/supabase";
 import NoticeRow from "../../../../components/NoticeRow";
 
 type NoticeCategory = "Academic" | "Administrative" | "Events" | "Exams" | "";
@@ -138,7 +138,7 @@ const NoticesTab = () => {
         if (error) throw error;
 
         const res = notices.map((notice) =>
-          notice.id === currentNotice.id ? currentNotice : notice
+          notice.id === currentNotice.id ? currentNotice : notice,
         );
 
         setFilteredNotices(res);
@@ -178,7 +178,7 @@ const NoticesTab = () => {
 
   // Handle input change
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setCurrentNotice({ ...currentNotice, [name]: value });

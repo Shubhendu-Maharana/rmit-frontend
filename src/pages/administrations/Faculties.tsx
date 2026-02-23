@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import FacultyModal from "../../components/FacultyModal";
 import FacultyCard from "../../components/FacultyCard";
-import supabase from "../../supabase";
+import supabase from "../../services/supabase";
 import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
