@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { signIn } from "../../services/auth";
+import { toast } from "react-toastify";
 
 const AdminLogin = () => {
   const navigator = useNavigate();
@@ -9,20 +10,22 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    const { error } = await signIn(email, password);
-    if (error) {
-      setErrorMessage(error.message);
-    } else {
+    try {
+      setIsLoading(true);
+      const { error } = await signIn(email, password);
+      if (error) throw error;
+      toast.success("Login successful");
       navigator("/admin/dashboard");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -61,12 +64,6 @@ const AdminLogin = () => {
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
               Log in to your account
             </h2>
-
-            {errorMessage && (
-              <div className="mb-4 bg-red-50 text-red-800 p-3 rounded-md text-sm">
-                {errorMessage}
-              </div>
-            )}
 
             <form onSubmit={handleLogin}>
               <div className="mb-4">

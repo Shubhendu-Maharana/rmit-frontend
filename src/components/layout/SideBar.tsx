@@ -2,14 +2,16 @@ import { useState, useEffect } from "react";
 import {
   FiBook,
   FiCalendar,
+  FiLoader,
   FiLogOut,
   FiMenu,
   FiUsers,
   FiX,
 } from "react-icons/fi";
-import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
+import { signOut } from "@services/auth";
+import { toast } from "react-toastify";
 
 interface SideBarProps {
   activeTab: string;
@@ -33,8 +35,7 @@ const SideBar = ({
 }: SideBarProps) => {
   const navigator = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-
-  const { signOut } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,11 +58,18 @@ const SideBar = ({
   };
 
   const handleLogout = async () => {
-    const { error } = await signOut();
-    if (error) {
-      console.error("Error signing out:", error);
-    } else {
+    if (isLoading) return;
+    try {
+      setIsLoading(true);
+      await signOut();
+      toast.success("Logout successful");
       navigator("/adminlogin");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Logout failed";
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,11 +210,17 @@ const SideBar = ({
               whileHover={{ x: 5 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleLogout}
-              className="flex items-center p-3 rounded-xl cursor-pointer hover:bg-red-500/10 text-red-100 hover:text-red-400 transition-all duration-200"
+              className={`flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-100 transition-all duration-200 ${isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:text-red-400"}`}
             >
-              <div className="flex-shrink-0">
-                <FiLogOut size={20} />
-              </div>
+              {isLoading ? (
+                <div className="flex-shrink-0">
+                  <FiLoader size={20} />
+                </div>
+              ) : (
+                <div className="flex-shrink-0">
+                  <FiLogOut size={20} />
+                </div>
+              )}
               <motion.span
                 variants={textVariants}
                 className="ml-4 font-medium whitespace-nowrap"

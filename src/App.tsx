@@ -12,6 +12,7 @@ import StudentLogin from "./pages/student/StudentLogin";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/dashboard/Index";
 import NotFoundPage from "./pages/NotFoundPage";
+import { ToastContainer } from "react-toastify";
 
 const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -87,6 +88,7 @@ const App = () => {
         <Route path="/admin/dashboard" element={<Index />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <ToastContainer position="top-right" autoClose={5000} />
     </AuthProvider>
   );
 };
