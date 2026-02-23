@@ -39,3 +39,28 @@ export interface Faculty {
   is_hod: boolean;
   joining_date: string;
 }
+
+export type Department =
+  | "Computer Science"
+  | "Business"
+  | "Engineering"
+  | "Arts & Sciences"
+  | "Medicine"
+  | "";
+
+export interface Student {
+  id: string;
+  roll_number: string;
+  name: string;
+  email: string;
+  phone: number;
+  image: string;
+  department: Department;
+  semester: number;
+  dob: string;
+  gender: "Male" | "Female" | "Other";
+  address: string;
+  guardian_name: string;
+  guardian_phone: number;
+  admission_date: string;
+}
