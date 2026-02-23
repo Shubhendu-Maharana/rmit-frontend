@@ -98,7 +98,6 @@ const Faculties = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedFaculty(null);
   };
 
   return (
@@ -227,14 +226,16 @@ const Faculties = () => {
         )}
 
         {/* Faculty Profile Modal */}
-        {isModalOpen && (
-          <FacultyModal
-            selectedFaculty={selectedFaculty}
-            isModalOpen={isModalOpen}
-            closeModal={closeModal}
-            getDepartmentColor={getDepartmentColor}
-          />
-        )}
+        <AnimatePresence>
+          {isModalOpen && (
+            <FacultyModal
+              selectedFaculty={selectedFaculty}
+              isModalOpen={isModalOpen}
+              closeModal={closeModal}
+              getDepartmentColor={getDepartmentColor}
+            />
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
