@@ -4,6 +4,7 @@ import FacultyCard from "../../components/FacultyCard";
 import supabase from "../../supabase";
 import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Department = "Degree" | "Diploma" | "ITI";
 
@@ -23,7 +24,7 @@ type Faculty = {
 const Faculties = () => {
   const [faculties, setFaculties] = useState<Faculty[]>();
   const [activeDepartment, setActiveDepartment] = useState<Department | "All">(
-    "All"
+    "All",
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,7 +52,6 @@ const Faculties = () => {
     getFaculties();
   }, []);
 
-  // Department options
   const departments = [
     { id: "All", label: "All Departments" },
     { id: "Degree", label: "Degree" },
@@ -59,28 +59,25 @@ const Faculties = () => {
     { id: "ITI", label: "ITI" },
   ];
 
-  // Filter faculties based on department
   useEffect(() => {
     if (activeDepartment === "All") {
       setFilteredFaculties(faculties ?? []);
     } else {
       setFilteredFaculties(
         faculties?.filter(
-          (faculty) => faculty.department === activeDepartment
-        ) ?? []
+          (faculty) => faculty.department === activeDepartment,
+        ) ?? [],
       );
     }
   }, [activeDepartment]);
 
-  // Filter faculties based on search query
   useEffect(() => {
     const filtered = faculties?.filter((faculty) =>
-      faculty.name.toLowerCase().includes(searchQuery.toLowerCase())
+      faculty.name.toLowerCase().startsWith(searchQuery.toLowerCase()),
     );
     setFilteredFaculties(filtered ?? []);
   }, [searchQuery]);
 
-  // Get department color based on department name
   const getDepartmentColor = (department: Department): string => {
     switch (department) {
       case "Degree":
@@ -99,7 +96,6 @@ const Faculties = () => {
     setIsModalOpen(true);
   };
 
-  // Function to close modal
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedFaculty(null);
@@ -119,7 +115,6 @@ const Faculties = () => {
         </div>
       </header>
       <div className="container mx-auto px-4 py-8">
-        {/* Search and filter section */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             <div className="flex-grow">
@@ -149,7 +144,7 @@ const Faculties = () => {
                   onClick={() =>
                     setActiveDepartment(dept.id as Department | "All")
                   }
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium 
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer 
                     ${
                       activeDepartment === dept.id
                         ? "bg-primary-100 text-primary-800 border border-primary-300"
@@ -176,37 +171,60 @@ const Faculties = () => {
         </div>
 
         {/* Faculty grid with placeholder cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {/* This would normally map over filtered faculty data */}
-          {isLoading ? (
-            Array.from({ length: 4 }).map((_, index) => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
+            {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} />
-            ))
-          ) : filteredFaculties.length === 0 ? (
-            <div className="col-span-4">
-              <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h3 className="text-xl font-semibold text-gray-800">
-                    No faculty members found
-                  </h3>
-                  <p className="text-gray-600 text-sm mt-1">
-                    We couldn't find any faculty members that match your search
-                    criteria.
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            filteredFaculties.map((faculty) => (
-              <FacultyCard
-                key={faculty.id}
-                faculty={faculty}
-                openFacultyModal={openFacultyModal}
-                getDepartmentColor={getDepartmentColor}
-              />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : filteredFaculties.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-md overflow-hidden p-6 text-center">
+            <h3 className="text-xl font-semibold text-gray-800">
+              No faculty members found
+            </h3>
+            <p className="text-gray-600 text-sm mt-1">
+              We couldn't find any faculty members that match your search
+              criteria.
+            </p>
+          </div>
+        ) : (
+          <motion.div
+            key={activeDepartment}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredFaculties.map((faculty) => (
+                <motion.div
+                  key={faculty.id}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, scale: 0.95 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <FacultyCard
+                    faculty={faculty}
+                    openFacultyModal={openFacultyModal}
+                    getDepartmentColor={getDepartmentColor}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
         {/* Faculty Profile Modal */}
         {isModalOpen && (

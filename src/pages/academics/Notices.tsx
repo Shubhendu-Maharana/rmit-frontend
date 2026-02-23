@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { IoDocumentText, IoDocumentTextOutline } from "react-icons/io5";
 import supabase from "../../supabase";
 import Skeleton from "../../components/ui/Skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Define TypeScript types for notice data
 type NoticeCategory =
@@ -53,8 +54,8 @@ const Notices = () => {
     } else {
       setFilteredNotices(
         notices.filter(
-          (notice) => notice.category.toLowerCase() === activeCategory
-        )
+          (notice) => notice.category.toLowerCase() === activeCategory,
+        ),
       );
     }
   }, [activeCategory, notices]);
@@ -72,7 +73,11 @@ const Notices = () => {
   // Categories for filter
   const categories: { id: NoticeCategory; label: string; color: string }[] = [
     { id: "all", label: "All Notices", color: "bg-gray-100 text-gray-800" },
-    { id: "academic", label: "Academic", color: "bg-primary-100 text-primary-800" },
+    {
+      id: "academic",
+      label: "Academic",
+      color: "bg-primary-100 text-primary-800",
+    },
     {
       id: "administrative",
       label: "Administrative",
@@ -154,13 +159,11 @@ const Notices = () => {
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer hover:text-primary-600 hover:bg-primary-50 
                 ${
                   activeCategory === category.id
-                    ? `${category.color
-                        .replace("bg-", "bg-")
-                        .replace("text-", "text-")} shadow-sm`
-                    : "bg-white text-gray-600 hover:bg-gray-100"
+                    ? "text-primary-600"
+                    : "text-gray-600"
                 }`}
             >
               {category.label}
@@ -184,27 +187,56 @@ const Notices = () => {
         </div>
 
         {/* Notices grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {isLoading ? (
-            Array.from({ length: 4 }).map((_, index) => (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {Array.from({ length: 4 }).map((_, index) => (
               <Skeleton key={index} />
-            ))
-          ) : filteredNotices.length === 0 ? (
-            <div className="text-center py-12">
-              <IoDocumentTextOutline className="h-12 w-12 mx-auto text-gray-400" />
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No notices found
-              </h3>
-              <p className="mt-1 text-gray-500">
-                There are no notices in this category at the moment.
-              </p>
-            </div>
-          ) : (
-            filteredNotices.map((notice) => (
-              <NoticeCard key={notice.id} notice={notice} />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : filteredNotices.length === 0 ? (
+          <div className="text-center py-12">
+            <IoDocumentTextOutline className="h-12 w-12 mx-auto text-gray-400" />
+            <h3 className="mt-4 text-lg font-medium text-gray-900">
+              No notices found
+            </h3>
+            <p className="mt-1 text-gray-500">
+              There are no notices in this category at the moment.
+            </p>
+          </div>
+        ) : (
+          <motion.div
+            key={activeCategory}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredNotices.map((notice) => (
+                <motion.div
+                  key={notice.id}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, scale: 0.95 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <NoticeCard notice={notice} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </div>
     </div>
   );

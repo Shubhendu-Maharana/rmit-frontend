@@ -60,7 +60,7 @@ const FacultyCard = ({
         <div className="mt-4 flex space-x-2">
           <button
             onClick={() => openFacultyModal(faculty)}
-            className="flex-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 py-1.5 px-3 rounded-md text-sm font-medium transition-colors duration-200"
+            className="flex-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 py-1.5 px-3 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer"
           >
             View Profile
           </button>
