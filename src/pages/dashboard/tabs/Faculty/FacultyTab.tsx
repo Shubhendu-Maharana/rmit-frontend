@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FiPlus,
   FiSearch,
@@ -11,24 +11,11 @@ import {
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "motion/react";
 import FacultyModal from "./FacultyModal";
-import supabase from "@services/supabase";
 import FacultyRow from "../../../../components/FacultyRow";
 import WarningModal from "../../../../components/ui/WarningModal";
-
-type Department = "Degree" | "Diploma" | "ITI" | "";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
+import { deleteFaculty, getFaculties } from "@services/faculty";
+import { toast } from "react-toastify";
+import { Faculty } from "@app/types/dataTypes";
 
 const FacultyTab = () => {
   const [faculty, setFaculty] = useState<Faculty[]>([]);
@@ -59,25 +46,24 @@ const FacultyTab = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const getFaculties = async () => {
+    const fetchFaculties = async () => {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase.from("faculty").select("*");
-        if (error) throw error;
+        const data = await getFaculties();
 
-        const sortedData = (data || []).sort((a, b) =>
-          a.name.localeCompare(b.name),
-        );
+        const sortedData = data.sort((a, b) => a.name.localeCompare(b.name));
         setFaculty(sortedData);
         setFilteredFaculty(sortedData);
       } catch (error) {
-        console.error("Error fetching faculties:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to fetch faculties";
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
     };
 
-    getFaculties();
+    fetchFaculties();
   }, []);
 
   useEffect(() => {
@@ -127,61 +113,21 @@ const FacultyTab = () => {
   const handleDeleteFaculty = async () => {
     try {
       setIsDeleting(true);
-      const { error } = await supabase
-        .from("faculty")
-        .delete()
-        .eq("id", currentFaculty.id);
-      if (error) throw error;
+      await deleteFaculty(currentFaculty.id);
 
       const updatedList = faculty.filter(
         (member) => member.id !== currentFaculty.id,
       );
       setFaculty(updatedList);
+      toast.success("Faculty member deleted successfully");
     } catch (error) {
-      console.error("Error deleting faculty:", error);
+      const message =
+        (error as Error)?.message || "Failed to delete faculty member";
+      toast.error(message);
     } finally {
       setShowDeleteModal(false);
       setIsDeleting(false);
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editMode) {
-        const { error } = await supabase
-          .from("faculty")
-          .update(currentFaculty)
-          .eq("id", currentFaculty.id);
-        if (error) throw error;
-
-        setFaculty((prev) =>
-          prev.map((m) => (m.id === currentFaculty.id ? currentFaculty : m)),
-        );
-      } else {
-        const { ...facultyData } = currentFaculty;
-        const { data, error } = await supabase
-          .from("faculty")
-          .insert([facultyData])
-          .select();
-        if (error) throw error;
-        if (data) setFaculty((prev) => [...prev, data[0]]);
-      }
-      setShowModal(false);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-    }
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
-    const { name, value, type } = e.target as
-      | HTMLInputElement
-      | HTMLSelectElement;
-    const finalValue =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    setCurrentFaculty({ ...currentFaculty, [name]: finalValue });
   };
 
   const containerVariants = {
@@ -532,10 +478,10 @@ const FacultyTab = () => {
         {showModal && (
           <FacultyModal
             editMode={editMode}
-            handleSubmit={handleSubmit}
-            handleInputChange={handleInputChange}
             currentFaculty={currentFaculty}
             setShowModal={setShowModal}
+            setFaculty={setFaculty}
+            setCurrentFaculty={setCurrentFaculty}
           />
         )}
         {showDeleteModal && (

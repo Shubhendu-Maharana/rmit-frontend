@@ -4,14 +4,12 @@ import FacultyCard from "../../components/FacultyCard";
 import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Department, Faculty } from "@app/types/dataTypes";
+import type { Faculty } from "@app/types/dataTypes";
 import { getFaculties } from "@services/faculty";
 
 const Faculties = () => {
   const [faculties, setFaculties] = useState<Faculty[]>();
-  const [activeDepartment, setActiveDepartment] = useState<Department | "All">(
-    "All",
-  );
+  const [activeDepartment, setActiveDepartment] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
@@ -60,7 +58,7 @@ const Faculties = () => {
     setFilteredFaculties(filtered ?? []);
   }, [searchQuery, faculties]);
 
-  const getDepartmentColor = (department: Department): string => {
+  const getDepartmentColor = (department: string): string => {
     switch (department) {
       case "Degree":
         return "bg-primary-100 text-primary-800";
@@ -122,9 +120,7 @@ const Faculties = () => {
               {departments.map((dept) => (
                 <button
                   key={dept.id}
-                  onClick={() =>
-                    setActiveDepartment(dept.id as Department | "All")
-                  }
+                  onClick={() => setActiveDepartment(dept.id)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer 
                     ${
                       activeDepartment === dept.id

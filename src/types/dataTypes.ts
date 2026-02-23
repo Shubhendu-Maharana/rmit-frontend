@@ -27,13 +27,11 @@ export interface Timetable {
   file_link: string;
 }
 
-export type Department = "Degree" | "Diploma" | "ITI";
-
 export interface Faculty {
   id: string;
   name: string;
   image: string;
-  department: Department;
+  department: string;
   specialization: string;
   email: string;
   phone: string;

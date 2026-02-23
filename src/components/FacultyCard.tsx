@@ -1,17 +1,4 @@
-type Department = "Degree" | "Diploma" | "ITI";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
+import { Faculty } from "@app/types/dataTypes";
 
 const FacultyCard = ({
   faculty,
@@ -20,7 +7,7 @@ const FacultyCard = ({
 }: {
   faculty: Faculty;
   openFacultyModal: (faculty: Faculty) => void;
-  getDepartmentColor: (department: Department) => string;
+  getDepartmentColor: (department: string) => string;
 }) => {
   const departmentColor = getDepartmentColor(faculty.department);
 

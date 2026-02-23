@@ -13,37 +13,23 @@ import {
   FiCalendar,
   FiCheck,
 } from "react-icons/fi";
-
-type Department = "Degree" | "Diploma" | "ITI" | "";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
+import { Faculty } from "@app/types/dataTypes";
+import { createFaculty, updateFaculty } from "@services/faculty";
+import { toast } from "react-toastify";
 
 interface FacultyModalProps {
   editMode: boolean;
-  handleSubmit: (e: React.FormEvent) => void;
-  handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => void;
   currentFaculty: Faculty;
+  setFaculty: React.Dispatch<React.SetStateAction<Faculty[]>>;
+  setCurrentFaculty: (faculty: Faculty) => void;
   setShowModal: (modal: boolean) => void;
 }
 
 const FacultyModal = ({
   editMode,
-  handleSubmit,
-  handleInputChange,
   currentFaculty,
+  setFaculty,
+  setCurrentFaculty,
   setShowModal,
 }: FacultyModalProps) => {
   const [imageUrl, setImageUrl] = useState<string>(
@@ -53,6 +39,7 @@ const FacultyModal = ({
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [addEditLoading, setAddEditLoading] = useState(false);
 
   const handleUpload = async () => {
     if (!imageFile) {
@@ -88,12 +75,47 @@ const FacultyModal = ({
         handleInputChange(e);
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
-      setUploadError("Failed to upload image.");
+      const message = (error as Error)?.message || "Failed to upload image";
+      toast.error(message);
     } finally {
       setIsUploading(false);
       setImageFile(null);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setAddEditLoading(true);
+      if (editMode) {
+        await updateFaculty(currentFaculty);
+        setFaculty((prev) =>
+          prev.map((m) => (m.id === currentFaculty.id ? currentFaculty : m)),
+        );
+        toast.success("Faculty member updated successfully");
+      } else {
+        const data = await createFaculty(currentFaculty);
+        setFaculty((prev) => [...prev, data]);
+        toast.success("Faculty member added successfully");
+      }
+      setShowModal(false);
+    } catch (error) {
+      const message = (error as Error)?.message || "Failed to submit form";
+      toast.error(message);
+    } finally {
+      setAddEditLoading(false);
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value, type } = e.target as
+      | HTMLInputElement
+      | HTMLSelectElement;
+    const finalValue =
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+    setCurrentFaculty({ ...currentFaculty, [name]: finalValue });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -350,9 +372,14 @@ const FacultyModal = ({
             </button>
             <button
               type="submit"
-              className="px-8 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20 cursor-pointer"
+              className={`px-8 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20 cursor-pointer ${addEditLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              disabled={addEditLoading}
             >
-              {editMode ? "Update Faculty" : "Add Faculty Member"}
+              {addEditLoading
+                ? "Saving..."
+                : editMode
+                  ? "Update Faculty"
+                  : "Add Faculty Member"}
             </button>
           </div>
         </form>

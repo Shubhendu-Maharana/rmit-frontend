@@ -1,20 +1,6 @@
+import { Faculty } from "@app/types/dataTypes";
 import { motion } from "motion/react";
 import { FiCalendar, FiEdit, FiMail, FiPhone, FiTrash2 } from "react-icons/fi";
-
-type Department = "Degree" | "Diploma" | "ITI" | "";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
 
 type FacultyRowProps = {
   member: Faculty;

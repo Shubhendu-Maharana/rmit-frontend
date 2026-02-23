@@ -1,26 +1,12 @@
 import { MdEmail, MdPhone, MdClose } from "react-icons/md";
 import { motion } from "framer-motion";
-
-type Department = "Degree" | "Diploma" | "ITI";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
+import { Faculty } from "@app/types/dataTypes";
 
 type FacultyModalProps = {
   selectedFaculty: Faculty | null;
   isModalOpen: boolean;
   closeModal: () => void;
-  getDepartmentColor: (department: Department) => string;
+  getDepartmentColor: (department: string) => string;
 };
 
 const FacultyModal = ({
