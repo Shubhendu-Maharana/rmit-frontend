@@ -104,6 +104,7 @@ const Programs = () => {
           src={program.image}
           alt={program.name}
           className="w-full h-56 object-cover"
+          loading="lazy"
         />
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white bg-[#00000088] backdrop-blur-sm rounded-tl-lg rounded-tr-lg">
           <div className="font-bold text-xl tracking-tight">{program.name}</div>

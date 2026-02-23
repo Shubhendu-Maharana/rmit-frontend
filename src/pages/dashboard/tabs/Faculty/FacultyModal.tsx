@@ -20,7 +20,7 @@ interface FacultyModalProps {
   editMode: boolean;
   handleSubmit: (e: React.FormEvent) => void;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
   currentFaculty: Faculty;
   setShowModal: (modal: boolean) => void;
@@ -122,6 +122,7 @@ const FacultyModal = ({
                   src={imageUrl}
                   alt="Faculty preview"
                   className="w-32 h-32 rounded-full object-cover mb-2"
+                  loading="lazy"
                 />
                 {uploadError && (
                   <p className="text-red-500 text-sm mb-2">{uploadError}</p>

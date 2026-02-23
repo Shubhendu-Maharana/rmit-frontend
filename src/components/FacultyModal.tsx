@@ -64,6 +64,7 @@ const FacultyModal = ({
                 src={selectedFaculty.image}
                 alt={selectedFaculty.name}
                 className="h-48 w-48 rounded-full object-cover border-4 border-white shadow-lg"
+                loading="lazy"
               />
             </div>
           </div>

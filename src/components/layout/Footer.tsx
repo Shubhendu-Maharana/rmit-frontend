@@ -29,7 +29,7 @@ const Footer = () => {
                 India
               </p>
             </div>
-            <img src={Logo} alt="Logo" className="w-32 h-32" />
+            <img src={Logo} alt="Logo" className="w-32 h-32" loading="lazy" />
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>

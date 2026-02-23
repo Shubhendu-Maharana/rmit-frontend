@@ -60,7 +60,7 @@ const Navbar = () => {
           <NavLink to="/" className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <div className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center mr-2">
-                <img src={Logo} alt="" />
+                <img src={Logo} alt="" loading="lazy" />
               </div>
               <div className="flex flex-col sm:flex-row font-semibold text-md sm:text-xl">
                 <span>Rajiv Memorial Institute&nbsp;</span>

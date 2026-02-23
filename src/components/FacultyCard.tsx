@@ -36,6 +36,7 @@ const FacultyCard = ({
           src={faculty.image}
           alt={faculty.name}
           className="w-full h-56 object-cover object-center"
+          loading="lazy"
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <h3 className="text-white font-bold text-lg">{faculty.name}</h3>
