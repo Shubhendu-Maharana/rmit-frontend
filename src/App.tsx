@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router";
 import Home from "./pages/home/Home";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
+import ScrollToTop from "./components/layout/ScrollToTop";
 import Programs from "./pages/academics/Programs";
 import Notices from "./pages/academics/Notices";
 import TimeTables from "./pages/academics/TimeTables";
@@ -25,6 +26,7 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
