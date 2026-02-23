@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiBook, FiCalendar, FiLogOut, FiMenu, FiUsers } from "react-icons/fi";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router";
 
 interface SideBarProps {
@@ -38,7 +38,7 @@ const SideBar = ({ activeTab, setActiveTab }: SideBarProps) => {
 
   return (
     <div
-      className={`bg-gradient-to-b from-blue-700 to-indigo-800 text-white ${
+      className={`bg-gradient-to-b from-primary-700 to-indigo-800 text-white ${
         sidebarOpen ? "w-64" : "w-14"
       } flex-shrink-0 transition-all duration-300`}
     >
@@ -56,8 +56,8 @@ const SideBar = ({ activeTab, setActiveTab }: SideBarProps) => {
           <a
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
-            className={`flex items-center py-3 px-4 hover:bg-blue-600 cursor-pointer ${
-              activeTab === tab.id ? "bg-blue-600" : ""
+            className={`flex items-center py-3 px-4 hover:bg-primary-600 cursor-pointer ${
+              activeTab === tab.id ? "bg-primary-600" : ""
             }`}
           >
             {tab.icon}
@@ -68,7 +68,7 @@ const SideBar = ({ activeTab, setActiveTab }: SideBarProps) => {
           <button
             onClick={handleLogout}
             className="flex w-full items-center py-3 px-4
-          hover:bg-blue-600 cursor-pointer"
+          hover:bg-primary-600 cursor-pointer"
           >
             <FiLogOut size={20} />
             {sidebarOpen && <span className="ml-4">Logout</span>}

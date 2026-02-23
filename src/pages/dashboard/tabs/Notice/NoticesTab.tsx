@@ -192,7 +192,7 @@ const NoticesTab = () => {
           <h2 className="text-xl font-bold text-gray-800">Notice Management</h2>
           <button
             onClick={handleAddFaculty}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center w-full sm:w-auto justify-center cursor-pointer"
+            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center w-full sm:w-auto justify-center cursor-pointer"
           >
             <FiPlus className="mr-2" />
             Add New Notice
@@ -210,7 +210,7 @@ const NoticesTab = () => {
               placeholder="Search notice..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-full"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 w-full"
             />
             <div className="absolute left-3 top-2.5 text-gray-400">
               <FiSearch size={18} />
@@ -220,7 +220,7 @@ const NoticesTab = () => {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 p-2 w-full sm:w-auto"
+              className="border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 p-2 w-full sm:w-auto"
             >
               <option>All Category</option>
               <option>Academic</option>
@@ -320,7 +320,7 @@ const NoticesTab = () => {
                   onClick={() => paginate(pageNumber)}
                   className={`px-3 py-1 border border-gray-300 rounded-md cursor-pointer ${
                     currentPage === pageNumber
-                      ? "bg-blue-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : "hover:bg-gray-50"
                   }`}
                 >
@@ -338,7 +338,7 @@ const NoticesTab = () => {
                 onClick={() => paginate(totalPages)}
                 className={`px-3 py-1 border border-gray-300 rounded-md cursor-pointer ${
                   currentPage === totalPages
-                    ? "bg-blue-600 text-white"
+                    ? "bg-primary-600 text-white"
                     : "hover:bg-gray-50"
                 }`}
               >

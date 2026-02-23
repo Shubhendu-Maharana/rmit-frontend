@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import FacultyModal from "../../components/FacultyModal";
 import FacultyCard from "../../components/FacultyCard";
 import supabase from "../../supabase";
-import Skeleton from "../../components/Skeleton";
+import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
 
 type Department = "Degree" | "Diploma" | "ITI";
@@ -84,7 +84,7 @@ const Faculties = () => {
   const getDepartmentColor = (department: Department): string => {
     switch (department) {
       case "Degree":
-        return "bg-blue-100 text-blue-800";
+        return "bg-primary-100 text-primary-800";
       case "Diploma":
         return "bg-amber-100 text-amber-800";
       case "ITI":
@@ -107,12 +107,12 @@ const Faculties = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <header className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-16">
+      <header className="bg-gradient-to-r from-primary-700 to-indigo-800 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             Our Faculty
           </h1>
-          <p className="mt-4 text-xl text-blue-100 max-w-2xl mx-auto">
+          <p className="mt-4 text-xl text-primary-100 max-w-2xl mx-auto">
             Meet our distinguished faculty members who are experts in their
             fields and dedicated to academic excellence
           </p>
@@ -137,7 +137,7 @@ const Faculties = () => {
                   placeholder="Search by name, specialization, or department"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -152,7 +152,7 @@ const Faculties = () => {
                   className={`px-3 py-1.5 rounded-md text-sm font-medium 
                     ${
                       activeDepartment === dept.id
-                        ? "bg-blue-100 text-blue-800 border border-blue-300"
+                        ? "bg-primary-100 text-primary-800 border border-primary-300"
                         : "bg-gray-100 text-gray-800 border border-gray-200 hover:bg-gray-200"
                     }`}
                 >

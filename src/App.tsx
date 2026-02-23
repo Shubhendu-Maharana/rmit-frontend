@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router";
 import Home from "./pages/home/Home";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
 import Programs from "./pages/academics/Programs";
 import Notices from "./pages/academics/Notices";
 import TimeTables from "./pages/academics/TimeTables";

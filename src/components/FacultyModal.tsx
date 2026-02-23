@@ -58,7 +58,7 @@ const FacultyModal = ({
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           {/* Header with image */}
           <div className="relative">
-            <div className="h-48 w-full bg-gradient-to-r from-blue-600 to-indigo-700"></div>
+            <div className="h-48 w-full bg-gradient-to-r from-primary-600 to-indigo-700"></div>
             <div className="absolute top-24 left-0 w-full flex justify-center">
               <img
                 src={selectedFaculty.image}
@@ -109,7 +109,7 @@ const FacultyModal = ({
                   </h4>
                   <div className="space-y-3">
                     <div className="flex items-start">
-                      <MdEmail className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                      <MdEmail className="h-5 w-5 text-primary-500 mr-2 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-gray-500">
                           Email
@@ -119,7 +119,7 @@ const FacultyModal = ({
                     </div>
 
                     <div className="flex items-start">
-                      <MdPhone className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+                      <MdPhone className="h-5 w-5 text-primary-500 mr-2 mt-0.5" />
                       <div>
                         <p className="text-sm font-medium text-gray-500">
                           Phone

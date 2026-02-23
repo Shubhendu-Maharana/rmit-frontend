@@ -45,7 +45,7 @@ const NoticeRow = ({
       <td className="px-4 py-3 flex flex-col sm:flex-row justify-end">
         <button
           onClick={() => handleEditNotice(notice)}
-          className="text-blue-600 hover:text-blue-900 mr-3 flex items-center sm:inline-flex cursor-pointer mb-2 sm:mb-0"
+          className="text-primary-600 hover:text-primary-900 mr-3 flex items-center sm:inline-flex cursor-pointer mb-2 sm:mb-0"
         >
           <FiEdit className="mr-1" />
           Edit

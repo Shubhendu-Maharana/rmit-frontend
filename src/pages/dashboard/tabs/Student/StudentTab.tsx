@@ -165,7 +165,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
           </h2>
           <button
             onClick={handleAddFaculty}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center w-full sm:w-auto justify-center cursor-pointer"
+            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 flex items-center w-full sm:w-auto justify-center cursor-pointer"
           >
             <FiPlus className="mr-2" />
             Add New Student
@@ -183,7 +183,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
               placeholder="Search faculty..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-full"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 w-full"
             />
             <div className="absolute left-3 top-2.5 text-gray-400">
               <FiSearch size={18} />
@@ -193,7 +193,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 p-2 w-full sm:w-auto"
+              className="border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 p-2 w-full sm:w-auto"
             >
               <option>All Departments</option>
               <option>Computer Science</option>
@@ -204,7 +204,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
             <select
               value={positionFilter}
               onChange={(e) => setPositionFilter(e.target.value)}
-              className="border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 p-2 w-full sm:w-auto"
+              className="border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 p-2 w-full sm:w-auto"
             >
               <option>All Semesters</option>
               <option>1</option>
@@ -272,7 +272,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
                   <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleEditFaculty(member)}
-                      className="text-blue-600 hover:text-blue-900 mr-3 flex items-center sm:inline-flex cursor-pointer mb-2 sm:mb-0"
+                      className="text-primary-600 hover:text-primary-900 mr-3 flex items-center sm:inline-flex cursor-pointer mb-2 sm:mb-0"
                     >
                       <FiEdit size={16} className="mr-1" />
                       <span className="hidden sm:inline">Edit</span>
@@ -332,7 +332,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
                   onClick={() => paginate(pageNumber)}
                   className={`px-3 py-1 border border-gray-300 rounded-md cursor-pointer ${
                     currentPage === pageNumber
-                      ? "bg-blue-600 text-white"
+                      ? "bg-primary-600 text-white"
                       : "hover:bg-gray-50"
                   }`}
                 >
@@ -350,7 +350,7 @@ const StudentTab = ({ StudentData }: { StudentData: Student[] }) => {
                 onClick={() => paginate(totalPages)}
                 className={`px-3 py-1 border border-gray-300 rounded-md cursor-pointer ${
                   currentPage === totalPages
-                    ? "bg-blue-600 text-white"
+                    ? "bg-primary-600 text-white"
                     : "hover:bg-gray-50"
                 }`}
               >

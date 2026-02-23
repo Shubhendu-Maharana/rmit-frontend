@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import SideBar from "../../components/SideBar";
+import SideBar from "../../components/layout/SideBar";
 import FacultyTab from "./tabs/Faculty/FacultyTab";
 import StudentTab from "./tabs/Student/StudentTab";
 import NoticesTab from "./tabs/Notice/NoticesTab";

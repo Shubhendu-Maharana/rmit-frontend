@@ -24,7 +24,7 @@ const Programs = () => {
         description:
           "Learn computer applications, software development, and programming languages.",
         image: "https://picsum.photos/500/500",
-        color: "from-green-500 to-blue-600",
+        color: "from-green-500 to-primary-600",
       },
       {
         name: "Bachelor of Environmental Science",
@@ -61,7 +61,7 @@ const Programs = () => {
         description:
           "Explore the design, development, and testing of software and hardware systems.",
         image: "https://picsum.photos/500/500",
-        color: "from-cyan-500 to-blue-600",
+        color: "from-cyan-500 to-primary-600",
       },
     ],
     iti: [
@@ -91,7 +91,7 @@ const Programs = () => {
         description:
           "Learn to diagnose, repair, and maintain various vehicle systems.",
         image: "https://picsum.photos/500/500",
-        color: "from-blue-500 to-sky-600",
+        color: "from-primary-500 to-sky-600",
       },
     ],
   };
@@ -134,7 +134,7 @@ const Programs = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className={`text-3xl font-extrabold ${textColor}`}>{title}</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto my-4"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-primary-500 to-purple-500 mx-auto my-4"></div>
           <p className="text-gray-600 max-w-2xl mx-auto">{description}</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -148,12 +148,12 @@ const Programs = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
+      <header className="bg-gradient-to-r from-primary-600 to-indigo-700 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             Academic Programs
           </h1>
-          <p className="mt-4 text-xl text-blue-100 max-w-2xl mx-auto">
+          <p className="mt-4 text-xl text-primary-100 max-w-2xl mx-auto">
             Discover the right path for your educational journey with our
             diverse range of programs designed to empower your future.
           </p>
@@ -163,7 +163,7 @@ const Programs = () => {
       <div className="py-12 px-4 bg-white shadow-inner">
         <div className="container mx-auto">
           <div className="flex flex-wrap justify-center gap-8">
-            <div className="flex items-center space-x-2 px-6 py-3 bg-blue-50 rounded-full text-blue-700">
+            <div className="flex items-center space-x-2 px-6 py-3 bg-primary-50 rounded-full text-primary-700">
               <GiGraduateCap size={24} />
               <span className="font-medium">Academic Excellence</span>
             </div>
@@ -183,7 +183,7 @@ const Programs = () => {
         title="Degree Programs"
         description="Comprehensive education focused on theory and practical applications to prepare you for leadership roles."
         programs={programs.degrees}
-        textColor="text-blue-700"
+        textColor="text-primary-700"
       />
 
       <div className="bg-gray-100 py-2">

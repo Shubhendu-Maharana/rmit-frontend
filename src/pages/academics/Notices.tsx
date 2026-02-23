@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IoDocumentText, IoDocumentTextOutline } from "react-icons/io5";
 import supabase from "../../supabase";
-import Skeleton from "../../components/Skeleton";
+import Skeleton from "../../components/ui/Skeleton";
 
 // Define TypeScript types for notice data
 type NoticeCategory =
@@ -72,7 +72,7 @@ const Notices = () => {
   // Categories for filter
   const categories: { id: NoticeCategory; label: string; color: string }[] = [
     { id: "all", label: "All Notices", color: "bg-gray-100 text-gray-800" },
-    { id: "academic", label: "Academic", color: "bg-blue-100 text-blue-800" },
+    { id: "academic", label: "Academic", color: "bg-primary-100 text-primary-800" },
     {
       id: "administrative",
       label: "Administrative",

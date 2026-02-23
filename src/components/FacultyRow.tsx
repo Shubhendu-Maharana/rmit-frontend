@@ -58,7 +58,7 @@ const FacultyRow = ({
       <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
         <button
           onClick={() => handleEditFaculty(member)}
-          className="text-blue-600 hover:text-blue-900 mr-3 flex items-center sm:inline-flex cursor-pointer mb-2 sm:mb-0"
+          className="text-primary-600 hover:text-primary-900 mr-3 flex items-center sm:inline-flex cursor-pointer mb-2 sm:mb-0"
         >
           <FiEdit size={16} className="mr-1" />
           <span className="hidden sm:inline">Edit</span>

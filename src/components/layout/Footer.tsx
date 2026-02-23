@@ -10,7 +10,7 @@ const socialMediaLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-900 text-white">
+    <footer className="bg-primary-900 text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between gap-8">
           <div>
@@ -19,7 +19,7 @@ const Footer = () => {
               <br />
               of Technology
             </h3>
-            <p className="text-blue-200">
+            <p className="text-primary-200">
               Near Govindpur, Konisi
               <br />
               Berhampur, Odisha
@@ -35,7 +35,7 @@ const Footer = () => {
                   <li key={link}>
                     <NavLink
                       to={`/${link.toLowerCase().replace(" ", "")}`}
-                      className="text-blue-200 hover:text-white"
+                      className="text-primary-200 hover:text-white"
                     >
                       {link}
                     </NavLink>
@@ -51,7 +51,7 @@ const Footer = () => {
                 <li key={link}>
                   <NavLink
                     to={`/${link.toLowerCase().replace(" ", "")}`}
-                    className="text-blue-200 hover:text-white"
+                    className="text-primary-200 hover:text-white"
                   >
                     {link}
                   </NavLink>
@@ -66,7 +66,7 @@ const Footer = () => {
                 <a
                   key={index}
                   href={link.link}
-                  className="text-blue-200 hover:text-white"
+                  className="text-primary-200 hover:text-white"
                 >
                   {link.icon}
                 </a>
@@ -74,7 +74,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="mt-8 border-t border-blue-800 pt-8 text-sm text-blue-200 text-center">
+        <div className="mt-8 border-t border-primary-800 pt-8 text-sm text-primary-200 text-center">
           <p>
             &copy; {new Date().getFullYear()} Rajiv Memorial Institute of
             Technology. All rights reserved.
