@@ -4,6 +4,14 @@ import { Notice } from "@app/types/dataTypes";
 import { motion } from "motion/react";
 import { FiX, FiUpload, FiFileText } from "react-icons/fi";
 
+const categoryOptions = [
+  { value: "all", label: "All Category" },
+  { value: "academic", label: "Academic" },
+  { value: "administrative", label: "Administrative" },
+  { value: "events", label: "Events" },
+  { value: "exams", label: "Exams" },
+];
+
 interface NoticeModalProps {
   editMode: boolean;
   handleSubmit: (e: React.FormEvent) => void;
@@ -167,11 +175,11 @@ const NoticeModal = ({
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm appearance-none cursor-pointer"
                 required
               >
-                <option value="">Select Category</option>
-                <option value="academic">Academic</option>
-                <option value="administrative">Administrative</option>
-                <option value="events">Events</option>
-                <option value="exams">Exams</option>
+                {categoryOptions.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -188,7 +196,7 @@ const NoticeModal = ({
                     target: {
                       ...e.target,
                       name: "important",
-                      value: e.target.value,
+                      value: e.target.value === "Yes",
                     },
                   } as unknown as React.ChangeEvent<HTMLSelectElement>);
                 }}

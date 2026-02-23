@@ -22,6 +22,14 @@ import {
 import { Notice } from "@app/types/dataTypes";
 import { toast } from "react-toastify";
 
+const categoryOptions = [
+  { value: "all", label: "All Category" },
+  { value: "academic", label: "Academic" },
+  { value: "administrative", label: "Administrative" },
+  { value: "events", label: "Events" },
+  { value: "exams", label: "Exams" },
+];
+
 const NoticesTab = () => {
   // State for search and filters
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -43,7 +51,7 @@ const NoticesTab = () => {
     id: "",
     title: "",
     date: "",
-    category: "academic",
+    category: "all",
     file_path: "",
     important: false,
   });
@@ -97,7 +105,7 @@ const NoticesTab = () => {
       id: "",
       title: "",
       date: new Date().toISOString().split("T")[0],
-      category: "academic",
+      category: "all",
       file_path: "",
       important: false,
     });
@@ -392,8 +400,11 @@ const NoticesTab = () => {
                                   : "bg-purple-100 text-purple-700"
                           }`}
                         >
-                          {notice.category.charAt(0).toUpperCase() +
-                            notice.category.slice(1)}
+                          {
+                            categoryOptions.find(
+                              (option) => option.value === notice.category,
+                            )?.label
+                          }
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -475,8 +486,11 @@ const NoticesTab = () => {
                             : "bg-purple-100 text-purple-700"
                     }`}
                   >
-                    {notice.category.charAt(0).toUpperCase() +
-                      notice.category.slice(1)}
+                    {
+                      categoryOptions.find(
+                        (option) => option.value === notice.category,
+                      )?.label
+                    }
                   </span>
                   {notice.important && (
                     <span className="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-lg">
