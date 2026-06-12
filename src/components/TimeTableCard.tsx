@@ -17,7 +17,7 @@ type Timetable = {
 const getProgramTypeColor = (type: ProgramType): string => {
   switch (type) {
     case "Degree":
-      return "bg-blue-100 text-blue-800";
+      return "bg-primary-100 text-primary-800";
     case "Diploma":
       return "bg-purple-100 text-purple-800";
     case "ITI":

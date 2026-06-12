@@ -1,48 +1,43 @@
 import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdOutlineDateRange } from "react-icons/md";
-import supabase from "../../supabase";
 import TimetableCard from "../../components/TimeTableCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader } from "lucide-react";
+import type { Timetable, ProgramType } from "@app/types/dataTypes";
+import { getTimeTables } from "@services/timeTables";
 
-// Define TypeScript types for timetable data
-type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
-type ProgramType = "Degree" | "Diploma" | "ITI";
-
-type Timetable = {
-  id: string;
-  program: string;
-  program_type: ProgramType;
-  semester: Semester;
-  academic_year: string;
-  last_updated: string;
-  file_link: string;
-};
+const programTypes = [
+  { id: "All", label: "All Types" },
+  { id: "Degree", label: "Degree" },
+  { id: "Diploma", label: "Diploma" },
+  { id: "ITI", label: "ITI" },
+];
 
 const TimeTables = () => {
-  // State for active filters
   const [timeTables, setTimeTables] = useState<Timetable[]>([]);
   const [filteredTimetables, setFilteredTimetables] = useState<Timetable[]>([]);
   const [activeType, setActiveType] = useState<ProgramType | "All">("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const getTimeTables = async () => {
+    const fetchTimeTables = async () => {
       try {
-        const { data, error } = await supabase.from("timetables").select("*");
-        if (error) throw error;
-        if (data) {
-          setTimeTables(data);
-          setFilteredTimetables(data);
-        }
+        setIsLoading(true);
+        const data = await getTimeTables();
+        setTimeTables(data);
+        setFilteredTimetables(data);
       } catch (error) {
         console.error("Error fetching timetables:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    getTimeTables();
+    fetchTimeTables();
   }, []);
 
-  // Filter timetables based on active type and search query
   useEffect(() => {
     const filtered = timeTables.filter((timetable) => {
       const matchesType =
@@ -53,15 +48,7 @@ const TimeTables = () => {
       return matchesType && matchesQuery;
     });
     setFilteredTimetables(filtered);
-  }, [activeType, searchQuery]);
-
-  // Program type filters
-  const programTypes = [
-    { id: "All", label: "All Types" },
-    { id: "Degree", label: "Degree" },
-    { id: "Diploma", label: "Diploma" },
-    { id: "ITI", label: "ITI" },
-  ];
+  }, [activeType, searchQuery, timeTables]);
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -106,7 +93,7 @@ const TimeTables = () => {
                 <button
                   key={type.id}
                   onClick={() => setActiveType(type.id as ProgramType | "All")}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium 
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer 
                     ${
                       activeType === type.id
                         ? "bg-green-100 text-green-800 border border-green-300"
@@ -133,14 +120,47 @@ const TimeTables = () => {
         </div>
 
         {/* Timetables grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredTimetables.map((timetable) => (
-            <TimetableCard key={timetable.id} timetable={timetable} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader className="animate-spin text-green-600" />
+          </div>
+        ) : (
+          <motion.div
+            key={activeType}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredTimetables.map((timetable) => (
+                <motion.div
+                  key={timetable.id}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 },
+                    exit: { opacity: 0, scale: 0.95 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TimetableCard timetable={timetable} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
         {/* Empty state */}
-        {filteredTimetables.length === 0 && (
+        {filteredTimetables.length === 0 && !isLoading && (
           <div className="text-center py-12 bg-white rounded-xl shadow-sm">
             <MdOutlineDateRange className="h-12 w-12 mx-auto text-gray-400" />
             <h3 className="mt-4 text-lg font-medium text-gray-900">

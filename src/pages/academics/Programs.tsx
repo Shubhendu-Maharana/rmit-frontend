@@ -1,109 +1,123 @@
-import { FaUsers } from "react-icons/fa";
+import { FaHome, FaUsers } from "react-icons/fa";
 import { GiGraduateCap } from "react-icons/gi";
 import { LiaIndustrySolid } from "react-icons/lia";
+import { motion } from "framer-motion";
+
+type Program = {
+  name: string;
+  description: string;
+  image: string;
+  color: string;
+};
+
+type ProgramCategories = {
+  degrees: Program[];
+  diplomas: Program[];
+  iti: Program[];
+};
+
+type ProgramSectionProps = {
+  title: string;
+  description: string;
+  programs: Program[];
+  textColor: string;
+};
+
+const programs: ProgramCategories = {
+  degrees: [
+    {
+      name: "Bachelor of Computer Applications",
+      description:
+        "Learn computer applications, software development, and programming languages.",
+      image: "https://picsum.photos/500/500",
+      color: "from-green-500 to-primary-600",
+    },
+    {
+      name: "Bachelor of Environmental Science",
+      description:
+        "Study environmental science, sustainability practices, and ecological conservation.",
+      image: "https://picsum.photos/500/500",
+      color: "from-yellow-500 to-green-600",
+    },
+  ],
+  diplomas: [
+    {
+      name: "Civil Engineering",
+      description:
+        "Study structural analysis, design, construction, and maintenance of infrastructure.",
+      image: "https://picsum.photos/500/500",
+      color: "from-yellow-500 to-green-600",
+    },
+    {
+      name: "Electrical Engineering",
+      description:
+        "Learn electrical circuits, electronics, power systems, and communication systems.",
+      image: "https://picsum.photos/500/500",
+      color: "from-yellow-500 to-amber-600",
+    },
+    {
+      name: "Mechanical Engineering",
+      description:
+        "Develop skills in designing, manufacturing, and maintaining mechanical systems.",
+      image: "https://picsum.photos/500/500",
+      color: "from-red-500 to-rose-600",
+    },
+    {
+      name: "Computer Science",
+      description:
+        "Explore the design, development, and testing of software and hardware systems.",
+      image: "https://picsum.photos/500/500",
+      color: "from-cyan-500 to-primary-600",
+    },
+  ],
+  iti: [
+    {
+      name: "Electrician",
+      description:
+        "Hands-on training in electrical systems installation, maintenance, and repair.",
+      image: "https://picsum.photos/500/500",
+      color: "from-yellow-500 to-amber-600",
+    },
+    {
+      name: "Welding",
+      description:
+        "Learn various welding techniques and metal fabrication processes.",
+      image: "https://picsum.photos/500/500",
+      color: "from-red-500 to-rose-600",
+    },
+    {
+      name: "Machinist",
+      description:
+        "Training in operating lathes, mills, and CNC machines to create precision parts.",
+      image: "https://picsum.photos/500/500",
+      color: "from-teal-500 to-emerald-600",
+    },
+    {
+      name: "Automotive Technician",
+      description:
+        "Learn to diagnose, repair, and maintain various vehicle systems.",
+      image: "https://picsum.photos/500/500",
+      color: "from-primary-500 to-sky-600",
+    },
+  ],
+};
 
 const Programs = () => {
-  // Sample data for programs
-  type Program = {
-    name: string;
-    description: string;
-    image: string;
-    color: string;
-  };
-
-  type ProgramCategories = {
-    degrees: Program[];
-    diplomas: Program[];
-    iti: Program[];
-  };
-
-  const programs: ProgramCategories = {
-    degrees: [
-      {
-        name: "Bachelor of Computer Applications",
-        description:
-          "Learn computer applications, software development, and programming languages.",
-        image: "https://picsum.photos/500/500",
-        color: "from-green-500 to-blue-600",
-      },
-      {
-        name: "Bachelor of Environmental Science",
-        description:
-          "Study environmental science, sustainability practices, and ecological conservation.",
-        image: "https://picsum.photos/500/500",
-        color: "from-yellow-500 to-green-600",
-      },
-    ],
-    diplomas: [
-      {
-        name: "Civil Engineering",
-        description:
-          "Study structural analysis, design, construction, and maintenance of infrastructure.",
-        image: "https://picsum.photos/500/500",
-        color: "from-yellow-500 to-green-600",
-      },
-      {
-        name: "Electrical Engineering",
-        description:
-          "Learn electrical circuits, electronics, power systems, and communication systems.",
-        image: "https://picsum.photos/500/500",
-        color: "from-yellow-500 to-amber-600",
-      },
-      {
-        name: "Mechanical Engineering",
-        description:
-          "Develop skills in designing, manufacturing, and maintaining mechanical systems.",
-        image: "https://picsum.photos/500/500",
-        color: "from-red-500 to-rose-600",
-      },
-      {
-        name: "Computer Science",
-        description:
-          "Explore the design, development, and testing of software and hardware systems.",
-        image: "https://picsum.photos/500/500",
-        color: "from-cyan-500 to-blue-600",
-      },
-    ],
-    iti: [
-      {
-        name: "Electrician",
-        description:
-          "Hands-on training in electrical systems installation, maintenance, and repair.",
-        image: "https://picsum.photos/500/500",
-        color: "from-yellow-500 to-amber-600",
-      },
-      {
-        name: "Welding",
-        description:
-          "Learn various welding techniques and metal fabrication processes.",
-        image: "https://picsum.photos/500/500",
-        color: "from-red-500 to-rose-600",
-      },
-      {
-        name: "Machinist",
-        description:
-          "Training in operating lathes, mills, and CNC machines to create precision parts.",
-        image: "https://picsum.photos/500/500",
-        color: "from-teal-500 to-emerald-600",
-      },
-      {
-        name: "Automotive Technician",
-        description:
-          "Learn to diagnose, repair, and maintain various vehicle systems.",
-        image: "https://picsum.photos/500/500",
-        color: "from-blue-500 to-sky-600",
-      },
-    ],
-  };
-
   // Component for individual program card
   const ProgramCard = ({ program }: { program: Program }) => (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition duration-300 transform hover:-translate-y-2 border border-gray-100">
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0 },
+      }}
+      className="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-xl transition duration-300 transform hover:-translate-y-2 border border-gray-100 h-full"
+    >
       <div className="relative">
         <img
           src={program.image}
           alt={program.name}
           className="w-full h-56 object-cover"
+          loading="lazy"
         />
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white bg-[#00000088] backdrop-blur-sm rounded-tl-lg rounded-tr-lg">
           <div className="font-bold text-xl tracking-tight">{program.name}</div>
@@ -114,16 +128,9 @@ const Programs = () => {
           {program.description}
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 
-  // Section component for each program type
-  type ProgramSectionProps = {
-    title: string;
-    description: string;
-    programs: Program[];
-    textColor: string;
-  };
   const ProgramSection = ({
     title,
     description,
@@ -132,28 +139,48 @@ const Programs = () => {
   }: ProgramSectionProps) => (
     <section className="py-16">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+        >
           <h2 className={`text-3xl font-extrabold ${textColor}`}>{title}</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto my-4"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-primary-500 to-purple-500 mx-auto my-4"></div>
           <p className="text-gray-600 max-w-2xl mx-auto">{description}</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        </motion.div>
+        <motion.div
+          variants={{
+            hidden: { opacity: 0 },
+            show: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.15,
+              },
+            },
+          }}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        >
           {programs.map((program, index) => (
             <ProgramCard key={index} program={program} />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
+      <header className="bg-gradient-to-r from-primary-600 to-indigo-700 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             Academic Programs
           </h1>
-          <p className="mt-4 text-xl text-blue-100 max-w-2xl mx-auto">
+          <p className="mt-4 text-xl text-primary-100 max-w-2xl mx-auto">
             Discover the right path for your educational journey with our
             diverse range of programs designed to empower your future.
           </p>
@@ -163,18 +190,36 @@ const Programs = () => {
       <div className="py-12 px-4 bg-white shadow-inner">
         <div className="container mx-auto">
           <div className="flex flex-wrap justify-center gap-8">
-            <div className="flex items-center space-x-2 px-6 py-3 bg-blue-50 rounded-full text-blue-700">
-              <GiGraduateCap size={24} />
-              <span className="font-medium">Academic Excellence</span>
-            </div>
-            <div className="flex items-center space-x-2 px-6 py-3 bg-green-50 rounded-full text-green-700">
-              <LiaIndustrySolid size={24} />
-              <span className="font-medium">Industry Partnerships</span>
-            </div>
-            <div className="flex items-center space-x-2 px-6 py-3 bg-purple-50 rounded-full text-purple-700">
-              <FaUsers size={24} />
-              <span className="font-medium">Expert Faculty</span>
-            </div>
+            {[
+              {
+                name: "Academic Excellence",
+                icon: <GiGraduateCap size={24} />,
+                color: "bg-primary-50 text-primary-700",
+              },
+              {
+                name: "Industry Partnerships",
+                icon: <LiaIndustrySolid size={24} />,
+                color: "bg-green-50 text-green-700",
+              },
+              {
+                name: "Experienced Faculty",
+                icon: <FaUsers size={24} />,
+                color: "bg-purple-50 text-purple-700",
+              },
+              {
+                name: "Modern Infrastructure",
+                icon: <FaHome size={24} />,
+                color: "bg-blue-50 text-blue-700",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className={`flex items-center space-x-2 px-6 py-3 ${item.color} rounded-full cursor-default`}
+              >
+                {item.icon}
+                <span className="font-medium">{item.name}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -183,7 +228,7 @@ const Programs = () => {
         title="Degree Programs"
         description="Comprehensive education focused on theory and practical applications to prepare you for leadership roles."
         programs={programs.degrees}
-        textColor="text-blue-700"
+        textColor="text-primary-700"
       />
 
       <div className="bg-gray-100 py-2">

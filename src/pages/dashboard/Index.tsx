@@ -1,7 +1,7 @@
 import { useAuth } from "../../contexts/AuthContext";
 import AdminDashboard from "./AdminDashboard";
-import UserNotFoundPage from "../../components/UserNotFoundPage";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { Navigate } from "react-router";
 
 const Index = () => {
   const { user, isLoading } = useAuth();
@@ -10,7 +10,7 @@ const Index = () => {
     return <LoadingSpinner />;
   }
 
-  return user ? <AdminDashboard /> : <UserNotFoundPage />;
+  return user ? <AdminDashboard /> : <Navigate to="/adminlogin" />;
 };
 
 export default Index;

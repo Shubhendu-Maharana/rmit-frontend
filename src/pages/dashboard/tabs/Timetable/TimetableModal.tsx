@@ -1,37 +1,46 @@
 import { useState, useRef } from "react";
-import { Notice } from "@app/types/dataTypes";
+import { Timetable, ProgramType, Semester } from "@app/types/dataTypes";
 import { motion } from "motion/react";
 import { FiX, FiUpload, FiFileText } from "react-icons/fi";
 import { uploadFile } from "@services/fileUpload";
 
-const categoryOptions = [
-  { value: "all", label: "All Category" },
-  { value: "academic", label: "Academic" },
-  { value: "administrative", label: "Administrative" },
-  { value: "events", label: "Events" },
-  { value: "exams", label: "Exams" },
+const programTypeOptions: { value: ProgramType; label: string }[] = [
+  { value: "Degree", label: "Degree" },
+  { value: "Diploma", label: "Diploma" },
+  { value: "ITI", label: "ITI" },
 ];
 
-interface NoticeModalProps {
+const semesterOptions: { value: Semester; label: string }[] = [
+  { value: "1", label: "Semester 1" },
+  { value: "2", label: "Semester 2" },
+  { value: "3", label: "Semester 3" },
+  { value: "4", label: "Semester 4" },
+  { value: "5", label: "Semester 5" },
+  { value: "6", label: "Semester 6" },
+  { value: "7", label: "Semester 7" },
+  { value: "8", label: "Semester 8" },
+];
+
+interface TimetableModalProps {
   editMode: boolean;
   handleSubmit: (e: React.FormEvent) => void;
   handleInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
-  currentNotice: Notice;
+  currentTimetable: Timetable;
   setShowModal: (modal: boolean) => void;
   loading: boolean;
 }
 
-const NoticeModal = ({
+const TimetableModal = ({
   editMode,
   handleSubmit,
   handleInputChange,
-  currentNotice,
+  currentTimetable,
   setShowModal,
   loading,
-}: NoticeModalProps) => {
-  const [pdfUrl, setPdfUrl] = useState<string>(currentNotice.file_path);
+}: TimetableModalProps) => {
+  const [pdfUrl, setPdfUrl] = useState<string>(currentTimetable.file_link);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -49,17 +58,15 @@ const NoticeModal = ({
     try {
       const publicUrlData = await uploadFile({
         file: pdfFile,
-        bucket: "notices",
+        bucket: "timetables",
       });
 
-      // Update the file URL with the public URL
       if (publicUrlData) {
         setPdfUrl(publicUrlData);
 
-        // Update the currentNotice object with the new file URL
         const e = {
           target: {
-            name: "file_path",
+            name: "file_link",
             value: publicUrlData,
           },
         } as React.ChangeEvent<HTMLInputElement>;
@@ -68,7 +75,9 @@ const NoticeModal = ({
       }
     } catch (error) {
       console.error("Error uploading PDF:", error);
-      setUploadError("Failed to upload PDF. Please try again.");
+      setUploadError(
+        "Failed to upload PDF. Please try again or check if 'timetables' storage bucket exists.",
+      );
     } finally {
       setIsUploading(false);
     }
@@ -98,7 +107,7 @@ const NoticeModal = ({
         <div className="px-8 py-6 bg-primary-600 text-white flex items-center justify-between">
           <div>
             <h3 className="text-xl font-bold">
-              {editMode ? "Edit Notice" : "Add New Notice"}
+              {editMode ? "Edit Timetable" : "Add New Timetable"}
             </h3>
             <p className="text-primary-100 text-sm mt-0.5">
               Please fill in the details below
@@ -119,13 +128,13 @@ const NoticeModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
-                Notice Title
+                Program Name
               </label>
               <input
                 type="text"
-                name="title"
-                placeholder="e.g. End Semester Examination Schedule"
-                value={currentNotice.title}
+                name="program"
+                placeholder="e.g. B.Tech Computer Science"
+                value={currentTimetable.program}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
                 required
@@ -134,32 +143,19 @@ const NoticeModal = ({
 
             <div>
               <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
-                Date
-              </label>
-              <input
-                type="date"
-                name="date"
-                value={currentNotice.date}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
-                Category
+                Program Type
               </label>
               <select
-                name="category"
-                value={currentNotice.category}
+                name="program_type"
+                value={currentTimetable.program_type}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm appearance-none cursor-pointer"
                 required
               >
-                {categoryOptions.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
+                <option value="">Select Type</option>
+                {programTypeOptions.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
                   </option>
                 ))}
               </select>
@@ -167,37 +163,64 @@ const NoticeModal = ({
 
             <div>
               <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
-                Important
+                Semester
               </label>
               <select
-                name="important"
-                value={currentNotice.important ? "Yes" : "No"}
-                onChange={(e) => {
-                  handleInputChange({
-                    ...e,
-                    target: {
-                      ...e.target,
-                      name: "important",
-                      value: e.target.value === "Yes",
-                    },
-                  } as unknown as React.ChangeEvent<HTMLSelectElement>);
-                }}
+                name="semester"
+                value={currentTimetable.semester}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm appearance-none cursor-pointer"
                 required
               >
-                <option value="">Select</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
+                <option value="">Select Semester</option>
+                {semesterOptions.map((sem) => (
+                  <option key={sem.value} value={sem.value}>
+                    {sem.label}
+                  </option>
+                ))}
               </select>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                Academic Year
+              </label>
+              <input
+                type="text"
+                name="academic_year"
+                placeholder="e.g. 2024-2025"
+                value={currentTimetable.academic_year}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
+                Last Updated Date
+              </label>
+              <input
+                type="date"
+                name="last_updated"
+                value={
+                  new Date(currentTimetable.last_updated)
+                    .toISOString()
+                    .split("T")[0]
+                }
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary-500 transition-all outline-none text-sm"
+                required
+              />
             </div>
           </div>
 
           <div className="h-px bg-gray-100 w-full" />
 
-          {/* PDF Upload Section - Full Width */}
+          {/* PDF Upload Section */}
           <div className="space-y-4">
             <label className="flex items-center gap-2 text-sm font-bold text-gray-700 mb-1.5 ml-1">
-              <FiFileText className="text-primary-500" /> Notice PDF
+              <FiFileText className="text-primary-500" /> Timetable PDF
             </label>
 
             <div className="flex flex-col md:flex-row gap-4 items-start">
@@ -213,7 +236,7 @@ const NoticeModal = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 border-dashed rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-600 flex justify-center items-center gap-2"
+                  className="flex-1 px-4 py-3 bg-gray-50 border border-gray-100 border-dashed rounded-xl hover:bg-gray-100 transition-all text-sm font-medium text-gray-600 flex justify-center items-center gap-2 cursor-pointer"
                 >
                   <FiUpload /> {pdfFile ? pdfFile.name : "Select PDF File"}
                 </button>
@@ -222,7 +245,7 @@ const NoticeModal = ({
                     type="button"
                     disabled={isUploading}
                     onClick={handleUpload}
-                    className={`px-6 py-3 text-sm text-white bg-green-600 rounded-xl font-bold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all ${
+                    className={`px-6 py-3 text-sm text-white bg-green-600 rounded-xl font-bold hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all cursor-pointer ${
                       isUploading ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
@@ -251,7 +274,7 @@ const NoticeModal = ({
               </div>
             )}
             <p className="text-xs text-gray-400 mt-1 ml-1 leading-relaxed">
-              Upload a valid PDF file containing the notice contents. Max 10MB.
+              Upload a valid PDF file containing the timetable. Max 10MB.
             </p>
           </div>
 
@@ -271,10 +294,10 @@ const NoticeModal = ({
               {editMode
                 ? loading
                   ? "Updating..."
-                  : "Update Notice"
+                  : "Update Timetable"
                 : loading
                   ? "Adding..."
-                  : "Add Notice"}
+                  : "Add Timetable"}
             </button>
           </div>
         </form>
@@ -283,4 +306,4 @@ const NoticeModal = ({
   );
 };
 
-export default NoticeModal;
+export default TimetableModal;

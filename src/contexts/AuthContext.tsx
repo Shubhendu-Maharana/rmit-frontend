@@ -5,68 +5,39 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import {
-  SupabaseClient,
-  Session,
-  User,
-  AuthError,
-} from "@supabase/supabase-js";
-import supabase from "../supabase";
+import { Session, User } from "@supabase/supabase-js";
+import { DatabaseUser } from "@app/types/users";
+import supabase from "@services/supabase";
 
-// Define the shape of the auth context
 interface AuthContextType {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
-  signUp: (
-    email: string,
-    password: string
-  ) => Promise<{ error: AuthError | null }>;
-  signIn: (
-    email: string,
-    password: string
-  ) => Promise<{ error: AuthError | null }>;
-  signInWithOAuth: (
-    provider: "google" | "github" | "facebook"
-  ) => Promise<{ error: AuthError | null }>;
-  signOut: () => Promise<{ error: AuthError | null }>;
-  resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
-  updatePassword: (newPassword: string) => Promise<{ error: AuthError | null }>;
-  supabase: SupabaseClient;
+  databaseUser: DatabaseUser | null;
 }
 
-// Create the auth context with default values
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   isLoading: true,
-  signUp: async () => ({ error: null }),
-  signIn: async () => ({ error: null }),
-  signInWithOAuth: async () => ({ error: null }),
-  signOut: async () => ({ error: null }),
-  resetPassword: async () => ({ error: null }),
-  updatePassword: async () => ({ error: null }),
-  supabase,
+  databaseUser: null,
 });
 
-// Props for the AuthProvider component
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Create the AuthProvider component
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [databaseUser, setDatabaseUser] = useState<DatabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Get the current session and user
     const getInitialSession = async () => {
       try {
         setIsLoading(true);
 
-        // Get the current session
         const {
           data: { session },
           error,
@@ -74,6 +45,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (error) {
           throw error;
+        }
+
+        if (session) {
+          getDatabaseUser(session.user.email);
         }
 
         setSession(session);
@@ -87,71 +62,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     getInitialSession();
 
-    // Set up the auth state change listener
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      getDatabaseUser(session?.user.email);
     });
 
-    // Clean up the subscription when the component unmounts
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
-  // Sign up function
-  const signUp = async (email: string, password: string) => {
-    return await supabase.auth.signUp({ email, password });
+  const getDatabaseUser = async (email: string | undefined) => {
+    if (!email) return;
+    const { data: databaseUser } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
+    setDatabaseUser(databaseUser);
   };
 
-  // Sign in function
-  const signIn = async (email: string, password: string) => {
-    return await supabase.auth.signInWithPassword({ email, password });
-  };
-
-  // Sign in with OAuth function
-  const signInWithOAuth = async (
-    provider: "google" | "github" | "facebook"
-  ) => {
-    return await supabase.auth.signInWithOAuth({ provider });
-  };
-
-  // Sign out function
-  const signOut = async () => {
-    return await supabase.auth.signOut();
-  };
-
-  // Reset password function
-  const resetPassword = async (email: string) => {
-    return await supabase.auth.resetPasswordForEmail(email);
-  };
-
-  // Update password function
-  const updatePassword = async (newPassword: string) => {
-    return await supabase.auth.updateUser({ password: newPassword });
-  };
-
-  // Define the value for the context provider
   const value: AuthContextType = {
     session,
     user,
     isLoading,
-    signUp,
-    signIn,
-    signInWithOAuth,
-    signOut,
-    resetPassword,
-    updatePassword,
-    supabase,
+    databaseUser,
   };
 
-  // Return the context provider with the value
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Create a custom hook to use the auth context
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
 

@@ -1,5 +1,6 @@
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 import { NavLink } from "react-router";
+import Logo from "@assets/logo.png";
 
 const socialMediaLinks = [
   { icon: <FaFacebook size={24} />, link: "https://www.facebook.com" },
@@ -10,22 +11,25 @@ const socialMediaLinks = [
 
 const Footer = () => {
   return (
-    <footer className="bg-blue-900 text-white">
+    <footer className="bg-primary-900 text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between gap-8">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">
-              Rajiv Memorial Institute
-              <br />
-              of Technology
-            </h3>
-            <p className="text-blue-200">
-              Near Govindpur, Konisi
-              <br />
-              Berhampur, Odisha
-              <br />
-              India
-            </p>
+          <div className="flex gap-4 items-center md:flex-row-reverse">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">
+                Rajiv Memorial Institute
+                <br />
+                of Technology
+              </h3>
+              <p className="text-primary-200">
+                Near Govindpur, Konisi
+                <br />
+                Berhampur, Odisha
+                <br />
+                India
+              </p>
+            </div>
+            <img src={Logo} alt="Logo" className="w-32 h-32" loading="lazy" />
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
@@ -35,12 +39,12 @@ const Footer = () => {
                   <li key={link}>
                     <NavLink
                       to={`/${link.toLowerCase().replace(" ", "")}`}
-                      className="text-blue-200 hover:text-white"
+                      className="text-primary-200 hover:text-white transition-colors duration-300"
                     >
                       {link}
                     </NavLink>
                   </li>
-                )
+                ),
               )}
             </ul>
           </div>
@@ -51,7 +55,7 @@ const Footer = () => {
                 <li key={link}>
                   <NavLink
                     to={`/${link.toLowerCase().replace(" ", "")}`}
-                    className="text-blue-200 hover:text-white"
+                    className="text-primary-200 hover:text-white transition-colors duration-300"
                   >
                     {link}
                   </NavLink>
@@ -66,7 +70,7 @@ const Footer = () => {
                 <a
                   key={index}
                   href={link.link}
-                  className="text-blue-200 hover:text-white"
+                  className="text-primary-200 hover:text-white transition-colors duration-300"
                 >
                   {link.icon}
                 </a>
@@ -74,7 +78,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="mt-8 border-t border-blue-800 pt-8 text-sm text-blue-200 text-center">
+        <div className="mt-8 border-t border-primary-800 pt-8 text-sm text-primary-200 text-center">
           <p>
             &copy; {new Date().getFullYear()} Rajiv Memorial Institute of
             Technology. All rights reserved.

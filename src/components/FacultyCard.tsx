@@ -1,17 +1,4 @@
-type Department = "Degree" | "Diploma" | "ITI";
-
-type Faculty = {
-  id: string;
-  name: string;
-  image: string;
-  department: Department;
-  specialization: string;
-  email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-};
+import { Faculty } from "@app/types/dataTypes";
 
 const FacultyCard = ({
   faculty,
@@ -20,7 +7,7 @@ const FacultyCard = ({
 }: {
   faculty: Faculty;
   openFacultyModal: (faculty: Faculty) => void;
-  getDepartmentColor: (department: Department) => string;
+  getDepartmentColor: (department: string) => string;
 }) => {
   const departmentColor = getDepartmentColor(faculty.department);
 
@@ -36,6 +23,7 @@ const FacultyCard = ({
           src={faculty.image}
           alt={faculty.name}
           className="w-full h-56 object-cover object-center"
+          loading="lazy"
         />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
           <h3 className="text-white font-bold text-lg">{faculty.name}</h3>
@@ -59,7 +47,7 @@ const FacultyCard = ({
         <div className="mt-4 flex space-x-2">
           <button
             onClick={() => openFacultyModal(faculty)}
-            className="flex-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 py-1.5 px-3 rounded-md text-sm font-medium transition-colors duration-200"
+            className="flex-1 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 py-1.5 px-3 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer"
           >
             View Profile
           </button>

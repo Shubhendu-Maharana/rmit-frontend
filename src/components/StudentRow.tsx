@@ -1,11 +1,11 @@
-import { Faculty } from "@app/types/dataTypes";
+import { Student } from "@app/types/dataTypes";
 import { motion } from "motion/react";
 import { FiCalendar, FiEdit, FiMail, FiPhone, FiTrash2 } from "react-icons/fi";
 
-type FacultyRowProps = {
-  member: Faculty;
-  handleEditFaculty: (member: Faculty) => void;
-  handleDeleteFaculty: () => void;
+type StudentRowProps = {
+  member: Student;
+  handleEditStudent: (member: Student) => void;
+  handleDeleteStudent: () => void;
 };
 
 const itemVariants = {
@@ -13,11 +13,11 @@ const itemVariants = {
   show: { opacity: 1 },
 };
 
-const FacultyRow = ({
+const StudentRow = ({
   member,
-  handleEditFaculty,
-  handleDeleteFaculty,
-}: FacultyRowProps) => {
+  handleEditStudent,
+  handleDeleteStudent,
+}: StudentRowProps) => {
   return (
     <motion.div
       key={member.id}
@@ -25,11 +25,15 @@ const FacultyRow = ({
       className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:border-primary-200 transition-all group relative"
     >
       <div className="flex items-start gap-4">
-        <img
-          src={member.image}
-          alt={member.name}
-          className="w-20 h-20 rounded-2xl object-cover shadow-md"
-        />
+        {/* Placeholder for an image or just an icon since student doesn't have an image in type */}
+        <div className="w-20 h-20 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center shadow-md">
+          <img
+            src={member.image}
+            alt={member.name}
+            className="w-full h-full object-cover rounded-2xl"
+          />
+        </div>
+
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <span className="bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-wider">
@@ -37,13 +41,13 @@ const FacultyRow = ({
             </span>
             <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
               <button
-                onClick={() => handleEditFaculty(member)}
+                onClick={() => handleEditStudent(member)}
                 className="p-1.5 text-gray-400 hover:text-primary-600 rounded-lg"
               >
                 <FiEdit size={16} />
               </button>
               <button
-                onClick={handleDeleteFaculty}
+                onClick={handleDeleteStudent}
                 className="p-1.5 text-gray-400 hover:text-red-600 rounded-lg"
               >
                 <FiTrash2 size={16} />
@@ -52,17 +56,12 @@ const FacultyRow = ({
           </div>
           <h3 className="text-lg font-bold text-gray-900 mt-2 flex items-center gap-2">
             {member.name}
-            {member.is_hod && (
-              <span className="bg-primary-700 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
-                HOD
-              </span>
-            )}
           </h3>
           <p className="text-sm font-medium text-primary-600 truncate">
-            {member.specialization}
+            Roll: {member.roll_number}
           </p>
           <p className="text-xs text-gray-500 mt-1 line-clamp-1 italic">
-            {member.education}
+            Semester {member.semester}
           </p>
         </div>
       </div>
@@ -78,7 +77,7 @@ const FacultyRow = ({
         <div className="flex items-center gap-2 text-xs text-gray-600">
           <FiCalendar size={14} />
           <span>
-            Joined {new Date(member.joining_date).toLocaleDateString()}
+            Admitted {new Date(member.admission_date).toLocaleDateString()}
           </span>
         </div>
       </div>
@@ -86,4 +85,4 @@ const FacultyRow = ({
   );
 };
 
-export default FacultyRow;
+export default StudentRow;

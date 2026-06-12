@@ -1,7 +1,8 @@
 import { Route, Routes } from "react-router";
 import Home from "./pages/home/Home";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import ScrollToTop from "./components/layout/ScrollToTop";
 import Programs from "./pages/academics/Programs";
 import Notices from "./pages/academics/Notices";
 import TimeTables from "./pages/academics/TimeTables";
@@ -10,6 +11,8 @@ import AdminLogin from "./pages/administrations/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/dashboard/Index";
+import NotFoundPage from "./pages/NotFoundPage";
+import { ToastContainer } from "react-toastify";
 
 const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -24,6 +27,7 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
 const App = () => {
   return (
     <AuthProvider>
+      <ScrollToTop />
       <Routes>
         <Route
           path="/"
@@ -82,7 +86,9 @@ const App = () => {
           }
         />
         <Route path="/admin/dashboard" element={<Index />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <ToastContainer position="top-right" autoClose={5000} />
     </AuthProvider>
   );
 };
