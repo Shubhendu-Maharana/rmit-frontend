@@ -1,3 +1,5 @@
+import { Database } from "@app/types/supabase";
+
 export type NoticeCategory =
   | "academic"
   | "administrative"
@@ -27,18 +29,19 @@ export interface Timetable {
   file_link: string;
 }
 
-export interface Faculty {
+export type Faculty = Database["public"]["Tables"]["faculties"]["Row"];
+
+export type FacultyCard = {
   id: string;
-  name: string;
-  image: string;
-  department: string;
-  specialization: string;
+  fullName: string;
   email: string;
-  phone: string;
-  education: string;
-  is_hod: boolean;
-  joining_date: string;
-}
+  phone: string | null;
+  designation: string | null;
+  profile_photo_url: string | null;
+  instituteId: string;
+  instituteCode: string;
+  instituteName: string;
+};
 
 export type Department =
   | "Computer Science"

@@ -1,12 +1,45 @@
+import { Faculty, FacultyCard } from "@app/types/dataTypes";
 import supabase from "@services/supabase";
-import type { Faculty } from "@app/types/dataTypes";
 
-export const getFaculties = async (): Promise<Faculty[]> => {
-  const { data, error } = await supabase.from("faculty").select("*");
+export const getFaculties = async (): Promise<FacultyCard[]> => {
+  const { data, error } = await supabase
+    .from("faculties")
+    .select(
+      `
+        id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        profile_photo_url,
+        designation,
+        institutes (
+            id,
+            code,
+            name
+        )
+      `,
+    )
+    .order("first_name");
+
   if (error) {
     throw error;
   }
-  return data as Faculty[];
+
+  const facultyCards: FacultyCard[] =
+    data?.map((faculty) => ({
+      id: faculty.id,
+      fullName: `${faculty.first_name} ${faculty.last_name ?? ""}`.trim(),
+      email: faculty.email,
+      phone: faculty.phone,
+      designation: faculty.designation,
+      profile_photo_url: faculty.profile_photo_url,
+      instituteId: faculty.institutes?.id ?? "",
+      instituteCode: faculty.institutes?.code ?? "",
+      instituteName: faculty.institutes?.name ?? "",
+    })) ?? [];
+
+  return facultyCards;
 };
 
 export const createFaculty = async (faculty: Faculty) => {
@@ -14,7 +47,7 @@ export const createFaculty = async (faculty: Faculty) => {
   const { id, ...facultyData } = faculty;
 
   const { data, error } = await supabase
-    .from("faculty")
+    .from("faculties")
     .insert([facultyData])
     .select();
   if (error) {
@@ -23,13 +56,13 @@ export const createFaculty = async (faculty: Faculty) => {
   if (!data) {
     throw new Error("Failed to create faculty");
   }
-  return data[0] as Faculty;
+  return data[0];
 };
 
 export const updateFaculty = async (faculty: Faculty) => {
   const { id, ...facultyData } = faculty;
   const { error } = await supabase
-    .from("faculty")
+    .from("faculties")
     .update([facultyData])
     .eq("id", id);
   if (error) {
@@ -38,7 +71,7 @@ export const updateFaculty = async (faculty: Faculty) => {
 };
 
 export const deleteFaculty = async (id: string) => {
-  const { error } = await supabase.from("faculty").delete().eq("id", id);
+  const { error } = await supabase.from("faculties").delete().eq("id", id);
   if (error) {
     throw error;
   }

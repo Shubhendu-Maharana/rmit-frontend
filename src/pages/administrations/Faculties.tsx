@@ -1,19 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import FacultyModal from "../../components/FacultyModal";
 import FacultyCard from "../../components/FacultyCard";
 import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Faculty } from "@app/types/dataTypes";
+import type { FacultyCard as FacultyCardType } from "@app/types/dataTypes";
 import { getFaculties } from "@services/faculty";
 
+const institues = [
+  { label: "All", value: "ALL" },
+  { label: "Degree", value: "RMIT" },
+  { label: "Diploma", value: "HIT" },
+  { label: "ITI", value: "RMITC" },
+];
+
+const getInstituteColor = (instituteCode: string): string => {
+  switch (instituteCode) {
+    case "RMIT":
+      return "bg-primary-100 text-primary-800";
+    case "HIT":
+      return "bg-amber-100 text-amber-800";
+    case "RMITC":
+      return "bg-green-100 text-green-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 const Faculties = () => {
-  const [faculties, setFaculties] = useState<Faculty[]>();
-  const [activeDepartment, setActiveDepartment] = useState("All");
+  const [faculties, setFaculties] = useState<FacultyCardType[]>([]);
+  const [activeDepartment, setActiveDepartment] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedFaculty, setSelectedFaculty] = useState<Faculty | null>(null);
-  const [filteredFaculties, setFilteredFaculties] = useState<Faculty[]>([]);
+  const [selectedFaculty, setSelectedFaculty] =
+    useState<FacultyCardType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -22,7 +43,6 @@ const Faculties = () => {
         setIsLoading(true);
         const data = await getFaculties();
         setFaculties(data);
-        setFilteredFaculties(data);
       } catch (error) {
         console.error("Error fetching faculties:", error);
       } finally {
@@ -32,57 +52,47 @@ const Faculties = () => {
     fetchFaculties();
   }, []);
 
-  const departments = [
-    { id: "All", label: "All Departments" },
-    { id: "Degree", label: "Degree" },
-    { id: "Diploma", label: "Diploma" },
-    { id: "ITI", label: "ITI" },
-  ];
-
   useEffect(() => {
-    if (activeDepartment === "All") {
-      setFilteredFaculties(faculties ?? []);
-    } else {
-      setFilteredFaculties(
-        faculties?.filter(
-          (faculty) => faculty.department === activeDepartment,
-        ) ?? [],
-      );
+    if (searchQuery.trim() === "") {
+      setDebouncedQuery("");
+      return;
     }
-  }, [activeDepartment, faculties]);
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery.trim().toLowerCase());
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  useEffect(() => {
-    const filtered = faculties?.filter((faculty) =>
-      faculty.name.toLowerCase().startsWith(searchQuery.toLowerCase()),
-    );
-    setFilteredFaculties(filtered ?? []);
-  }, [searchQuery, faculties]);
+  const filteredFaculties = useMemo(() => {
+    if (!faculties) return [];
 
-  const getDepartmentColor = (department: string): string => {
-    switch (department) {
-      case "Degree":
-        return "bg-primary-100 text-primary-800";
-      case "Diploma":
-        return "bg-amber-100 text-amber-800";
-      case "ITI":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+    return faculties.filter((faculty) => {
+      // 1. Department/Institute filter
+      const matchesDepartment =
+        activeDepartment === "ALL" ||
+        faculty.instituteCode === activeDepartment;
 
-  const openFacultyModal = (faculty: Faculty) => {
+      // 2. Search name
+      const matchesName = faculty.fullName
+        .toLowerCase()
+        .startsWith(debouncedQuery);
+
+      return matchesDepartment && matchesName;
+    });
+  }, [faculties, activeDepartment, debouncedQuery]);
+
+  const openFacultyModal = useCallback((faculty: FacultyCardType) => {
     setSelectedFaculty(faculty);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, []);
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <header className="bg-gradient-to-r from-primary-700 to-indigo-800 text-white py-16">
+      <header className="bg-linear-to-r from-primary-700 to-indigo-800 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight">
             Our Faculty
@@ -96,7 +106,7 @@ const Faculties = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           <div className="flex flex-col md:flex-row md:items-center gap-4">
-            <div className="flex-grow">
+            <div className="grow">
               <label htmlFor="faculty-search" className="sr-only">
                 Search faculty
               </label>
@@ -117,18 +127,18 @@ const Faculties = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {departments.map((dept) => (
+              {institues.map((institute) => (
                 <button
-                  key={dept.id}
-                  onClick={() => setActiveDepartment(dept.id)}
+                  key={institute.value}
+                  onClick={() => setActiveDepartment(institute.value)}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium cursor-pointer 
                     ${
-                      activeDepartment === dept.id
+                      activeDepartment === institute.value
                         ? "bg-primary-100 text-primary-800 border border-primary-300"
                         : "bg-gray-100 text-gray-800 border border-gray-200 hover:bg-gray-200"
                     }`}
                 >
-                  {dept.label}
+                  {institute.label}
                 </button>
               ))}
             </div>
@@ -195,7 +205,7 @@ const Faculties = () => {
                   <FacultyCard
                     faculty={faculty}
                     openFacultyModal={openFacultyModal}
-                    getDepartmentColor={getDepartmentColor}
+                    getInstituteColor={getInstituteColor}
                   />
                 </motion.div>
               ))}
@@ -210,7 +220,7 @@ const Faculties = () => {
               selectedFaculty={selectedFaculty}
               isModalOpen={isModalOpen}
               closeModal={closeModal}
-              getDepartmentColor={getDepartmentColor}
+              getInstituteColor={getInstituteColor}
             />
           )}
         </AnimatePresence>
