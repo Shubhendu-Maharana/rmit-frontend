@@ -7,7 +7,7 @@ import { RootState } from "src/store";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
-  const { user, isLoading } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
 
@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     if (!user) {
       navigator("/adminlogin");
     }
-  }, [navigator, user, isLoading]);
+  }, [navigator, user]);
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">

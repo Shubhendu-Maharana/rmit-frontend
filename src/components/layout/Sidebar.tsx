@@ -27,8 +27,7 @@ const SideBar = ({
   const navigator = useNavigate();
   const dispatch = useDispatch();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
-  const [isLoading, setIsLoading] = useState(false);
-  const [logoutMutation] = useLogoutMutation();
+  const [logoutMutation, { isLoading }] = useLogoutMutation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -55,7 +54,6 @@ const SideBar = ({
   const handleLogout = async () => {
     if (isLoading) return;
     try {
-      setIsLoading(true);
       await logoutMutation().unwrap();
       toast.success("Logout successful");
       navigator("/adminlogin");
@@ -63,7 +61,6 @@ const SideBar = ({
       navigator("/adminlogin");
     } finally {
       dispatch(clearCredentials());
-      setIsLoading(false);
     }
   };
 

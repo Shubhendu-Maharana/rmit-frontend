@@ -1,26 +1,43 @@
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
+import { useLoginMutation } from "../../store/api/authApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/slices/authSlice";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const StudentLogin = () => {
-  const [email, setEmail] = useState("");
+  const navigator = useNavigate();
+  const dispatch = useDispatch();
+  const [rollNumber, setRollNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [loginMutation, { isLoading }] = useLoginMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrorMessage("");
-
-    setTimeout(() => {
-      if (email === "admin@college.edu" && password === "password") {
-        window.location.href = "/admin/dashboard";
-      } else {
-        setErrorMessage("Invalid email or password. Please try again.");
-        setIsLoading(false);
+    try {
+      const response = await loginMutation({ rollNumber, password }).unwrap();
+      const userRole = response.data.user.role;
+      if (userRole !== "STUDENT") {
+        throw new Error("You are not authorized to login as STUDENT");
       }
-    }, 1000);
+      dispatch(
+        setCredentials({
+          user: response.data.user,
+          token: response.data.token,
+        }),
+      );
+      toast.success("Login successful");
+      navigator("/admin/dashboard");
+    } catch (error) {
+      const err = error as { data?: { message?: string }; message?: string };
+      const errMsg = err?.data?.message || err?.message || "Login failed";
+      setErrorMessage(errMsg);
+      toast.error(errMsg);
+    }
   };
 
   return (
@@ -70,21 +87,20 @@ const StudentLogin = () => {
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label
-                  htmlFor="email"
+                  htmlFor="rollNumber"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Email Address
+                  Roll Number
                 </label>
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="rollNumber"
+                  name="rollNumber"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={rollNumber}
+                  onChange={(e) => setRollNumber(e.target.value)}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                  placeholder="student@college.edu"
+                  placeholder="RMIT2026001"
                 />
               </div>
 

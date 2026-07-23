@@ -4,13 +4,11 @@ import { DatabaseUser } from "@app/types/users";
 export interface AuthState {
   token: string | null;
   user: DatabaseUser | null;
-  isLoading: boolean;
 }
 
 const initialState: AuthState = {
   token: null,
   user: null,
-  isLoading: false,
 };
 
 const authSlice = createSlice({
@@ -28,13 +26,9 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
   },
 });
 
-export const { setCredentials, clearCredentials, setLoading } =
-  authSlice.actions;
+export const { setCredentials, clearCredentials } = authSlice.actions;
 
 export default authSlice.reducer;
