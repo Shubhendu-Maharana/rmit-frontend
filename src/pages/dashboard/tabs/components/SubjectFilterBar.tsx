@@ -93,7 +93,8 @@ export const SubjectFilterBar: React.FC<SubjectFilterBarProps> = ({
                 <option
                   value={
                     currentUser?.adminProfile?.institute ||
-                    currentUser?.facultyProfile?.institute
+                    currentUser?.facultyProfile?.institute ||
+                    ""
                   }
                 >
                   {currentUser?.adminProfile?.institute ||
