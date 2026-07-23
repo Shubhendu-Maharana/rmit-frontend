@@ -68,7 +68,7 @@ export const userApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Course"],
+  tagTypes: ["User"],
   endpoints: (builder) => ({
     getUsers: builder.query<{ success: boolean; data: User[] }, GetUsersParams>(
       {
@@ -141,16 +141,6 @@ export const userApi = createApi({
         body: formData,
       }),
     }),
-    getCourses: builder.query<
-      { success: boolean; data: Course[] },
-      { institute?: Institute } | void
-    >({
-      query: (params) => ({
-        url: "/courses",
-        params: params || undefined,
-      }),
-      providesTags: [{ type: "Course", id: "LIST" }],
-    }),
   }),
 });
 
@@ -162,5 +152,4 @@ export const {
   useDeleteUserMutation,
   useRestoreUserMutation,
   useUploadFileMutation,
-  useGetCoursesQuery,
 } = userApi;

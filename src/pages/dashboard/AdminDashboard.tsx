@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "src/store";
 import UserManagement from "./tabs/UserManagement";
+import CourseManagement from "./tabs/CourseManagement";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
@@ -22,6 +23,8 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case "users":
         return <UserManagement />;
+      case "courses":
+        return <CourseManagement />;
       case "dashboard":
       default:
         return (
@@ -84,15 +87,21 @@ const AdminDashboard = () => {
               </button>
             )}
             <h1 className="md:text-2xl text-xl font-bold text-gray-800 font-sans">
-              {activeTab === "users" ? "User Management" : "Dashboard Overview"}
+              {activeTab === "users"
+                ? "User Management"
+                : activeTab === "courses"
+                  ? "Course Management"
+                  : "Dashboard Overview"}
             </h1>
           </div>
         </header>
 
         {/* Content area */}
-        <main className={`flex-1 overflow-y-auto p-6 md:p-10 bg-gray-50 ${
-          activeTab === "dashboard" ? "flex items-center justify-center" : ""
-        }`}>
+        <main
+          className={`flex-1 overflow-y-auto p-6 md:p-10 bg-gray-50 ${
+            activeTab === "dashboard" ? "flex items-center justify-center" : ""
+          }`}
+        >
           {renderContent()}
         </main>
       </div>

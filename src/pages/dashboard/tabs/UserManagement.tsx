@@ -8,8 +8,8 @@ import {
   useDeleteUserMutation,
   useRestoreUserMutation,
   useUploadFileMutation,
-  useGetCoursesQuery,
 } from "../../../store/api/userApi";
+import { useGetCoursesQuery } from "../../../store/api/courseApi";
 import { Role, Institute, User } from "../../../types/dataTypes";
 import { toast } from "react-toastify";
 import WarningModal from "../../../components/ui/WarningModal";

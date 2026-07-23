@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { FiLoader, FiLogOut, FiMenu, FiUsers, FiX, FiGrid } from "react-icons/fi";
+import {
+  FiLoader,
+  FiLogOut,
+  FiMenu,
+  FiUsers,
+  FiX,
+  FiGrid,
+  FiBookOpen,
+} from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { useLogoutMutation } from "../../store/api/authApi";
@@ -36,6 +44,14 @@ const SideBar = ({
       id: "users",
       name: "User Management",
       icon: <FiUsers size={20} />,
+    });
+  }
+
+  if (user && user.role === "SUPER_ADMIN") {
+    tabs.push({
+      id: "courses",
+      name: "Course Management",
+      icon: <FiBookOpen size={20} />,
     });
   }
 
@@ -178,7 +194,7 @@ const SideBar = ({
                 whileHover={{ x: 5 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleTabClick(tab.id)}
-                className={`flex items-center p-3 rounded-xl cursor-pointer transition-all duration-200 group ${
+                className={`relative flex items-center p-3 rounded-xl cursor-pointer transition-all duration-200 group ${
                   activeTab === tab.id
                     ? "bg-white text-primary-800 shadow-lg"
                     : "hover:bg-white/10 text-white/80 hover:text-white"
@@ -195,12 +211,6 @@ const SideBar = ({
                 >
                   {tab.name}
                 </motion.span>
-                {activeTab === tab.id && isOpen && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-800"
-                  />
-                )}
               </motion.div>
             ))}
           </div>

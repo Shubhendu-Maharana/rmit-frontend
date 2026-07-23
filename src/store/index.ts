@@ -12,12 +12,14 @@ import {
 import authReducer from "./slices/authSlice";
 import { authApi } from "./api/authApi";
 import { userApi } from "./api/userApi";
+import { courseApi } from "./api/courseApi";
 import { reduxPersistStorage } from "./mmkvStorage";
 
 const rootReducer = combineReducers({
   auth: authReducer,
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
+  [courseApi.reducerPath]: courseApi.reducer,
 });
 
 const persistConfig = {
@@ -35,7 +37,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(authApi.middleware, userApi.middleware),
+    }).concat(authApi.middleware, userApi.middleware, courseApi.middleware),
 });
 
 export const persistor = persistStore(store);
