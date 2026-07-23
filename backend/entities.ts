@@ -34,6 +34,8 @@ export interface User {
   role: Role;
   isDeleted: boolean;
   createdBy: string | null;
+  creator?: User | null;
+  createdUsers?: User[];
   createdAt: Date;
   updatedAt: Date;
   superAdminProfile?: SuperAdminProfile | null;

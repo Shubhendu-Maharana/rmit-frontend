@@ -93,6 +93,29 @@ Clears the HTTP-only token cookie.
 
 ---
 
+## Health Check Endpoint (`/api/health`)
+
+Monitors system health, uptime, and database connectivity.
+
+### 1. System Health Status
+- **Route**: `GET /api/health`
+- **Headers**: None (Public endpoint)
+- **Success Response (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "System health status retrieved successfully",
+    "data": {
+      "status": "UP",
+      "uptime": 142.84, // Process uptime in seconds
+      "timestamp": "2026-07-23T18:51:52.000Z",
+      "database": "CONNECTED" // "CONNECTED" or error message details
+    }
+  }
+  ```
+
+---
+
 ## User Management Endpoints (`/api/users`)
 
 ### 1. Retrieve Self Profile
