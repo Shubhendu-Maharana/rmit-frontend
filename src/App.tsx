@@ -9,7 +9,6 @@ import TimeTables from "./pages/academics/Timetables";
 import Faculties from "./pages/admin/Faculties";
 import AdminLogin from "./pages/admin/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
-import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/dashboard/DashboardIndex";
 import NotFoundPage from "./pages/NotFoundPage";
 import { ToastContainer } from "react-toastify";
@@ -26,7 +25,7 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   return (
-    <AuthProvider>
+    <>
       <ScrollToTop />
       <Routes>
         <Route
@@ -89,7 +88,7 @@ const App = () => {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <ToastContainer position="top-right" autoClose={5000} />
-    </AuthProvider>
+    </>
   );
 };
 

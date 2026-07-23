@@ -1,4 +1,4 @@
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 import AdminDashboard from "./AdminDashboard";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { Navigate } from "react-router";

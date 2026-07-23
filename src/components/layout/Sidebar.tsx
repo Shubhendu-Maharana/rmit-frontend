@@ -10,7 +10,8 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
-import { signOut } from "@services/auth";
+import { useLogoutMutation } from "../../store/api/apiSlice";
+import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
 interface SideBarProps {
@@ -36,6 +37,8 @@ const SideBar = ({
   const navigator = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isLoading, setIsLoading] = useState(false);
+  const { logout } = useAuth();
+  const [logoutMutation] = useLogoutMutation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -63,13 +66,13 @@ const SideBar = ({
     if (isLoading) return;
     try {
       setIsLoading(true);
-      await signOut();
+      await logoutMutation().unwrap();
+      logout();
       toast.success("Logout successful");
       navigator("/adminlogin");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Logout failed";
-      toast.error(errorMessage);
+      logout();
+      navigator("/adminlogin");
     } finally {
       setIsLoading(false);
     }

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { signIn } from "../../services/auth";
+import { useLoginMutation } from "../../store/api/apiSlice";
+import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
@@ -10,22 +11,21 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [role, setRole] = useState<"admin" | "faculty">("admin");
+  const [loginMutation, { isLoading }] = useLoginMutation();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      setIsLoading(true);
-      const data = await signIn(email, password, role);
-      if (data) toast.success("Login successful");
+      const data = await loginMutation({ email, password, role }).unwrap();
+      login(data.user, data.token);
+      toast.success("Login successful");
       navigator("/admin/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage =
-        error instanceof Error ? error.message : "Login failed";
+        error?.data?.message || error?.message || "Login failed";
       toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 

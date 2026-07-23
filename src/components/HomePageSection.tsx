@@ -36,7 +36,9 @@ const HomePageSection = ({
             </div>
           </div>
           <div className="md:w-1/2">
-            <h2 className="text-3xl font-bold text-primary-900 mb-4">{heading}</h2>
+            <h2 className="text-3xl font-bold text-primary-900 mb-4">
+              {heading}
+            </h2>
             <p className="text-gray-700 mb-6 text-justify">{para}</p>
             {linkText && (
               <NavLink
