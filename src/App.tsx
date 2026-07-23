@@ -5,12 +5,12 @@ import Footer from "./components/layout/Footer";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import Programs from "./pages/academics/Programs";
 import Notices from "./pages/academics/Notices";
-import TimeTables from "./pages/academics/TimeTables";
-import Faculties from "./pages/administrations/Faculties";
-import AdminLogin from "./pages/administrations/AdminLogin";
+import TimeTables from "./pages/academics/Timetables";
+import Faculties from "./pages/admin/Faculties";
+import AdminLogin from "./pages/admin/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
 import { AuthProvider } from "./contexts/AuthContext";
-import Index from "./pages/dashboard/Index";
+import Index from "./pages/dashboard/DashboardIndex";
 import NotFoundPage from "./pages/NotFoundPage";
 import { ToastContainer } from "react-toastify";
 

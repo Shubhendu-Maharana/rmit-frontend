@@ -6,12 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { DatabaseUser } from "@app/types/users";
-import { apiClient } from "@services/apiClient";
-
-export interface UserSession {
-  token: string;
-  user: DatabaseUser;
-}
+import { onAuthStateChange, UserSession } from "@services/auth";
 
 interface AuthContextType {
   session: UserSession | null;
@@ -41,31 +36,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const getInitialSession = async () => {
       try {
         setIsLoading(true);
-        if (apiClient.isDemoMode()) {
-          const storedSessionStr = localStorage.getItem("rmit_auth_session");
-          if (storedSessionStr) {
-            const storedSession = JSON.parse(storedSessionStr) as UserSession;
-            setSession(storedSession);
-            setUser(storedSession.user);
-            setDatabaseUser(storedSession.user);
-          }
-        } else {
-          // If a custom backend is configured, retrieve the user profile
-          const token = localStorage.getItem("rmit_auth_token");
-          if (token) {
-            const me = await apiClient.get<DatabaseUser>("/users/me");
-            const activeSession = { token, user: me };
-            setSession(activeSession);
-            setUser(me);
-            setDatabaseUser(me);
-          }
+        const storedSessionStr = localStorage.getItem("rmit_auth_session");
+        if (storedSessionStr) {
+          const storedSession = JSON.parse(storedSessionStr) as UserSession;
+          setSession(storedSession);
+          setUser(storedSession.user);
+          setDatabaseUser(storedSession.user);
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
-        // Clear token on authorization failure
-        localStorage.removeItem("rmit_auth_token");
-        localStorage.removeItem("rmit_auth_session");
-        localStorage.removeItem("rmit_auth_user");
       } finally {
         setIsLoading(false);
       }
@@ -73,23 +52,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     getInitialSession();
 
-    // Listen to authentication changes
-    const {
-      data: { subscription },
-    } = apiClient.onAuthStateChange((event, newSession) => {
-      if (event === "SIGNED_OUT" || !newSession) {
-        setSession(null);
-        setUser(null);
-        setDatabaseUser(null);
-      } else {
-        setSession(newSession);
-        setUser(newSession.user);
-        setDatabaseUser(newSession.user);
-      }
+    // Listen to authentication changes from local auth service
+    const unsubscribe = onAuthStateChange((newSession) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+      setDatabaseUser(newSession?.user ?? null);
     });
 
     return () => {
-      subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 

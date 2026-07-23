@@ -1,20 +1,17 @@
-import { apiClient } from "@services/apiClient";
 import type { Notice } from "@app/types/dataTypes";
 
 export const getNotices = async (): Promise<Notice[]> => {
-  return apiClient.get<Notice[]>("/notices");
+  return [];
 };
 
 export const postNotice = async (notice: Notice): Promise<Notice> => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id, ...rest } = notice;
-  return apiClient.post<Notice>("/notices", rest);
+  return notice;
 };
 
 export const updateNotice = async (notice: Notice): Promise<Notice> => {
-  return apiClient.put<Notice>(`/notices/${notice.id}`, notice);
+  return notice;
 };
 
-export const deleteNotice = async (id: string): Promise<void> => {
-  await apiClient.delete<void>(`/notices/${id}`);
+export const deleteNotice = async (_id: string): Promise<void> => {
+  return Promise.resolve();
 };

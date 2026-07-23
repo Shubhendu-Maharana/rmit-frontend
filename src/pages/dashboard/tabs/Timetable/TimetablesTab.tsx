@@ -18,7 +18,7 @@ import {
   getTimeTables,
   postTimetable,
   updateTimetable,
-} from "@services/timeTables";
+} from "@services/timetables";
 import { Timetable } from "@app/types/dataTypes";
 import { toast } from "react-toastify";
 

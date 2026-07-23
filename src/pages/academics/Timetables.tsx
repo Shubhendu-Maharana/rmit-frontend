@@ -5,7 +5,7 @@ import TimetableCard from "../../components/TimeTableCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "lucide-react";
 import type { Timetable, ProgramType } from "@app/types/dataTypes";
-import { getTimeTables } from "@services/timeTables";
+import { getTimeTables } from "@services/timetables";
 
 const programTypes = [
   { id: "All", label: "All Types" },

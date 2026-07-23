@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import SideBar from "../../components/layout/SideBar";
+import Sidebar from "../../components/layout/Sidebar";
 import FacultyTab from "./tabs/Faculty/FacultyTab";
 import StudentTab from "./tabs/Student/StudentTab";
 import NoticesTab from "./tabs/Notice/NoticesTab";
@@ -23,7 +23,7 @@ const AdminDashboard = () => {
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <SideBar
+      <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isOpen={sidebarOpen}
