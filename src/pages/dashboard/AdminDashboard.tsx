@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
 import { FiMenu } from "react-icons/fi";
-import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "src/store";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
-  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!user) {
       navigator("/adminlogin");
     }
   }, [navigator, user, isLoading]);
@@ -56,14 +57,21 @@ const AdminDashboard = () => {
             </p>
             <div className="bg-primary-50 p-4 rounded-xl text-left border border-primary-100 mb-6">
               <p className="text-sm font-semibold text-primary-900 font-sans">
-                Email: <span className="font-normal text-gray-700">{user?.email || "N/A"}</span>
+                Email:{" "}
+                <span className="font-normal text-gray-700">
+                  {user?.email || "N/A"}
+                </span>
               </p>
               <p className="text-sm font-semibold text-primary-900 font-sans mt-2">
-                Role: <span className="font-normal text-gray-700">{user?.role}</span>
+                Role:{" "}
+                <span className="font-normal text-gray-700">{user?.role}</span>
               </p>
               {user?.rollNumber && (
                 <p className="text-sm font-semibold text-primary-900 font-sans mt-2">
-                  Roll Number: <span className="font-normal text-gray-700">{user?.rollNumber}</span>
+                  Roll Number:{" "}
+                  <span className="font-normal text-gray-700">
+                    {user?.rollNumber}
+                  </span>
                 </p>
               )}
             </div>

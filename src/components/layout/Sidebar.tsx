@@ -1,16 +1,11 @@
 import { useState, useEffect } from "react";
-import {
-  FiLoader,
-  FiLogOut,
-  FiMenu,
-  FiUsers,
-  FiX,
-} from "react-icons/fi";
+import { FiLoader, FiLogOut, FiMenu, FiUsers, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { useLogoutMutation } from "../../store/api/authApi";
-import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { clearCredentials } from "../../store/slices/authSlice";
 
 interface SideBarProps {
   activeTab: string;
@@ -30,9 +25,9 @@ const SideBar = ({
   setIsOpen,
 }: SideBarProps) => {
   const navigator = useNavigate();
+  const dispatch = useDispatch();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isLoading, setIsLoading] = useState(false);
-  const { logout } = useAuth();
   const [logoutMutation] = useLogoutMutation();
 
   useEffect(() => {
@@ -62,13 +57,12 @@ const SideBar = ({
     try {
       setIsLoading(true);
       await logoutMutation().unwrap();
-      logout();
       toast.success("Logout successful");
       navigator("/adminlogin");
     } catch (error) {
-      logout();
       navigator("/adminlogin");
     } finally {
+      dispatch(clearCredentials());
       setIsLoading(false);
     }
   };

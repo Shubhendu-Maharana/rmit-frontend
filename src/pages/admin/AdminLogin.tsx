@@ -2,18 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useLoginMutation } from "../../store/api/authApi";
-import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../store/slices/authSlice";
 
 const AdminLogin = () => {
   const navigator = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"admin" | "faculty">("admin");
   const [loginMutation, { isLoading }] = useLoginMutation();
-  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,15 +22,23 @@ const AdminLogin = () => {
       const response = await loginMutation({ email, password }).unwrap();
       const userRole = response.data.user.role;
       const expectedRole = role.toUpperCase();
-      if (userRole !== expectedRole && !(role === "admin" && userRole === "SUPER_ADMIN")) {
+      if (
+        userRole !== expectedRole &&
+        !(role === "admin" && userRole === "SUPER_ADMIN")
+      ) {
         throw new Error("You are not authorized to login as " + role);
       }
-      login(response.data.user, response.data.token);
+      dispatch(
+        setCredentials({
+          user: response.data.user,
+          token: response.data.token,
+        }),
+      );
       toast.success("Login successful");
       navigator("/admin/dashboard");
-    } catch (error: any) {
-      const errorMessage =
-        error?.data?.message || error?.message || "Login failed";
+    } catch (error) {
+      const err = error as { data?: { message?: string }; message?: string };
+      const errorMessage = err?.data?.message || err?.message || "Login failed";
       toast.error(errorMessage);
     }
   };

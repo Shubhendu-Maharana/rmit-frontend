@@ -9,23 +9,21 @@ export interface LoginRequest {
 }
 
 export interface AuthResponseData {
-  token: string;
-  user: User;
-}
-
-export interface ApiResponse<T> {
   success: boolean;
   message: string;
-  data: T;
-  timestamp?: string;
+  data: {
+    token: string;
+    user: User;
+  };
+  timestamp: string;
 }
+
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: (
-      import.meta.env.VITE_API_URL || "http://localhost:3000/api"
-    ).replace(/\/$/, ""),
+    baseUrl: BASE_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {
@@ -35,20 +33,20 @@ export const authApi = createApi({
     },
   }),
   endpoints: (builder) => ({
-    login: builder.mutation<ApiResponse<AuthResponseData>, LoginRequest>({
+    login: builder.mutation<AuthResponseData, LoginRequest>({
       query: (credentials) => ({
         url: "/auth/login",
         method: "POST",
         body: credentials,
       }),
     }),
-    logout: builder.mutation<ApiResponse<void>, void>({
+    logout: builder.mutation<void, void>({
       query: () => ({
         url: "/auth/logout",
         method: "POST",
       }),
     }),
-    getMe: builder.query<ApiResponse<User>, void>({
+    getMe: builder.query<User, void>({
       query: () => "/users/me",
     }),
   }),
