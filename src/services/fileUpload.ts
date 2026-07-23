@@ -1,4 +1,4 @@
-import supabase from "@services/supabase";
+import { apiClient } from "@services/apiClient";
 
 export const uploadFile = async ({
   file,
@@ -6,21 +6,34 @@ export const uploadFile = async ({
 }: {
   file: File;
   bucket: "student-images" | "faculty-images" | "notices" | "timetables";
-}) => {
-  const fileExt = file.name.split(".").pop();
-  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-  const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
-    cacheControl: "3600",
-    upsert: false,
+}): Promise<string> => {
+  if (apiClient.isDemoMode()) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.onerror = () => {
+        reject(new Error("Failed to read file in demo mode"));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("bucket", bucket);
+
+  const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+  const res = await fetch(`${API_URL}/upload`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${localStorage.getItem("rmit_auth_token")}`,
+    },
+    body: formData,
   });
 
-  if (error) throw error;
-
-  const { data: publicUrlData } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(fileName);
-
-  if (publicUrlData && publicUrlData.publicUrl) {
-    return publicUrlData.publicUrl;
-  }
+  if (!res.ok) throw new Error((await res.text()) || "Upload failed");
+  const data = await res.json();
+  return data.url; // assuming backend returns { url: "..." }
 };

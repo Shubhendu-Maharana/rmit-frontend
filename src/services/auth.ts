@@ -1,26 +1,24 @@
-import supabase from "@services/supabase";
+import { apiClient } from "@services/apiClient";
+import { DatabaseUser } from "@app/types/users";
+
+export interface AuthResponse {
+  user: DatabaseUser;
+  token: string;
+}
 
 export const signIn = async (
   email: string,
   password: string,
   role: "admin" | "faculty",
-) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
+): Promise<AuthResponse> => {
+  const data = await apiClient.post<AuthResponse>("/auth/login", {
     email,
     password,
+    role,
   });
-  if (error) throw error;
-  const { data: userFromTable, error: userError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .single();
-  if (userError) throw userError;
-  if (userFromTable.role !== role)
-    throw new Error("You are not authorized to login as " + role);
   return data;
 };
 
-export const signOut = async () => {
-  return await supabase.auth.signOut();
+export const signOut = async (): Promise<void> => {
+  await apiClient.post<void>("/auth/logout", {});
 };

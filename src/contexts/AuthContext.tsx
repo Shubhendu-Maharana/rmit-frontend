@@ -5,13 +5,17 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { Session, User } from "@supabase/supabase-js";
 import { DatabaseUser } from "@app/types/users";
-import supabase from "@services/supabase";
+import { apiClient } from "@services/apiClient";
+
+export interface UserSession {
+  token: string;
+  user: DatabaseUser;
+}
 
 interface AuthContextType {
-  session: Session | null;
-  user: User | null;
+  session: UserSession | null;
+  user: DatabaseUser | null;
   isLoading: boolean;
   databaseUser: DatabaseUser | null;
 }
@@ -28,8 +32,8 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<UserSession | null>(null);
+  const [user, setUser] = useState<DatabaseUser | null>(null);
   const [databaseUser, setDatabaseUser] = useState<DatabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -37,24 +41,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const getInitialSession = async () => {
       try {
         setIsLoading(true);
-
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
-        if (error) {
-          throw error;
+        if (apiClient.isDemoMode()) {
+          const storedSessionStr = localStorage.getItem("rmit_auth_session");
+          if (storedSessionStr) {
+            const storedSession = JSON.parse(storedSessionStr) as UserSession;
+            setSession(storedSession);
+            setUser(storedSession.user);
+            setDatabaseUser(storedSession.user);
+          }
+        } else {
+          // If a custom backend is configured, retrieve the user profile
+          const token = localStorage.getItem("rmit_auth_token");
+          if (token) {
+            const me = await apiClient.get<DatabaseUser>("/users/me");
+            const activeSession = { token, user: me };
+            setSession(activeSession);
+            setUser(me);
+            setDatabaseUser(me);
+          }
         }
-
-        if (session) {
-          getDatabaseUser(session.user.email);
-        }
-
-        setSession(session);
-        setUser(session?.user ?? null);
       } catch (error) {
         console.error("Error getting initial session:", error);
+        // Clear token on authorization failure
+        localStorage.removeItem("rmit_auth_token");
+        localStorage.removeItem("rmit_auth_session");
+        localStorage.removeItem("rmit_auth_user");
       } finally {
         setIsLoading(false);
       }
@@ -62,28 +73,25 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     getInitialSession();
 
+    // Listen to authentication changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      getDatabaseUser(session?.user.email);
+    } = apiClient.onAuthStateChange((event, newSession) => {
+      if (event === "SIGNED_OUT" || !newSession) {
+        setSession(null);
+        setUser(null);
+        setDatabaseUser(null);
+      } else {
+        setSession(newSession);
+        setUser(newSession.user);
+        setDatabaseUser(newSession.user);
+      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
-
-  const getDatabaseUser = async (email: string | undefined) => {
-    if (!email) return;
-    const { data: databaseUser } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", email)
-      .single();
-    setDatabaseUser(databaseUser);
-  };
 
   const value: AuthContextType = {
     session,

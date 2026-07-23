@@ -1,45 +1,20 @@
-import supabase from "@services/supabase";
+import { apiClient } from "@services/apiClient";
 import { Student } from "@app/types/dataTypes";
 
 export const getStudents = async (): Promise<Student[]> => {
-  const { data, error } = await supabase.from("students").select("*");
-  if (error) {
-    throw error;
-  }
-  return data as Student[];
+  return apiClient.get<Student[]>("/students");
 };
 
 export const addStudent = async (student: Student): Promise<Student> => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id, ...rest } = student;
-  const { data, error } = await supabase
-    .from("students")
-    .insert([rest])
-    .select()
-    .single();
-  if (error) {
-    throw error;
-  }
-  return data as Student;
+  return apiClient.post<Student>("/students", rest);
 };
 
 export const updateStudent = async (student: Student): Promise<Student> => {
-  const { id, ...rest } = student;
-  const { data, error } = await supabase
-    .from("students")
-    .update(rest)
-    .eq("id", id)
-    .select()
-    .single();
-  if (error) {
-    throw error;
-  }
-  return data as Student;
+  return apiClient.put<Student>(`/students/${student.id}`, student);
 };
 
 export const deleteStudent = async (id: string): Promise<void> => {
-  const { error } = await supabase.from("students").delete().eq("id", id);
-  if (error) {
-    throw error;
-  }
+  await apiClient.delete<void>(`/students/${id}`);
 };

@@ -1,48 +1,20 @@
-import supabase from "@services/supabase";
+import { apiClient } from "@services/apiClient";
 import type { Notice } from "@app/types/dataTypes";
 
 export const getNotices = async (): Promise<Notice[]> => {
-  const { data, error } = await supabase.from("notices").select("*");
-  if (error) {
-    throw error;
-  }
-  return data as Notice[];
+  return apiClient.get<Notice[]>("/notices");
 };
 
 export const postNotice = async (notice: Notice): Promise<Notice> => {
-  const { data, error } = await supabase
-    .from("notices")
-    .insert([
-      {
-        title: notice.title,
-        date: notice.date,
-        category: notice.category,
-        file_path: notice.file_path,
-        important: notice.important,
-      },
-    ])
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data[0] as Notice;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, ...rest } = notice;
+  return apiClient.post<Notice>("/notices", rest);
 };
 
 export const updateNotice = async (notice: Notice): Promise<Notice> => {
-  const { data, error } = await supabase
-    .from("notices")
-    .update(notice)
-    .eq("id", notice.id)
-    .select();
-  if (error) {
-    throw error;
-  }
-  return data[0] as Notice;
+  return apiClient.put<Notice>(`/notices/${notice.id}`, notice);
 };
 
 export const deleteNotice = async (id: string): Promise<void> => {
-  const { error } = await supabase.from("notices").delete().eq("id", id);
-  if (error) {
-    throw error;
-  }
+  await apiClient.delete<void>(`/notices/${id}`);
 };

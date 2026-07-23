@@ -5,7 +5,7 @@ import Skeleton from "../../components/ui/Skeleton";
 import { IoSearch } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
 import type { FacultyCard as FacultyCardType } from "@app/types/dataTypes";
-import { getFaculties } from "@services/faculty";
+import { getFacultyCards } from "@services/faculty";
 
 const institues = [
   { label: "All", value: "ALL" },
@@ -41,7 +41,7 @@ const Faculties = () => {
     const fetchFaculties = async () => {
       try {
         setIsLoading(true);
-        const data = await getFaculties();
+        const data = await getFacultyCards();
         setFaculties(data);
       } catch (error) {
         console.error("Error fetching faculties:", error);

@@ -9,7 +9,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, Variants } from "motion/react";
 import { signOut } from "@services/auth";
 import { toast } from "react-toastify";
 
@@ -34,15 +34,17 @@ const SideBar = ({
   setIsOpen,
 }: SideBarProps) => {
   const navigator = useNavigate();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 1024;
+      const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
       if (!mobile) {
         setIsOpen(true);
+      } else {
+        setIsOpen(false);
       }
     };
 
@@ -73,7 +75,7 @@ const SideBar = ({
     }
   };
 
-  const sidebarVariants = {
+  const sidebarVariants: Variants = {
     open: {
       width: isMobile ? "280px" : "260px",
       x: 0,
@@ -96,7 +98,7 @@ const SideBar = ({
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     open: {
       opacity: 1,
       x: 0,
@@ -109,7 +111,7 @@ const SideBar = ({
     },
   };
 
-  const textVariants = {
+  const textVariants: Variants = {
     open: {
       opacity: 1,
       display: "block",
