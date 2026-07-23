@@ -14,6 +14,7 @@ import { authApi } from "./api/authApi";
 import { userApi } from "./api/userApi";
 import { courseApi } from "./api/courseApi";
 import { noticeApi } from "./api/noticeApi";
+import { subjectApi } from "./api/subjectApi";
 import { reduxPersistStorage } from "./mmkvStorage";
 
 const rootReducer = combineReducers({
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   [userApi.reducerPath]: userApi.reducer,
   [courseApi.reducerPath]: courseApi.reducer,
   [noticeApi.reducerPath]: noticeApi.reducer,
+  [subjectApi.reducerPath]: subjectApi.reducer,
 });
 
 const persistConfig = {
@@ -44,6 +46,7 @@ export const store = configureStore({
       userApi.middleware,
       courseApi.middleware,
       noticeApi.middleware,
+      subjectApi.middleware,
     ),
 });
 

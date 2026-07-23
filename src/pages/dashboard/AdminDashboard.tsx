@@ -7,6 +7,7 @@ import { RootState } from "src/store";
 import UserManagement from "./tabs/UserManagement";
 import CourseManagement from "./tabs/CourseManagement";
 import NoticeManagement from "./tabs/NoticeManagement";
+import SubjectManagement from "./tabs/SubjectManagement";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
@@ -28,6 +29,8 @@ const AdminDashboard = () => {
         return <CourseManagement />;
       case "notices":
         return <NoticeManagement />;
+      case "subjects":
+        return <SubjectManagement />;
       case "dashboard":
       default:
         return (
@@ -96,7 +99,9 @@ const AdminDashboard = () => {
                   ? "Course Management"
                   : activeTab === "notices"
                     ? "Notice Management"
-                    : "Dashboard Overview"}
+                    : activeTab === "subjects"
+                      ? "Subject Management"
+                      : "Dashboard Overview"}
             </h1>
           </div>
         </header>

@@ -8,6 +8,7 @@ import {
   FiGrid,
   FiBookOpen,
   FiBell,
+  FiBook,
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
@@ -53,6 +54,14 @@ const SideBar = ({
       id: "courses",
       name: "Course Management",
       icon: <FiBookOpen size={20} />,
+    });
+  }
+
+  if (user && user.role !== "STUDENT") {
+    tabs.push({
+      id: "subjects",
+      name: "Subject Management",
+      icon: <FiBook size={20} />,
     });
   }
 
