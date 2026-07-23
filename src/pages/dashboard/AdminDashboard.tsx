@@ -4,6 +4,7 @@ import { FiMenu } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import { RootState } from "src/store";
+import UserManagement from "./tabs/UserManagement";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
@@ -17,37 +18,13 @@ const AdminDashboard = () => {
     }
   }, [navigator, user]);
 
-  return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isOpen={sidebarOpen}
-        setIsOpen={setSidebarOpen}
-      />
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Top header */}
-        <header className="bg-white border-b border-gray-200 flex items-center justify-between p-4 shadow-sm z-30">
-          <div className="flex items-center gap-4">
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors lg:hidden"
-              >
-                <FiMenu size={24} className="text-gray-600" />
-              </button>
-            )}
-            <h1 className="md:text-2xl text-xl font-bold text-gray-800 font-sans">
-              Dashboard Overview
-            </h1>
-          </div>
-        </header>
-
-        {/* Content area */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-10 bg-gray-50 flex items-center justify-center">
+  const renderContent = () => {
+    switch (activeTab) {
+      case "users":
+        return <UserManagement />;
+      case "dashboard":
+      default:
+        return (
           <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md border border-gray-100 text-center">
             <h2 className="text-3xl font-extrabold text-primary-900 mb-2 font-sans">
               Welcome Back!
@@ -79,6 +56,44 @@ const AdminDashboard = () => {
               Rajiv Memorial Institute of Technology Management System
             </p>
           </div>
+        );
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isOpen={sidebarOpen}
+        setIsOpen={setSidebarOpen}
+      />
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        {/* Top header */}
+        <header className="bg-white border-b border-gray-200 flex items-center justify-between p-4 shadow-sm z-30">
+          <div className="flex items-center gap-4">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors lg:hidden pointer-events-auto"
+              >
+                <FiMenu size={24} className="text-gray-600" />
+              </button>
+            )}
+            <h1 className="md:text-2xl text-xl font-bold text-gray-800 font-sans">
+              {activeTab === "users" ? "User Management" : "Dashboard Overview"}
+            </h1>
+          </div>
+        </header>
+
+        {/* Content area */}
+        <main className={`flex-1 overflow-y-auto p-6 md:p-10 bg-gray-50 ${
+          activeTab === "dashboard" ? "flex items-center justify-center" : ""
+        }`}>
+          {renderContent()}
         </main>
       </div>
     </div>

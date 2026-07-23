@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { FiLoader, FiLogOut, FiMenu, FiUsers, FiX } from "react-icons/fi";
+import { FiLoader, FiLogOut, FiMenu, FiUsers, FiX, FiGrid } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { useLogoutMutation } from "../../store/api/authApi";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearCredentials } from "../../store/slices/authSlice";
+import { RootState } from "../../store";
 
 interface SideBarProps {
   activeTab: string;
@@ -13,10 +14,6 @@ interface SideBarProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
-
-const tabs = [
-  { id: "dashboard", name: "Dashboard", icon: <FiUsers size={20} /> },
-];
 
 const SideBar = ({
   activeTab,
@@ -26,8 +23,21 @@ const SideBar = ({
 }: SideBarProps) => {
   const navigator = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [logoutMutation, { isLoading }] = useLogoutMutation();
+
+  const tabs = [
+    { id: "dashboard", name: "Dashboard", icon: <FiGrid size={20} /> },
+  ];
+
+  if (user && user.role !== "STUDENT") {
+    tabs.push({
+      id: "users",
+      name: "User Management",
+      icon: <FiUsers size={20} />,
+    });
+  }
 
   useEffect(() => {
     const handleResize = () => {
