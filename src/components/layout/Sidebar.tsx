@@ -7,6 +7,7 @@ import {
   FiX,
   FiGrid,
   FiBookOpen,
+  FiBell,
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
@@ -55,6 +56,14 @@ const SideBar = ({
     });
   }
 
+  if (user) {
+    tabs.push({
+      id: "notices",
+      name: "Notice Management",
+      icon: <FiBell size={20} />,
+    });
+  }
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
@@ -83,6 +92,7 @@ const SideBar = ({
       await logoutMutation().unwrap();
       toast.success("Logout successful");
       navigator("/adminlogin");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       navigator("/adminlogin");
     } finally {
@@ -158,7 +168,7 @@ const SideBar = ({
         initial={false}
         animate={isOpen ? "open" : "closed"}
         variants={sidebarVariants}
-        className={`fixed lg:relative z-50 h-screen bg-gradient-to-b from-primary-800 to-indigo-900 text-white flex-shrink-0 shadow-2xl overflow-hidden flex flex-col`}
+        className={`fixed lg:relative z-50 h-screen bg-linear-to-b from-primary-800 to-indigo-900 text-white shrink-0 shadow-2xl overflow-hidden flex flex-col`}
       >
         <div className="p-6 flex items-center justify-between border-b border-white/10">
           <motion.div
@@ -201,7 +211,7 @@ const SideBar = ({
                 }`}
               >
                 <div
-                  className={`flex-shrink-0 ${activeTab === tab.id ? "text-primary-800" : ""}`}
+                  className={`shrink-0 ${activeTab === tab.id ? "text-primary-800" : ""}`}
                 >
                   {tab.icon}
                 </div>
@@ -224,11 +234,11 @@ const SideBar = ({
               className={`flex items-center p-3 rounded-xl hover:bg-red-500/10 text-red-100 transition-all duration-200 ${isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:text-red-400"}`}
             >
               {isLoading ? (
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <FiLoader size={20} />
                 </div>
               ) : (
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <FiLogOut size={20} />
                 </div>
               )}

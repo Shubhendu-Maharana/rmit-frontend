@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "src/store";
 import UserManagement from "./tabs/UserManagement";
 import CourseManagement from "./tabs/CourseManagement";
+import NoticeManagement from "./tabs/NoticeManagement";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
@@ -25,6 +26,8 @@ const AdminDashboard = () => {
         return <UserManagement />;
       case "courses":
         return <CourseManagement />;
+      case "notices":
+        return <NoticeManagement />;
       case "dashboard":
       default:
         return (
@@ -91,7 +94,9 @@ const AdminDashboard = () => {
                 ? "User Management"
                 : activeTab === "courses"
                   ? "Course Management"
-                  : "Dashboard Overview"}
+                  : activeTab === "notices"
+                    ? "Notice Management"
+                    : "Dashboard Overview"}
             </h1>
           </div>
         </header>

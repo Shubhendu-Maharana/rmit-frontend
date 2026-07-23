@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../index";
-import { User, Role, Institute, Course } from "../../types/dataTypes";
+import { User, Role, Institute } from "../../types/dataTypes";
 
 export interface GetUsersParams {
   role?: Role;
