@@ -16,7 +16,7 @@ const AdminLogin = () => {
   const [role, setRole] = useState<"admin" | "faculty">("admin");
   const [loginMutation, { isLoading }] = useLoginMutation();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.SubmitEvent) => {
     e.preventDefault();
     try {
       const response = await loginMutation({ email, password }).unwrap();
