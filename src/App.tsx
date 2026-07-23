@@ -4,9 +4,6 @@ import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
 import ScrollToTop from "./components/layout/ScrollToTop";
 import Programs from "./pages/academics/Programs";
-import Notices from "./pages/academics/Notices";
-import TimeTables from "./pages/academics/Timetables";
-import Faculties from "./pages/admin/Faculties";
 import AdminLogin from "./pages/admin/AdminLogin";
 import StudentLogin from "./pages/student/StudentLogin";
 import Index from "./pages/dashboard/DashboardIndex";
@@ -44,30 +41,7 @@ const App = () => {
             </PublicLayout>
           }
         />
-        <Route
-          path="/notices"
-          element={
-            <PublicLayout>
-              <Notices />
-            </PublicLayout>
-          }
-        />
-        <Route
-          path="/timetables"
-          element={
-            <PublicLayout>
-              <TimeTables />
-            </PublicLayout>
-          }
-        />
-        <Route
-          path="/faculties"
-          element={
-            <PublicLayout>
-              <Faculties />
-            </PublicLayout>
-          }
-        />
+
         <Route
           path="/adminlogin"
           element={

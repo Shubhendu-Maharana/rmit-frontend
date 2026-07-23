@@ -1,6 +1,4 @@
-export interface DatabaseUser {
-  id: string;
-  name: string;
-  email: string;
-  role: "admin" | "faculty";
-}
+import { User } from "./dataTypes";
+
+export type DatabaseUser = User;
+export type { User };

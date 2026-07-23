@@ -34,7 +34,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              {["Programs", "Faculties", "Cultural & Cosmopolitan"].map(
+              {["Programs", "Cultural & Cosmopolitan"].map(
                 (link) => (
                   <li key={link}>
                     <NavLink
@@ -46,21 +46,6 @@ const Footer = () => {
                   </li>
                 ),
               )}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2">
-              {["Notices", "Time Table"].map((link) => (
-                <li key={link}>
-                  <NavLink
-                    to={`/${link.toLowerCase().replace(" ", "")}`}
-                    className="text-primary-200 hover:text-white transition-colors duration-300"
-                  >
-                    {link}
-                  </NavLink>
-                </li>
-              ))}
             </ul>
           </div>
           <div>

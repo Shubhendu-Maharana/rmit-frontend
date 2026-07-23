@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  FiBook,
-  FiCalendar,
   FiLoader,
   FiLogOut,
   FiMenu,
@@ -10,7 +8,7 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
-import { useLogoutMutation } from "../../store/api/apiSlice";
+import { useLogoutMutation } from "../../store/api/authApi";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 
@@ -22,10 +20,7 @@ interface SideBarProps {
 }
 
 const tabs = [
-  { id: "faculty", name: "Faculty", icon: <FiUsers size={20} /> },
-  { id: "students", name: "Students", icon: <FiUsers size={20} /> },
-  { id: "timetables", name: "Timetables", icon: <FiCalendar size={20} /> },
-  { id: "notices", name: "Notices", icon: <FiBook size={20} /> },
+  { id: "dashboard", name: "Dashboard", icon: <FiUsers size={20} /> },
 ];
 
 const SideBar = ({

@@ -12,11 +12,11 @@ const Navbar = () => {
   const navLinks = [
     {
       title: "Academics",
-      children: ["Programs", "Time Tables", "Notices"],
+      children: ["Programs"],
     },
     {
       title: "Administration",
-      children: ["Admin Login", "Faculties"],
+      children: ["Admin Login"],
     },
     {
       title: "Campus Life",

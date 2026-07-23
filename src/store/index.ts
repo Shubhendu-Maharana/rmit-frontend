@@ -10,12 +10,12 @@ import {
   REGISTER,
 } from "redux-persist";
 import authReducer from "./slices/authSlice";
-import { apiSlice } from "./api/apiSlice";
+import { authApi } from "./api/authApi";
 import { reduxPersistStorage } from "./mmkvStorage";
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  [apiSlice.reducerPath]: apiSlice.reducer,
+  [authApi.reducerPath]: authApi.reducer,
 });
 
 const persistConfig = {
@@ -33,7 +33,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(apiSlice.middleware),
+    }).concat(authApi.middleware),
 });
 
 export const persistor = persistStore(store);

@@ -1,16 +1,12 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../../components/layout/Sidebar";
-import FacultyTab from "./tabs/Faculty/FacultyTab";
-import StudentTab from "./tabs/Student/StudentTab";
-import NoticesTab from "./tabs/Notice/NoticesTab";
-import TimetablesTab from "./tabs/Timetable/TimetablesTab";
 import { FiMenu } from "react-icons/fi";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
-  const [activeTab, setActiveTab] = useState("faculty");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
   const { user, isLoading } = useAuth();
 
@@ -43,23 +39,37 @@ const AdminDashboard = () => {
                 <FiMenu size={24} className="text-gray-600" />
               </button>
             )}
-            <h1 className="md:text-2xl text-xl font-bold text-gray-800">
-              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            <h1 className="md:text-2xl text-xl font-bold text-gray-800 font-sans">
+              Dashboard Overview
             </h1>
           </div>
         </header>
 
         {/* Content area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
-          <div className="max-w-7xl mx-auto">
-            {/* Faculty tab */}
-            {activeTab === "faculty" && <FacultyTab />}
-
-            {activeTab === "students" && <StudentTab />}
-
-            {activeTab === "notices" && <NoticesTab />}
-
-            {activeTab === "timetables" && <TimetablesTab />}
+        <main className="flex-1 overflow-y-auto p-6 md:p-10 bg-gray-50 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md border border-gray-100 text-center">
+            <h2 className="text-3xl font-extrabold text-primary-900 mb-2 font-sans">
+              Welcome Back!
+            </h2>
+            <p className="text-gray-500 mb-6 font-sans">
+              Securely logged in as:
+            </p>
+            <div className="bg-primary-50 p-4 rounded-xl text-left border border-primary-100 mb-6">
+              <p className="text-sm font-semibold text-primary-900 font-sans">
+                Email: <span className="font-normal text-gray-700">{user?.email || "N/A"}</span>
+              </p>
+              <p className="text-sm font-semibold text-primary-900 font-sans mt-2">
+                Role: <span className="font-normal text-gray-700">{user?.role}</span>
+              </p>
+              {user?.rollNumber && (
+                <p className="text-sm font-semibold text-primary-900 font-sans mt-2">
+                  Roll Number: <span className="font-normal text-gray-700">{user?.rollNumber}</span>
+                </p>
+              )}
+            </div>
+            <p className="text-xs text-gray-400 font-sans">
+              Rajiv Memorial Institute of Technology Management System
+            </p>
           </div>
         </main>
       </div>

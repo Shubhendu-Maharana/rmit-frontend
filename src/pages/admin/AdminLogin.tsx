@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useLoginMutation } from "../../store/api/apiSlice";
+import { useLoginMutation } from "../../store/api/authApi";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -18,8 +18,13 @@ const AdminLogin = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data = await loginMutation({ email, password, role }).unwrap();
-      login(data.user, data.token);
+      const response = await loginMutation({ email, password }).unwrap();
+      const userRole = response.data.user.role;
+      const expectedRole = role.toUpperCase();
+      if (userRole !== expectedRole && !(role === "admin" && userRole === "SUPER_ADMIN")) {
+        throw new Error("You are not authorized to login as " + role);
+      }
+      login(response.data.user, response.data.token);
       toast.success("Login successful");
       navigator("/admin/dashboard");
     } catch (error: any) {
