@@ -217,7 +217,6 @@ const FeeManagement: React.FC = () => {
         <div className="max-w-2xl">
           <FeeAssignmentPanel
             feeStructures={feeStructuresData?.data || []}
-            courses={coursesData?.data || []}
             students={studentsData?.data || []}
             assignFee={assignFee}
             isAssigning={isAssigning}

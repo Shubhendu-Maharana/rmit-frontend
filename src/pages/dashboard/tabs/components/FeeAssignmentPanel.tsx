@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { FiCheckCircle, FiUser, FiLayers, FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { Course, User } from "../../../../types/dataTypes";
+import { User } from "../../../../types/dataTypes";
 import { FeeStructure } from "../../../../store/api/feeApi";
 
 interface FeeAssignmentPanelProps {
   feeStructures: FeeStructure[];
-  courses: Course[];
   students: User[];
   assignFee: (payload: any) => { unwrap: () => Promise<any> };
   isAssigning: boolean;
@@ -16,7 +15,6 @@ interface FeeAssignmentPanelProps {
 
 export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
   feeStructures,
-  courses,
   students,
   assignFee,
   isAssigning,
@@ -26,8 +24,6 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
   const [feeStructureId, setFeeStructureId] = useState("");
   const [assignType, setAssignType] = useState<"ALL" | "INDIVIDUAL">("ALL");
   const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [courseId, setCourseId] = useState("");
-  const [semester, setSemester] = useState("1");
   const [studentSearchTerm, setStudentSearchTerm] = useState("");
 
   const filteredFeeStructures = feeStructures.filter((fs) => {
@@ -35,14 +31,16 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
     return fs.course?.institute === currentUser?.adminProfile?.institute;
   });
 
-  const allowedCourses = courses.filter((c) => {
-    if (isSuperAdmin) return true;
-    return c.institute === currentUser?.adminProfile?.institute;
-  });
+  const selectedStructure = filteredFeeStructures.find(
+    (fs) => fs.id === feeStructureId,
+  );
 
   const searchedStudents = students.filter((s) => {
     const profile = s.studentProfile;
-    if (!isSuperAdmin && profile?.institute !== currentUser?.adminProfile?.institute) {
+    if (
+      !isSuperAdmin &&
+      profile?.institute !== currentUser?.adminProfile?.institute
+    ) {
       return false;
     }
     const nameStr = profile?.name || "";
@@ -75,19 +73,14 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
         return;
       }
       payload.studentId = selectedStudentId;
-    } else {
-      if (!courseId || !semester) {
-        toast.error("Please select both course and semester for bulk assignment.");
-        return;
-      }
-      payload.courseId = courseId;
-      payload.semester = Number(semester);
     }
 
     try {
       const response = await assignFee(payload).unwrap();
       const count = response.data?.count || 0;
-      toast.success(`Fee structure assigned successfully to ${count} student(s).`);
+      toast.success(
+        `Fee structure assigned successfully to ${count} student(s).`,
+      );
       setSelectedStudentId("");
       setStudentSearchTerm("");
     } catch (error: any) {
@@ -99,7 +92,9 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
       <div>
-        <h3 className="font-bold text-gray-800 text-base">Fee Allocation Workspace</h3>
+        <h3 className="font-bold text-gray-800 text-base">
+          Fee Allocation Workspace
+        </h3>
         <p className="text-xs text-gray-400 mt-0.5">
           Assign a global fee structure to students in bulk or individually.
         </p>
@@ -120,11 +115,42 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
             <option value="">Select Structure</option>
             {filteredFeeStructures.map((fs) => (
               <option key={fs.id} value={fs.id}>
-                {fs.title} (₹{fs.amount.toLocaleString()} - {fs.course?.name} Sem {fs.semester})
+                {fs.title} (₹{fs.amount.toLocaleString()} - {fs.course?.name}{" "}
+                Sem {fs.semester})
               </option>
             ))}
           </select>
         </div>
+
+        {/* Show selected structure details */}
+        {selectedStructure && (
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 text-xs space-y-1.5 text-gray-600">
+            <div className="flex justify-between">
+              <span className="text-gray-400 font-semibold uppercase">
+                Course
+              </span>
+              <span className="font-bold text-gray-800">
+                {selectedStructure.course?.name}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400 font-semibold uppercase">
+                Semester
+              </span>
+              <span className="font-bold text-gray-800">
+                Sem {selectedStructure.semester}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-400 font-semibold uppercase">
+                Academic Year
+              </span>
+              <span className="font-bold text-gray-800">
+                {selectedStructure.academicYear}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Toggle Assignment Mode */}
         <div>
@@ -142,7 +168,7 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
               }`}
             >
               <FiLayers />
-              <span>Bulk Semester Allocation</span>
+              <span>Bulk Allocation</span>
             </button>
             <button
               type="button"
@@ -154,49 +180,18 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
               }`}
             >
               <FiUser />
-              <span>Individual Student Profile</span>
+              <span>Individual Student</span>
             </button>
           </div>
         </div>
 
-        {/* Bulk Fields */}
-        {assignType === "ALL" && (
-          <div className="grid grid-cols-2 gap-4 animate-fade-in">
-            <div>
-              <label className="block text-sm font-semibold text-gray-750 mb-1">
-                Select Course
-              </label>
-              <select
-                value={courseId}
-                onChange={(e) => setCourseId(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-250 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm cursor-pointer"
-                required={assignType === "ALL"}
-              >
-                <option value="">Select Course</option>
-                {allowedCourses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} ({c.institute})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-gray-750 mb-1">
-                Semester Block
-              </label>
-              <select
-                value={semester}
-                onChange={(e) => setSemester(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-250 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm cursor-pointer"
-                required={assignType === "ALL"}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                  <option key={sem} value={sem.toString()}>
-                    Semester {sem}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Bulk info */}
+        {assignType === "ALL" && selectedStructure && (
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 text-xs text-blue-700 font-semibold">
+            This will assign the fee to all students enrolled in{" "}
+            <strong>{selectedStructure.course?.name}</strong>, Semester{" "}
+            <strong>{selectedStructure.semester}</strong>, Academic Year{" "}
+            <strong>{selectedStructure.academicYear}</strong>.
           </div>
         )}
 

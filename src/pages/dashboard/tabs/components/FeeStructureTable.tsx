@@ -53,7 +53,10 @@ export const FeeStructureTable: React.FC<FeeStructureTableProps> = ({
               <SkeletonTable rows={4} columns={isSuperAdmin ? 6 : 5} />
             ) : feeStructures.length === 0 ? (
               <tr>
-                <td colSpan={isSuperAdmin ? 6 : 5} className="px-6 py-12 text-center text-gray-400">
+                <td
+                  colSpan={isSuperAdmin ? 6 : 5}
+                  className="px-6 py-12 text-center text-gray-400"
+                >
                   No fee structures created yet.
                 </td>
               </tr>
@@ -65,7 +68,9 @@ export const FeeStructureTable: React.FC<FeeStructureTableProps> = ({
                 >
                   {/* Fee Title */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="font-semibold text-gray-800">{fee.title}</div>
+                    <div className="font-semibold text-gray-800">
+                      {fee.title}
+                    </div>
                   </td>
 
                   {/* Course Name */}
