@@ -294,6 +294,39 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
       }
       return true;
     }
+    if (formStep === 3) {
+      if (formState.role === "STUDENT") {
+        if (!formState.courseId) {
+          toast.error("Enrollment Course is required.");
+          return false;
+        }
+        if (!formState.year) {
+          toast.error("Academic Year is required.");
+          return false;
+        }
+        if (!formState.semester) {
+          toast.error("Current Semester is required.");
+          return false;
+        }
+        if (!formState.batch) {
+          toast.error("Batch is required.");
+          return false;
+        }
+        if (!formState.dateOfBirth) {
+          toast.error("Date of Birth is required.");
+          return false;
+        }
+        if (!formState.guardianName) {
+          toast.error("Guardian Name is required.");
+          return false;
+        }
+        if (!formState.guardianPhone) {
+          toast.error("Guardian Phone Number is required.");
+          return false;
+        }
+      }
+      return true;
+    }
     return true;
   };
 
