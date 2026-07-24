@@ -9,6 +9,8 @@ import {
   FiBookOpen,
   FiBell,
   FiBook,
+  FiCreditCard,
+  FiList,
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence, Variants } from "motion/react";
@@ -62,6 +64,22 @@ const SideBar = ({
       id: "subjects",
       name: "Subject Management",
       icon: <FiBook size={20} />,
+    });
+  }
+
+  if (user && user.role !== "FACULTY") {
+    tabs.push({
+      id: "fees",
+      name: user.role === "STUDENT" ? "Fee Payments" : "Fee Management",
+      icon: <FiCreditCard size={20} />,
+    });
+  }
+
+  if (user && (user.role === "SUPER_ADMIN" || user.role === "ADMIN")) {
+    tabs.push({
+      id: "student-payments",
+      name: "Student Payments",
+      icon: <FiList size={20} />,
     });
   }
 

@@ -15,6 +15,7 @@ import { userApi } from "./api/userApi";
 import { courseApi } from "./api/courseApi";
 import { noticeApi } from "./api/noticeApi";
 import { subjectApi } from "./api/subjectApi";
+import { feeApi } from "./api/feeApi";
 import { reduxPersistStorage } from "./mmkvStorage";
 
 const rootReducer = combineReducers({
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   [courseApi.reducerPath]: courseApi.reducer,
   [noticeApi.reducerPath]: noticeApi.reducer,
   [subjectApi.reducerPath]: subjectApi.reducer,
+  [feeApi.reducerPath]: feeApi.reducer,
 });
 
 const persistConfig = {
@@ -47,11 +49,12 @@ export const store = configureStore({
       courseApi.middleware,
       noticeApi.middleware,
       subjectApi.middleware,
+      feeApi.middleware,
     ),
 });
 
 export const persistor = persistStore(store);
 
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
 export default store;

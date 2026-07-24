@@ -8,6 +8,8 @@ import UserManagement from "./tabs/UserManagement";
 import CourseManagement from "./tabs/CourseManagement";
 import NoticeManagement from "./tabs/NoticeManagement";
 import SubjectManagement from "./tabs/SubjectManagement";
+import FeeManagement from "./tabs/FeeManagement";
+import StudentPayments from "./tabs/StudentPayments";
 
 const AdminDashboard = () => {
   const navigator = useNavigate();
@@ -31,6 +33,10 @@ const AdminDashboard = () => {
         return <NoticeManagement />;
       case "subjects":
         return <SubjectManagement />;
+      case "fees":
+        return <FeeManagement />;
+      case "student-payments":
+        return <StudentPayments />;
       case "dashboard":
       default:
         return (
@@ -92,7 +98,7 @@ const AdminDashboard = () => {
                 <FiMenu size={24} className="text-gray-600" />
               </button>
             )}
-            <h1 className="md:text-2xl text-xl font-bold text-gray-800 font-sans">
+            <h1 className="md:text-2xl text-xl font-bold text-gray-855 font-sans">
               {activeTab === "users"
                 ? "User Management"
                 : activeTab === "courses"
@@ -101,7 +107,11 @@ const AdminDashboard = () => {
                     ? "Notice Management"
                     : activeTab === "subjects"
                       ? "Subject Management"
-                      : "Dashboard Overview"}
+                      : activeTab === "fees"
+                        ? (user?.role === "STUDENT" ? "Fee Payments" : "Fee Management")
+                        : activeTab === "student-payments"
+                          ? "Student Payments"
+                          : "Dashboard Overview"}
             </h1>
           </div>
         </header>
