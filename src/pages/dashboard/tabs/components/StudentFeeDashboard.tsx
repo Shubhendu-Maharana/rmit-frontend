@@ -3,6 +3,8 @@ import { FiClock, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { FeeReceipt } from "../../../../store/api/feeApi";
 
+import { initiateRazorpayCheckout } from "../../../../utils/payment";
+
 interface StudentFeeDashboardProps {
   receipts: FeeReceipt[];
   loading: boolean;
@@ -12,23 +14,6 @@ interface StudentFeeDashboardProps {
   verifyPayment: (payload: any) => { unwrap: () => Promise<any> };
   openReceiptModal: (receipt: FeeReceipt) => void;
 }
-
-const loadRazorpayScript = () => {
-  return new Promise<boolean>((resolve) => {
-    const existingScript = document.querySelector(
-      'script[src="https://checkout.razorpay.com/v1/checkout.js"]',
-    );
-    if (existingScript) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
 
 export const StudentFeeDashboard: React.FC<StudentFeeDashboardProps> = ({
   receipts,
@@ -49,53 +34,23 @@ export const StudentFeeDashboard: React.FC<StudentFeeDashboardProps> = ({
 
       const orderData = orderResponse.data;
 
-      // Handle Mock Mode
-      if (orderData.orderId.startsWith("order_mock_")) {
-        toast.info("[Mock Mode] Simulating payment gateway checkout...");
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        try {
-          await verifyPayment({
-            razorpayOrderId: orderData.orderId,
-            razorpayPaymentId: `pay_mock_${Math.random().toString(36).substring(2, 11)}`,
-            razorpaySignature: "sig_mock_valid",
-          }).unwrap();
-          toast.success(
-            "Payment completed and verified successfully (Mock Mode)!",
-          );
-        } catch (error: any) {
-          const msg = error?.data?.message || "Payment verification failed.";
-          toast.error(msg);
-        }
-        return;
-      }
-
-      // Step 2: Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        toast.error(
-          "Failed to load Razorpay SDK. Please check your internet connection.",
-        );
+      const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      if (!keyId) {
+        toast.error("Razorpay Key ID is not configured on the frontend.");
         setProcessingFeeId(null);
         return;
       }
 
-      // Step 3: Open Razorpay checkout options
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_placeholder",
-        amount: orderData.amount, // in paise
+      // Step 2: Open Razorpay checkout options using external utility
+      await initiateRazorpayCheckout({
+        keyId,
+        orderId: orderData.orderId,
+        amount: orderData.amount,
         currency: orderData.currency,
-        name: "RMIT College Management",
-        description: orderData.feeTitle,
-        order_id: orderData.orderId,
-        prefill: {
-          name: orderData.studentDetails.name,
-          email: orderData.studentDetails.email || "student@rmit.edu",
-        },
-        theme: {
-          color: "#0f172a", // Premium Dark Theme Color
-        },
-        handler: async function (response: any) {
-          // Step 4: Callback verification
+        feeTitle: orderData.feeTitle,
+        studentName: orderData.studentDetails.name,
+        studentEmail: orderData.studentDetails.email || "student@rmit.edu",
+        onSuccess: async (response) => {
           try {
             await verifyPayment({
               razorpayOrderId: response.razorpay_order_id,
@@ -108,22 +63,20 @@ export const StudentFeeDashboard: React.FC<StudentFeeDashboardProps> = ({
               error?.data?.message ||
               "Payment verification failed. Contact admin.";
             toast.error(msg);
+          } finally {
+            setProcessingFeeId(null);
           }
         },
-        modal: {
-          ondismiss: function () {
-            toast.info("Payment session dismissed.");
-          },
+        onDismiss: () => {
+          setProcessingFeeId(null);
         },
-      };
-
-      const rzpay = new (window as any).Razorpay(options);
-      rzpay.open();
+      });
     } catch (error: any) {
-      const msg =
-        error?.data?.message || "Could not generate payment gateway order.";
-      toast.error(msg);
-    } finally {
+      if (error?.message !== "SDK_LOAD_FAILED") {
+        const msg =
+          error?.data?.message || "Could not generate payment gateway order.";
+        toast.error(msg);
+      }
       setProcessingFeeId(null);
     }
   };
