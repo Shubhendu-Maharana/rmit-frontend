@@ -34,20 +34,23 @@ const FeeManagement: React.FC = () => {
 
   // Modal & Selection state
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteOpen] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeStructure | null>(null);
   const [editMode, setEditMode] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState<
+    "structures" | "allocations"
+  >("structures");
 
   // Student specific modal
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
-  const [selectedReceipt, setSelectedReceipt] = useState<FeeReceipt | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<FeeReceipt | null>(
+    null,
+  );
 
   // RTK Query API Hooks
   // Query 1: Student Fee status
-  const { data: studentFeesData, isLoading: isStudentFeesLoading } = useGetStudentFeesQuery(
-    undefined,
-    { skip: !isStudent }
-  );
+  const { data: studentFeesData, isLoading: isStudentFeesLoading } =
+    useGetStudentFeesQuery(undefined, { skip: !isStudent });
 
   // Query 2: Fee Structures list
   const {
@@ -57,18 +60,23 @@ const FeeManagement: React.FC = () => {
   } = useGetFeeStructuresQuery(undefined, { skip: isStudent });
 
   // Query 3: Courses (for Assignment panel)
-  const { data: coursesData } = useGetCoursesQuery(undefined, { skip: isStudent });
+  const { data: coursesData } = useGetCoursesQuery(undefined, {
+    skip: isStudent,
+  });
 
   // Query 4: Students lookup (for Assignment panel)
   const { data: studentsData } = useGetUsersQuery(
     { role: "STUDENT" },
-    { skip: isStudent }
+    { skip: isStudent },
   );
 
   // Mutations
-  const [createFeeStructure, { isLoading: isCreating }] = useCreateFeeStructureMutation();
-  const [updateFeeStructure, { isLoading: isUpdating }] = useUpdateFeeStructureMutation();
-  const [deleteFeeStructure, { isLoading: isDeleting }] = useDeleteFeeStructureMutation();
+  const [createFeeStructure, { isLoading: isCreating }] =
+    useCreateFeeStructureMutation();
+  const [updateFeeStructure, { isLoading: isUpdating }] =
+    useUpdateFeeStructureMutation();
+  const [deleteFeeStructure, { isLoading: isDeleting }] =
+    useDeleteFeeStructureMutation();
   const [assignFee, { isLoading: isAssigning }] = useAssignFeeMutation();
   const [createPaymentOrder] = useCreatePaymentOrderMutation();
   const [verifyPayment] = useVerifyPaymentMutation();
@@ -76,7 +84,7 @@ const FeeManagement: React.FC = () => {
   // Deletion logic
   const openDeleteModal = (fee: FeeStructure) => {
     setSelectedFee(fee);
-    setIsDeleteModalOpen(true);
+    setIsDeleteOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
@@ -84,7 +92,7 @@ const FeeManagement: React.FC = () => {
     try {
       await deleteFeeStructure(selectedFee.id).unwrap();
       toast.success("Fee structure deleted successfully.");
-      setIsDeleteModalOpen(false);
+      setIsDeleteOpen(false);
       setSelectedFee(null);
     } catch (error: any) {
       const msg = error?.data?.message || "Failed to delete fee structure.";
@@ -150,13 +158,37 @@ const FeeManagement: React.FC = () => {
         loading={isFeeStructuresLoading}
       />
 
-      {/* Main layout splitting Structures and Allocation panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left pane: Fee Structures Registry list */}
-        <div className="lg:col-span-2 space-y-6">
+      {/* Sub-tab Switcher */}
+      <div className="flex gap-2 pb-px">
+        <button
+          onClick={() => setActiveSubTab("structures")}
+          className={`pb-3 px-4 font-bold text-sm border-b-2 transition-all cursor-pointer ${
+            activeSubTab === "structures"
+              ? "border-primary-600 text-primary-600 font-extrabold"
+              : "border-transparent text-gray-400 hover:text-gray-600"
+          }`}
+        >
+          Fee Structures Registry
+        </button>
+        <button
+          onClick={() => setActiveSubTab("allocations")}
+          className={`pb-3 px-4 font-bold text-sm border-b-2 transition-all cursor-pointer ${
+            activeSubTab === "allocations"
+              ? "border-primary-600 text-primary-600 font-extrabold"
+              : "border-transparent text-gray-400 hover:text-gray-600"
+          }`}
+        >
+          Allocate / Assign Fee
+        </button>
+      </div>
+
+      {activeSubTab === "structures" ? (
+        <div className="space-y-6">
           <div className="flex justify-between items-center bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <div>
-              <h3 className="font-bold text-gray-800 text-base">Fee Structures Directory</h3>
+              <h3 className="font-bold text-gray-800 text-base">
+                Fee Structures Directory
+              </h3>
               <p className="text-xs text-gray-400 mt-0.5">
                 View or create academic structure dues.
               </p>
@@ -181,9 +213,8 @@ const FeeManagement: React.FC = () => {
             openDeleteModal={openDeleteModal}
           />
         </div>
-
-        {/* Right pane: Assignment allocation workspace */}
-        <div className="lg:col-span-1">
+      ) : (
+        <div className="max-w-2xl">
           <FeeAssignmentPanel
             feeStructures={feeStructuresData?.data || []}
             courses={coursesData?.data || []}
@@ -194,14 +225,14 @@ const FeeManagement: React.FC = () => {
             currentUser={currentUser}
           />
         </div>
-      </div>
+      )}
 
       {/* warning modal for deletion */}
       {isDeleteModalOpen && selectedFee && (
         <WarningModal
           title="Confirm Fee Structure Deletion"
           description={`Are you sure you want to permanently delete "${selectedFee.title}" (₹${selectedFee.amount.toLocaleString()})? All assigned student fee records linked to this structure will also be removed. This action cannot be undone.`}
-          setShowModal={setIsDeleteModalOpen}
+          setShowModal={setIsDeleteOpen}
           handleDelete={handleDeleteConfirm}
           isLoading={isDeleting}
         />
