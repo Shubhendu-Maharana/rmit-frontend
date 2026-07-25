@@ -18,8 +18,21 @@ import { subjectApi } from "./api/subjectApi";
 import { feeApi } from "./api/feeApi";
 import { reduxPersistStorage } from "./mmkvStorage";
 
+const persistConfig = {
+  key: "root",
+  storage: reduxPersistStorage,
+  whitelist: ["auth"], // persist only auth slice
+};
+
+// Only persist the token from auth — user is always fetched fresh from /users/me
+const authPersistConfig = {
+  key: "auth",
+  storage: reduxPersistStorage,
+  whitelist: ["token"], // DO NOT persist 'user' — prevents stale role data
+};
+
 const rootReducer = combineReducers({
-  auth: authReducer,
+  auth: persistReducer(authPersistConfig, authReducer),
   [authApi.reducerPath]: authApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [courseApi.reducerPath]: courseApi.reducer,
@@ -27,12 +40,6 @@ const rootReducer = combineReducers({
   [subjectApi.reducerPath]: subjectApi.reducer,
   [feeApi.reducerPath]: feeApi.reducer,
 });
-
-const persistConfig = {
-  key: "root",
-  storage: reduxPersistStorage,
-  whitelist: ["auth"], // persist only auth slice
-};
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

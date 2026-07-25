@@ -2,7 +2,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { useLoginMutation } from "../../store/api/authApi";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../store/slices/authSlice";
+import { setToken } from "../../store/slices/authSlice";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 
@@ -24,12 +24,7 @@ const StudentLogin = () => {
       if (userRole !== "STUDENT") {
         throw new Error("You are not authorized to login as STUDENT");
       }
-      dispatch(
-        setCredentials({
-          user: response.data.user,
-          token: response.data.token,
-        }),
-      );
+      dispatch(setToken(response.data.token));
       toast.success("Login successful");
       navigator("/admin/dashboard");
     } catch (error) {

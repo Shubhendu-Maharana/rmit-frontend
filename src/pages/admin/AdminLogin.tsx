@@ -5,7 +5,7 @@ import { useLoginMutation } from "../../store/api/authApi";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../store/slices/authSlice";
+import { setToken } from "../../store/slices/authSlice";
 
 const AdminLogin = () => {
   const navigator = useNavigate();
@@ -28,12 +28,7 @@ const AdminLogin = () => {
       ) {
         throw new Error("You are not authorized to login as " + role);
       }
-      dispatch(
-        setCredentials({
-          user: response.data.user,
-          token: response.data.token,
-        }),
-      );
+      dispatch(setToken(response.data.token));
       toast.success("Login successful");
       navigator("/admin/dashboard");
     } catch (error) {
