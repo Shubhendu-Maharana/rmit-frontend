@@ -18,6 +18,13 @@ export interface AuthResponseData {
   timestamp: string;
 }
 
+interface GetMeResponse {
+  success: boolean;
+  message: string;
+  data?: User;
+  timestamp: string;
+}
+
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const authApi = createApi({
@@ -46,7 +53,7 @@ export const authApi = createApi({
         method: "POST",
       }),
     }),
-    getMe: builder.query<User, void>({
+    getMe: builder.query<GetMeResponse, void>({
       query: () => "/users/me",
     }),
   }),

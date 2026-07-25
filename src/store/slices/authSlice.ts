@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { DatabaseUser } from "@app/types/users";
+import type { User } from "@app/types/dataTypes";
 
 export interface AuthState {
   token: string | null;
-  user: DatabaseUser | null;
+  user: User | null;
 }
 
 const initialState: AuthState = {
@@ -17,10 +17,13 @@ const authSlice = createSlice({
   reducers: {
     setCredentials: (
       state,
-      action: PayloadAction<{ user: DatabaseUser; token: string }>,
+      action: PayloadAction<{ user: User; token: string }>,
     ) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
+    },
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
     },
     clearCredentials: (state) => {
       state.user = null;
@@ -29,6 +32,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, clearCredentials } = authSlice.actions;
+export const { setCredentials, setUser, clearCredentials } = authSlice.actions;
 
 export default authSlice.reducer;
