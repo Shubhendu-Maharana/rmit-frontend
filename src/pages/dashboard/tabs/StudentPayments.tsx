@@ -8,7 +8,15 @@ import {
   FeeReceipt,
 } from "../../../store/api/feeApi";
 import { Institute } from "../../../types/dataTypes";
-import { FiSearch, FiFilter, FiDollarSign, FiClock, FiCheckCircle, FiAlertCircle, FiRefreshCw } from "react-icons/fi";
+import {
+  FiSearch,
+  FiFilter,
+  FiDollarSign,
+  FiClock,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiRefreshCw,
+} from "react-icons/fi";
 import SkeletonTable from "../../../components/ui/SkeletonTable";
 
 // Components
@@ -28,7 +36,9 @@ const StudentPayments: React.FC = () => {
   // Modals state
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
-  const [selectedReceipt, setSelectedReceipt] = useState<FeeReceipt | null>(null);
+  const [selectedReceipt, setSelectedReceipt] = useState<FeeReceipt | null>(
+    null,
+  );
 
   // RTK Query parameters
   const queryParams: any = {};
@@ -53,7 +63,8 @@ const StudentPayments: React.FC = () => {
   // Load all fee structures for dropdown selector
   const { data: feeStructuresData } = useGetFeeStructuresQuery();
 
-  const [markPaymentManually, { isLoading: isMarking }] = useMarkPaymentManuallyMutation();
+  const [markPaymentManually, { isLoading: isMarking }] =
+    useMarkPaymentManuallyMutation();
 
   const openManualModal = (receipt: FeeReceipt) => {
     setSelectedReceipt(receipt);
@@ -65,16 +76,19 @@ const StudentPayments: React.FC = () => {
     setIsReceiptModalOpen(true);
   };
 
-  const filteredFeeStructures = feeStructuresData?.data?.filter((fs) => {
-    if (isSuperAdmin) return true;
-    return fs.course?.institute === currentUser?.adminProfile?.institute;
-  }) || [];
+  const filteredFeeStructures =
+    feeStructuresData?.data?.filter((fs) => {
+      if (isSuperAdmin) return true;
+      return fs.course?.institute === currentUser?.adminProfile?.institute;
+    }) || [];
 
   return (
     <div className="w-full space-y-6">
       {/* Title block */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <h3 className="font-bold text-gray-805 text-base">Student Payments Audit</h3>
+        <h3 className="font-bold text-gray-805 text-base">
+          Student Payments Audit
+        </h3>
         <p className="text-xs text-gray-400 mt-0.5">
           Audit payment receipts and clear outstanding student fee items.
         </p>
@@ -121,8 +135,14 @@ const StudentPayments: React.FC = () => {
             </span>
             <select
               disabled={!isSuperAdmin}
-              value={isSuperAdmin ? instituteFilter : (currentUser?.adminProfile?.institute || "")}
-              onChange={(e) => setInstituteFilter(e.target.value as Institute | "")}
+              value={
+                isSuperAdmin
+                  ? instituteFilter
+                  : currentUser?.adminProfile?.institute || ""
+              }
+              onChange={(e) =>
+                setInstituteFilter(e.target.value as Institute | "")
+              }
               className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-250 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm appearance-none cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed"
             >
               {isSuperAdmin ? (
@@ -197,7 +217,10 @@ const StudentPayments: React.FC = () => {
                 <SkeletonTable rows={5} columns={7} />
               ) : !paymentsData?.data || paymentsData.data.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                  <td
+                    colSpan={7}
+                    className="px-6 py-12 text-center text-gray-400"
+                  >
                     No matching student payments or receipts found.
                   </td>
                 </tr>
@@ -248,26 +271,46 @@ const StudentPayments: React.FC = () => {
                                 : "bg-amber-100 text-amber-700"
                           }`}
                         >
-                          {receipt.status === "PAID" && <FiCheckCircle size={12} />}
-                          {receipt.status === "FAILED" && <FiAlertCircle size={12} />}
-                          {receipt.status === "PENDING" && <FiClock size={12} />}
+                          {receipt.status === "PAID" && (
+                            <FiCheckCircle size={12} />
+                          )}
+                          {receipt.status === "FAILED" && (
+                            <FiAlertCircle size={12} />
+                          )}
+                          {receipt.status === "PENDING" && (
+                            <FiClock size={12} />
+                          )}
                           {receipt.status}
                         </span>
                       </td>
 
                       {/* Reference */}
                       <td className="px-6 py-4 whitespace-nowrap text-xs">
-                        {receipt.status === "PAID" ? (
-                          <div>
-                            <span className="font-bold text-gray-700 block">
-                              {receipt.paymentMethod || "Razorpay"}
-                            </span>
-                            <span className="text-[10px] text-gray-400 font-mono">
-                              Ref: {receipt.transactionId || "N/A"}
-                            </span>
-                          </div>
+                        {receipt.status === "PAID" &&
+                        receipt.transactions?.length ? (
+                          (() => {
+                            const tx =
+                              receipt.transactions.find(
+                                (t) => t.status === "SUCCESS",
+                              ) ||
+                              receipt.transactions[
+                                receipt.transactions.length - 1
+                              ];
+                            return (
+                              <div>
+                                <span className="font-bold text-gray-700 block">
+                                  {tx.paymentMethod || "N/A"}
+                                </span>
+                                <span className="text-[10px] text-gray-400 font-mono">
+                                  Ref: {tx.transactionId || "N/A"}
+                                </span>
+                              </div>
+                            );
+                          })()
                         ) : (
-                          <span className="text-gray-400 italic">No payment record</span>
+                          <span className="text-gray-400 italic">
+                            No payment record
+                          </span>
                         )}
                       </td>
 

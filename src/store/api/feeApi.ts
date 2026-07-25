@@ -17,6 +17,21 @@ export interface FeeStructure {
   updatedAt: string;
 }
 
+export interface FeeTransaction {
+  id: string;
+  feeReceiptId: string;
+  amount: number;
+  status: "PENDING" | "SUCCESS" | "FAILED";
+  paymentMethod: string;
+  transactionId: string | null;
+  razorpayOrderId: string | null;
+  razorpaySignature: string | null;
+  recordedByAdminId: string | null;
+  paidAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface FeeReceipt {
   id: string;
   studentId: string;
@@ -25,11 +40,7 @@ export interface FeeReceipt {
   feeStructure?: FeeStructure;
   amountPaid: number;
   status: "PENDING" | "PAID" | "FAILED";
-  paymentMethod: string;
-  transactionId: string | null;
-  razorpayOrderId: string | null;
-  razorpaySignature: string | null;
-  paidAt: string | null;
+  transactions?: FeeTransaction[];
   createdAt: string;
   updatedAt: string;
 }
@@ -59,8 +70,6 @@ export interface AssignFeePayload {
   feeStructureId: string;
   assignType: "ALL" | "INDIVIDUAL";
   studentId?: string;
-  courseId?: string;
-  semester?: number;
 }
 
 export interface CreateOrderResponse {
@@ -84,6 +93,19 @@ export interface VerifyPaymentPayload {
   razorpaySignature: string;
 }
 
+export interface EligibleStudent {
+  id: string;
+  name: string;
+  institute: string;
+  courseId: string;
+  semester: number;
+  batch: string;
+  user: {
+    rollNumber: string;
+    email: string;
+  };
+}
+
 export const feeApi = createApi({
   reducerPath: "feeApi",
   baseQuery: fetchBaseQuery({
@@ -98,14 +120,25 @@ export const feeApi = createApi({
   }),
   tagTypes: ["FeeStructure", "FeeReceipt"],
   endpoints: (builder) => ({
-    getFeeStructures: builder.query<{ success: boolean; data: FeeStructure[] }, { institute?: string; courseId?: string; semester?: number; academicYear?: string } | void>({
+    getFeeStructures: builder.query<
+      { success: boolean; data: FeeStructure[] },
+      {
+        institute?: string;
+        courseId?: string;
+        semester?: number;
+        academicYear?: string;
+      } | void
+    >({
       query: (params) => ({
         url: "/fees",
         params: params || undefined,
       }),
       providesTags: [{ type: "FeeStructure", id: "LIST" }],
     }),
-    createFeeStructure: builder.mutation<{ success: boolean; data: FeeStructure }, CreateFeeStructurePayload>({
+    createFeeStructure: builder.mutation<
+      { success: boolean; data: FeeStructure },
+      CreateFeeStructurePayload
+    >({
       query: (body) => ({
         url: "/fees",
         method: "POST",
@@ -113,7 +146,10 @@ export const feeApi = createApi({
       }),
       invalidatesTags: [{ type: "FeeStructure", id: "LIST" }],
     }),
-    updateFeeStructure: builder.mutation<{ success: boolean; data: FeeStructure }, UpdateFeeStructurePayload>({
+    updateFeeStructure: builder.mutation<
+      { success: boolean; data: FeeStructure },
+      UpdateFeeStructurePayload
+    >({
       query: ({ id, body }) => ({
         url: `/fees/${id}`,
         method: "PATCH",
@@ -128,7 +164,10 @@ export const feeApi = createApi({
       }),
       invalidatesTags: [{ type: "FeeStructure", id: "LIST" }],
     }),
-    assignFee: builder.mutation<{ success: boolean; data: { count: number } }, AssignFeePayload>({
+    assignFee: builder.mutation<
+      { success: boolean; data: { count: number } },
+      AssignFeePayload
+    >({
       query: (body) => ({
         url: "/fees/assign",
         method: "POST",
@@ -136,13 +175,28 @@ export const feeApi = createApi({
       }),
       invalidatesTags: [{ type: "FeeReceipt", id: "LIST" }],
     }),
-    getStudentFees: builder.query<{ success: boolean; data: FeeReceipt[] }, void>({
+    getEligibleStudents: builder.query<
+      { success: boolean; data: EligibleStudent[] },
+      string
+    >({
+      query: (feeStructureId) => `/fees/${feeStructureId}/eligible-students`,
+    }),
+    getStudentFees: builder.query<
+      { success: boolean; data: FeeReceipt[] },
+      void
+    >({
       query: () => "/fees/my-status",
       providesTags: [{ type: "FeeReceipt", id: "LIST" }],
     }),
     getStudentPayments: builder.query<
       { success: boolean; data: FeeReceipt[] },
-      { status?: string; studentId?: string; feeStructureId?: string; institute?: string; search?: string } | void
+      {
+        status?: string;
+        studentId?: string;
+        feeStructureId?: string;
+        institute?: string;
+        search?: string;
+      } | void
     >({
       query: (params) => ({
         url: "/fees/payments",
@@ -152,7 +206,10 @@ export const feeApi = createApi({
     }),
     markPaymentManually: builder.mutation<
       { success: boolean; data: FeeReceipt },
-      { receiptId: string; body: { paymentMethod?: string; transactionId?: string } }
+      {
+        receiptId: string;
+        body: { paymentMethod?: string; transactionId?: string };
+      }
     >({
       query: ({ receiptId, body }) => ({
         url: `/fees/payments/${receiptId}/manual-pay`,
@@ -161,14 +218,20 @@ export const feeApi = createApi({
       }),
       invalidatesTags: [{ type: "FeeReceipt", id: "LIST" }],
     }),
-    createPaymentOrder: builder.mutation<CreateOrderResponse, { feeStructureId: string }>({
+    createPaymentOrder: builder.mutation<
+      CreateOrderResponse,
+      { feeStructureId: string }
+    >({
       query: (body) => ({
         url: "/payments/create-order",
         method: "POST",
         body,
       }),
     }),
-    verifyPayment: builder.mutation<{ success: boolean; data: FeeReceipt }, VerifyPaymentPayload>({
+    verifyPayment: builder.mutation<
+      { success: boolean; data: FeeReceipt },
+      VerifyPaymentPayload
+    >({
       query: (body) => ({
         url: "/payments/verify",
         method: "POST",
@@ -185,6 +248,7 @@ export const {
   useUpdateFeeStructureMutation,
   useDeleteFeeStructureMutation,
   useAssignFeeMutation,
+  useGetEligibleStudentsQuery,
   useGetStudentFeesQuery,
   useGetStudentPaymentsQuery,
   useMarkPaymentManuallyMutation,

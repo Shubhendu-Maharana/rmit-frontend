@@ -1,6 +1,6 @@
 import React from "react";
 import { FiX, FiCheckCircle, FiCalendar, FiCreditCard } from "react-icons/fi";
-import { FeeReceipt } from "../../../../store/api/feeApi";
+import { FeeReceipt, FeeTransaction } from "../../../../store/api/feeApi";
 
 interface TransactionDetailsModalProps {
   isOpen: boolean;
@@ -8,14 +8,24 @@ interface TransactionDetailsModalProps {
   receipt: FeeReceipt | null;
 }
 
-export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
-  isOpen,
-  onClose,
-  receipt,
-}) => {
+/**
+ * Finds the most relevant successful transaction from the receipt's transactions array.
+ */
+const getSuccessTransaction = (receipt: FeeReceipt): FeeTransaction | null => {
+  if (!receipt.transactions || receipt.transactions.length === 0) return null;
+  return (
+    receipt.transactions.find((t) => t.status === "SUCCESS") ||
+    receipt.transactions[receipt.transactions.length - 1]
+  );
+};
+
+export const TransactionDetailsModal: React.FC<
+  TransactionDetailsModalProps
+> = ({ isOpen, onClose, receipt }) => {
   if (!isOpen || !receipt) return null;
 
   const fs = receipt.feeStructure!;
+  const tx = getSuccessTransaction(receipt);
 
   return (
     <div className="fixed inset-0 z-50 backdrop-blur-md bg-black/45 flex items-center justify-center p-4">
@@ -32,60 +42,81 @@ export const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = (
             <FiCheckCircle size={28} className="text-white" />
           </div>
           <h3 className="text-lg font-bold">Transaction Receipt</h3>
-          <p className="text-xs text-white/80 font-medium mt-0.5">Cleared & Confirmed</p>
+          <p className="text-xs text-white/80 font-medium mt-0.5">
+            Cleared & Confirmed
+          </p>
         </div>
 
         {/* Receipt details */}
         <div className="p-6 space-y-4 text-gray-700 text-sm">
           {/* Fee details */}
           <div className="border-b border-gray-100 pb-3">
-            <span className="text-xs text-gray-400 font-semibold block uppercase">Fee Head</span>
-            <span className="text-gray-800 font-bold text-base">{fs.title}</span>
+            <span className="text-xs text-gray-400 font-semibold block uppercase">
+              Fee Head
+            </span>
+            <span className="text-gray-800 font-bold text-base">
+              {fs.title}
+            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <span className="text-xs text-gray-400 font-semibold block uppercase">Academic Semester</span>
+              <span className="text-xs text-gray-400 font-semibold block uppercase">
+                Academic Semester
+              </span>
               <span className="text-gray-800 font-bold">Sem {fs.semester}</span>
             </div>
             <div>
-              <span className="text-xs text-gray-400 font-semibold block uppercase">Academic Year</span>
+              <span className="text-xs text-gray-400 font-semibold block uppercase">
+                Academic Year
+              </span>
               <span className="text-gray-800 font-bold">{fs.academicYear}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <span className="text-xs text-gray-400 font-semibold block uppercase">Payment Method</span>
-              <span className="text-gray-805 font-bold flex items-center gap-1">
-                <FiCreditCard /> {receipt.paymentMethod || "Razorpay"}
+              <span className="text-xs text-gray-400 font-semibold block uppercase">
+                Payment Method
+              </span>
+              <span className="text-gray-800 font-bold flex items-center gap-1">
+                <FiCreditCard /> {tx?.paymentMethod || "N/A"}
               </span>
             </div>
             <div>
-              <span className="text-xs text-gray-400 font-semibold block uppercase">Paid Amount</span>
+              <span className="text-xs text-gray-400 font-semibold block uppercase">
+                Paid Amount
+              </span>
               <span className="text-emerald-600 font-extrabold text-base">
-                ₹{receipt.amountPaid.toLocaleString()}
+                ₹{(tx?.amount || receipt.amountPaid).toLocaleString()}
               </span>
             </div>
           </div>
 
           <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-3 text-xs">
             <div>
-              <span className="text-gray-400 font-semibold block uppercase mb-0.5">Transaction ID</span>
+              <span className="text-gray-400 font-semibold block uppercase mb-0.5">
+                Transaction ID
+              </span>
               <span className="font-mono text-gray-700 font-bold select-all break-all">
-                {receipt.transactionId || "N/A"}
+                {tx?.transactionId || "N/A"}
               </span>
             </div>
             <div>
-              <span className="text-gray-400 font-semibold block uppercase mb-0.5">Razorpay Order ID</span>
+              <span className="text-gray-400 font-semibold block uppercase mb-0.5">
+                Razorpay Order ID
+              </span>
               <span className="font-mono text-gray-700 font-bold select-all break-all">
-                {receipt.razorpayOrderId || "N/A"}
+                {tx?.razorpayOrderId || "N/A"}
               </span>
             </div>
             <div>
-              <span className="text-gray-400 font-semibold block uppercase mb-0.5">Payment Date & Time</span>
+              <span className="text-gray-400 font-semibold block uppercase mb-0.5">
+                Payment Date & Time
+              </span>
               <span className="text-gray-700 font-bold flex items-center gap-1">
-                <FiCalendar /> {receipt.paidAt ? new Date(receipt.paidAt).toLocaleString() : "N/A"}
+                <FiCalendar />{" "}
+                {tx?.paidAt ? new Date(tx.paidAt).toLocaleString() : "N/A"}
               </span>
             </div>
           </div>
