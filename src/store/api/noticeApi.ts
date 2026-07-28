@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../index";
-import { Notice, Institute } from "../../types/dataTypes";
+import { Notice, Institute, PaginationMeta } from "../../types/dataTypes";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -19,8 +19,8 @@ export const noticeApi = createApi({
   tagTypes: ["Notice"],
   endpoints: (builder) => ({
     getNotices: builder.query<
-      { success: boolean; data: Notice[] },
-      { institute?: Institute } | void
+      { success: boolean; data: { notices: Notice[]; meta: PaginationMeta } },
+      { institute?: Institute; page?: number; limit?: number } | void
     >({
       query: (params) => ({
         url: "/notices",

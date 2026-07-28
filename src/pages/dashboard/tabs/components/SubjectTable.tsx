@@ -2,6 +2,7 @@ import React from "react";
 import { FiEye, FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { Subject, User } from "../../../../types/dataTypes";
 import SkeletonTable from "../../../../components/ui/SkeletonTable";
+import { Pagination } from "../../../../components/ui/Pagination";
 
 interface SubjectTableProps {
   subjects: Subject[];
@@ -13,6 +14,11 @@ interface SubjectTableProps {
   openViewModal: (subject: Subject) => void;
   openEditModal: (subject: Subject) => void;
   openDeleteModal: (subject: Subject) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  totalCount?: number;
+  limit?: number;
 }
 
 export const SubjectTable: React.FC<SubjectTableProps> = ({
@@ -25,6 +31,11 @@ export const SubjectTable: React.FC<SubjectTableProps> = ({
   openViewModal,
   openEditModal,
   openDeleteModal,
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalCount,
+  limit,
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -163,6 +174,20 @@ export const SubjectTable: React.FC<SubjectTableProps> = ({
           <span>Updating list...</span>
         </div>
       )}
+      {currentPage !== undefined &&
+        totalPages !== undefined &&
+        onPageChange !== undefined &&
+        totalCount !== undefined &&
+        limit !== undefined && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            limit={limit}
+            loading={fetching}
+          />
+        )}
     </div>
   );
 };

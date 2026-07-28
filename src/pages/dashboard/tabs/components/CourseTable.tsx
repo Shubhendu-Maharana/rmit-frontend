@@ -2,6 +2,7 @@ import React from "react";
 import { FiEye, FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { Course } from "../../../../types/dataTypes";
 import SkeletonTable from "../../../../components/ui/SkeletonTable";
+import { Pagination } from "../../../../components/ui/Pagination";
 
 interface CourseTableProps {
   courses: Course[];
@@ -11,6 +12,11 @@ interface CourseTableProps {
   openViewModal: (course: Course) => void;
   openEditModal: (course: Course) => void;
   openDeleteModal: (course: Course) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  totalCount?: number;
+  limit?: number;
 }
 
 export const CourseTable: React.FC<CourseTableProps> = ({
@@ -21,6 +27,11 @@ export const CourseTable: React.FC<CourseTableProps> = ({
   openViewModal,
   openEditModal,
   openDeleteModal,
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalCount,
+  limit,
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -142,6 +153,20 @@ export const CourseTable: React.FC<CourseTableProps> = ({
           <span>Updating list...</span>
         </div>
       )}
+      {currentPage !== undefined &&
+        totalPages !== undefined &&
+        onPageChange !== undefined &&
+        totalCount !== undefined &&
+        limit !== undefined && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            limit={limit}
+            loading={fetching}
+          />
+        )}
     </div>
   );
 };

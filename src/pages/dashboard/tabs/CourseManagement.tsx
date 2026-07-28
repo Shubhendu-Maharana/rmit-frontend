@@ -26,6 +26,10 @@ const CourseManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [instituteFilter, setInstituteFilter] = useState<Institute | "">("");
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -33,14 +37,21 @@ const CourseManagement: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  // Reset page when filter changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [instituteFilter]);
+
   // RTK Query API Hooks
   const {
     data: coursesData,
     isLoading: coursesLoading,
     isFetching: coursesFetching,
-  } = useGetCoursesQuery(
-    instituteFilter ? { institute: instituteFilter } : undefined,
-  );
+  } = useGetCoursesQuery({
+    institute: instituteFilter || undefined,
+    page,
+    limit,
+  });
 
   const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
   const [updateCourse, { isLoading: isUpdating }] = useUpdateCourseMutation();
@@ -48,7 +59,7 @@ const CourseManagement: React.FC = () => {
 
   // Filter courses locally by search term
   const filteredCourses =
-    coursesData?.data?.filter(
+    coursesData?.data?.courses?.filter(
       (c) =>
         c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (c.description &&
@@ -98,7 +109,10 @@ const CourseManagement: React.FC = () => {
   return (
     <div className="w-full space-y-6">
       {/* Upper Stats Row */}
-      <CourseStats courses={coursesData?.data || []} loading={coursesLoading} />
+      <CourseStats
+        courses={coursesData?.data?.courses || []}
+        loading={coursesLoading}
+      />
 
       {/* Filter / Control Panel */}
       <CourseFilterBar
@@ -119,6 +133,11 @@ const CourseManagement: React.FC = () => {
         openViewModal={openViewModal}
         openEditModal={openEditModal}
         openDeleteModal={openDeleteModal}
+        currentPage={page}
+        totalPages={coursesData?.data?.meta?.totalPages}
+        onPageChange={setPage}
+        totalCount={coursesData?.data?.meta?.totalCount}
+        limit={limit}
       />
 
       {/* Warning Modal for deletion */}

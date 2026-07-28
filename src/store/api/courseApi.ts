@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../index";
-import { Course, Institute } from "../../types/dataTypes";
+import { Course, Institute, PaginationMeta } from "../../types/dataTypes";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -19,8 +19,8 @@ export const courseApi = createApi({
   tagTypes: ["Course"],
   endpoints: (builder) => ({
     getCourses: builder.query<
-      { success: boolean; data: Course[] },
-      { institute?: Institute } | void
+      { success: boolean; data: { courses: Course[]; meta: PaginationMeta } },
+      { institute?: Institute; page?: number; limit?: number } | void
     >({
       query: (params) => ({
         url: "/courses",

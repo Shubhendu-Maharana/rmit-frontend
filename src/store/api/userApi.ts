@@ -1,12 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../index";
-import { User, Role, Institute } from "../../types/dataTypes";
+import { User, Role, Institute, PaginationMeta } from "../../types/dataTypes";
 
 export interface GetUsersParams {
   role?: Role;
   institute?: Institute;
   includeDeleted?: boolean;
   search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface CreateUserPayload {
@@ -70,21 +72,25 @@ export const userApi = createApi({
   }),
   tagTypes: ["User"],
   endpoints: (builder) => ({
-    getUsers: builder.query<{ success: boolean; data: User[] }, GetUsersParams>(
-      {
-        query: (params) => ({
-          url: "/users",
-          params,
-        }),
-        providesTags: (result) =>
-          result
-            ? [
-                ...result.data.map(({ id }) => ({ type: "User" as const, id })),
-                { type: "User", id: "LIST" },
-              ]
-            : [{ type: "User", id: "LIST" }],
-      },
-    ),
+    getUsers: builder.query<
+      { success: boolean; data: { users: User[]; meta: PaginationMeta } },
+      GetUsersParams
+    >({
+      query: (params) => ({
+        url: "/users",
+        params,
+      }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.data.users.map(({ id }) => ({
+                type: "User" as const,
+                id,
+              })),
+              { type: "User", id: "LIST" },
+            ]
+          : [{ type: "User", id: "LIST" }],
+    }),
     getUserById: builder.query<{ success: boolean; data: User }, string>({
       query: (id) => `/users/${id}`,
       providesTags: (_result, _error, id) => [{ type: "User", id }],

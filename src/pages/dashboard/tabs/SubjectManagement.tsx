@@ -30,6 +30,10 @@ const SubjectManagement: React.FC = () => {
   const [courseFilter, setCourseFilter] = useState("");
   const [semesterFilter, setSemesterFilter] = useState("");
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -37,8 +41,13 @@ const SubjectManagement: React.FC = () => {
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  // Reset page when filter changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [instituteFilter, courseFilter, semesterFilter]);
+
   // RTK Query API Hooks
-  const queryParams: any = {};
+  const queryParams: any = { page, limit };
   if (instituteFilter) queryParams.institute = instituteFilter;
   if (courseFilter) queryParams.courseId = courseFilter;
   if (semesterFilter) queryParams.semester = Number(semesterFilter);
@@ -47,9 +56,7 @@ const SubjectManagement: React.FC = () => {
     data: subjectsData,
     isLoading: subjectsLoading,
     isFetching: subjectsFetching,
-  } = useGetSubjectsQuery(
-    Object.keys(queryParams).length > 0 ? queryParams : undefined,
-  );
+  } = useGetSubjectsQuery(queryParams);
 
   // Load all courses for dropdowns
   const { data: coursesData } = useGetCoursesQuery();
@@ -60,7 +67,7 @@ const SubjectManagement: React.FC = () => {
 
   // Local filter for search term (code or name)
   const filteredSubjects =
-    subjectsData?.data?.filter(
+    subjectsData?.data?.subjects?.filter(
       (s) =>
         s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.code.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -111,7 +118,7 @@ const SubjectManagement: React.FC = () => {
     <div className="w-full space-y-6">
       {/* Upper Stats Row */}
       <SubjectStats
-        subjects={subjectsData?.data || []}
+        subjects={subjectsData?.data?.subjects || []}
         loading={subjectsLoading}
       />
 
@@ -129,7 +136,7 @@ const SubjectManagement: React.FC = () => {
         isSuperAdmin={isSuperAdmin}
         isAdmin={isAdmin}
         currentUser={currentUser}
-        courses={coursesData?.data || []}
+        courses={coursesData?.data?.courses || []}
       />
 
       {/* Subject Database Table */}
@@ -143,6 +150,11 @@ const SubjectManagement: React.FC = () => {
         openViewModal={openViewModal}
         openEditModal={openEditModal}
         openDeleteModal={openDeleteModal}
+        currentPage={page}
+        totalPages={subjectsData?.data?.meta?.totalPages}
+        onPageChange={setPage}
+        totalCount={subjectsData?.data?.meta?.totalCount}
+        limit={limit}
       />
 
       {/* Warning Modal for deletion */}
@@ -177,7 +189,7 @@ const SubjectManagement: React.FC = () => {
         selectedSubject={selectedSubject}
         createSubject={createSubject}
         updateSubject={updateSubject}
-        courses={coursesData?.data || []}
+        courses={coursesData?.data?.courses || []}
         currentUser={currentUser}
         isSuperAdmin={isSuperAdmin}
         isAdmin={isAdmin}

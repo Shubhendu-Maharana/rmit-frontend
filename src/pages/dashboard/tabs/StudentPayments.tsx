@@ -19,7 +19,7 @@ import {
 } from "react-icons/fi";
 import SkeletonTable from "../../../components/ui/SkeletonTable";
 
-// Components
+import { Pagination } from "../../../components/ui/Pagination";
 import { ManualPaymentModal } from "./components/ManualPaymentModal";
 import { TransactionDetailsModal } from "./components/TransactionDetailsModal";
 
@@ -33,6 +33,10 @@ const StudentPayments: React.FC = () => {
   const [instituteFilter, setInstituteFilter] = useState<Institute | "">("");
   const [feeStructureId, setFeeStructureId] = useState("");
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Modals state
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
@@ -40,8 +44,13 @@ const StudentPayments: React.FC = () => {
     null,
   );
 
+  // Reset page when filters change
+  React.useEffect(() => {
+    setPage(1);
+  }, [searchTerm, statusFilter, instituteFilter, feeStructureId]);
+
   // RTK Query parameters
-  const queryParams: any = {};
+  const queryParams: any = { page, limit };
   if (statusFilter) queryParams.status = statusFilter;
   if (feeStructureId) queryParams.feeStructureId = feeStructureId;
   if (searchTerm) queryParams.search = searchTerm;
@@ -60,8 +69,8 @@ const StudentPayments: React.FC = () => {
     isFetching: isPaymentsFetching,
   } = useGetStudentPaymentsQuery(queryParams);
 
-  // Load all fee structures for dropdown selector
-  const { data: feeStructuresData } = useGetFeeStructuresQuery();
+  // Load all fee structures for dropdown selector (fetch up to 50)
+  const { data: feeStructuresData } = useGetFeeStructuresQuery({ limit: 50 });
 
   const [markPaymentManually, { isLoading: isMarking }] =
     useMarkPaymentManuallyMutation();
@@ -77,7 +86,7 @@ const StudentPayments: React.FC = () => {
   };
 
   const filteredFeeStructures =
-    feeStructuresData?.data?.filter((fs) => {
+    feeStructuresData?.data?.feeStructures?.filter((fs) => {
       if (isSuperAdmin) return true;
       return fs.course?.institute === currentUser?.adminProfile?.institute;
     }) || [];
@@ -215,7 +224,8 @@ const StudentPayments: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-100 text-gray-700 text-sm">
               {isPaymentsLoading ? (
                 <SkeletonTable rows={5} columns={7} />
-              ) : !paymentsData?.data || paymentsData.data.length === 0 ? (
+              ) : !paymentsData?.data?.payments ||
+                paymentsData.data.payments.length === 0 ? (
                 <tr>
                   <td
                     colSpan={7}
@@ -225,7 +235,7 @@ const StudentPayments: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                paymentsData.data.map((receipt) => {
+                paymentsData.data.payments.map((receipt) => {
                   const fs = receipt.feeStructure!;
                   const stud = receipt.student!;
                   return (
@@ -344,6 +354,16 @@ const StudentPayments: React.FC = () => {
             <FiRefreshCw className="animate-spin" />
             <span>Updating payment audits...</span>
           </div>
+        )}
+        {paymentsData?.data?.meta && (
+          <Pagination
+            currentPage={page}
+            totalPages={paymentsData.data.meta.totalPages}
+            onPageChange={setPage}
+            totalCount={paymentsData.data.meta.totalCount}
+            limit={limit}
+            loading={isPaymentsFetching}
+          />
         )}
       </div>
 

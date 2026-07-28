@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { FiCheckCircle, FiUser, FiLayers, FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { User } from "../../../../types/dataTypes";
+import { useGetUsersQuery } from "../../../../store/api/userApi";
 import { FeeStructure } from "../../../../store/api/feeApi";
 
 interface FeeAssignmentPanelProps {
   feeStructures: FeeStructure[];
-  students: User[];
   assignFee: (payload: any) => { unwrap: () => Promise<any> };
   isAssigning: boolean;
   isSuperAdmin: boolean;
@@ -15,7 +14,6 @@ interface FeeAssignmentPanelProps {
 
 export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
   feeStructures,
-  students,
   assignFee,
   isAssigning,
   isSuperAdmin,
@@ -25,6 +23,9 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
   const [assignType, setAssignType] = useState<"ALL" | "INDIVIDUAL">("ALL");
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [studentSearchTerm, setStudentSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const filteredFeeStructures = feeStructures.filter((fs) => {
     if (isSuperAdmin) return true;
@@ -35,25 +36,32 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
     (fs) => fs.id === feeStructureId,
   );
 
-  const searchedStudents = students.filter((s) => {
-    const profile = s.studentProfile;
-    if (
-      !isSuperAdmin &&
-      profile?.institute !== currentUser?.adminProfile?.institute
-    ) {
-      return false;
+  // Search students server-side when tab is INDIVIDUAL and user is typing
+  const { data: studentsData } = useGetUsersQuery(
+    {
+      role: "STUDENT",
+      search: debouncedSearch || undefined,
+      institute: isSuperAdmin
+        ? undefined
+        : currentUser?.adminProfile?.institute,
+      limit: 15,
+    },
+    { skip: assignType !== "INDIVIDUAL" || !debouncedSearch },
+  );
+
+  const searchedStudents = studentsData?.data?.users || [];
+
+  const handleSearchChange = (value: string) => {
+    setStudentSearchTerm(value);
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
-    const nameStr = profile?.name || "";
-    const emailStr = s.email || "";
-    const rollStr = s.rollNumber || "";
-    const term = studentSearchTerm.toLowerCase();
-    return (
-      term &&
-      (nameStr.toLowerCase().includes(term) ||
-        emailStr.toLowerCase().includes(term) ||
-        rollStr.toLowerCase().includes(term))
-    );
-  });
+
+    searchTimeoutRef.current = setTimeout(() => {
+      setDebouncedSearch(value);
+    }, 400);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,7 +214,7 @@ export const FeeAssignmentPanel: React.FC<FeeAssignmentPanelProps> = ({
                 type="text"
                 placeholder="Search by student name, roll number, or email..."
                 value={studentSearchTerm}
-                onChange={(e) => setStudentSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-250 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
               />
             </div>

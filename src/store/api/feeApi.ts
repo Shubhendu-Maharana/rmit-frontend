@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../index";
-import { Course } from "../../types/dataTypes";
+import { Course, PaginationMeta } from "../../types/dataTypes";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -121,12 +121,17 @@ export const feeApi = createApi({
   tagTypes: ["FeeStructure", "FeeReceipt"],
   endpoints: (builder) => ({
     getFeeStructures: builder.query<
-      { success: boolean; data: FeeStructure[] },
+      {
+        success: boolean;
+        data: { feeStructures: FeeStructure[]; meta: PaginationMeta };
+      },
       {
         institute?: string;
         courseId?: string;
         semester?: number;
         academicYear?: string;
+        page?: number;
+        limit?: number;
       } | void
     >({
       query: (params) => ({
@@ -176,26 +181,43 @@ export const feeApi = createApi({
       invalidatesTags: [{ type: "FeeReceipt", id: "LIST" }],
     }),
     getEligibleStudents: builder.query<
-      { success: boolean; data: EligibleStudent[] },
-      string
+      {
+        success: boolean;
+        data: { students: EligibleStudent[]; meta: PaginationMeta };
+      },
+      { feeStructureId: string; page?: number; limit?: number }
     >({
-      query: (feeStructureId) => `/fees/${feeStructureId}/eligible-students`,
+      query: ({ feeStructureId, ...params }) => ({
+        url: `/fees/${feeStructureId}/eligible-students`,
+        params,
+      }),
     }),
     getStudentFees: builder.query<
-      { success: boolean; data: FeeReceipt[] },
-      void
+      {
+        success: boolean;
+        data: { feeReceipts: FeeReceipt[]; meta: PaginationMeta };
+      },
+      { page?: number; limit?: number } | void
     >({
-      query: () => "/fees/my-status",
+      query: (params) => ({
+        url: "/fees/my-status",
+        params: params || undefined,
+      }),
       providesTags: [{ type: "FeeReceipt", id: "LIST" }],
     }),
     getStudentPayments: builder.query<
-      { success: boolean; data: FeeReceipt[] },
+      {
+        success: boolean;
+        data: { payments: FeeReceipt[]; meta: PaginationMeta };
+      },
       {
         status?: string;
         studentId?: string;
         feeStructureId?: string;
         institute?: string;
         search?: string;
+        page?: number;
+        limit?: number;
       } | void
     >({
       query: (params) => ({

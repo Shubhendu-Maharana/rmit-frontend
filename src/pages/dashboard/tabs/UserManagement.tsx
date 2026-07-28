@@ -40,8 +40,17 @@ const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Search debounce ref
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset page when filters change
+  React.useEffect(() => {
+    setPage(1);
+  }, [roleFilter, instituteFilter, includeDeleted, debouncedSearch]);
 
   // RTK Query API Hooks
   const {
@@ -56,6 +65,8 @@ const UserManagement: React.FC = () => {
     includeDeleted:
       currentUser?.role === "SUPER_ADMIN" ? includeDeleted : undefined,
     search: debouncedSearch || undefined,
+    page,
+    limit,
   });
 
   const { data: coursesData } = useGetCoursesQuery();
@@ -133,7 +144,7 @@ const UserManagement: React.FC = () => {
   return (
     <div className="w-full space-y-6">
       {/* Upper Stats Row */}
-      <UserStats users={usersData?.data || []} loading={usersLoading} />
+      <UserStats users={usersData?.data?.users || []} loading={usersLoading} />
 
       {/* Main Filter / Control Panel */}
       <UserFilterBar
@@ -153,7 +164,7 @@ const UserManagement: React.FC = () => {
 
       {/* Users Database Table */}
       <UserTable
-        users={usersData?.data || []}
+        users={usersData?.data?.users || []}
         loading={usersLoading}
         fetching={usersFetching}
         currentUser={currentUser}
@@ -163,6 +174,11 @@ const UserManagement: React.FC = () => {
         openEditModal={openEditModal}
         openDeleteModal={openDeleteModal}
         handleRestoreUser={handleRestoreUser}
+        currentPage={page}
+        totalPages={usersData?.data?.meta?.totalPages}
+        onPageChange={setPage}
+        totalCount={usersData?.data?.meta?.totalCount}
+        limit={limit}
       />
 
       {/* Warning Modal for deletion */}

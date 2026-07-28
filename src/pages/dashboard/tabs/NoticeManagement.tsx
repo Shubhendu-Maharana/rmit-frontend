@@ -31,6 +31,10 @@ const NoticeManagement: React.FC = () => {
     Institute | "GLOBAL" | ""
   >("");
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Modals state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -38,13 +42,16 @@ const NoticeManagement: React.FC = () => {
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const [editMode, setEditMode] = useState(false);
 
+  // Reset page when filter changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [instituteFilter]);
+
   // RTK Query API Hooks
-  const queryParam =
-    instituteFilter === "GLOBAL"
-      ? undefined
-      : instituteFilter
-        ? { institute: instituteFilter }
-        : undefined;
+  const queryParam: any = { page, limit };
+  if (instituteFilter && instituteFilter !== "GLOBAL") {
+    queryParam.institute = instituteFilter;
+  }
 
   const {
     data: noticesData,
@@ -59,7 +66,7 @@ const NoticeManagement: React.FC = () => {
 
   // Local filter for search and GLOBAL targeting
   const filteredNotices =
-    noticesData?.data?.filter((n) => {
+    noticesData?.data?.notices?.filter((n) => {
       // Filter by institute if "GLOBAL" selected
       if (instituteFilter === "GLOBAL" && n.institute !== null) {
         return false;
@@ -112,7 +119,10 @@ const NoticeManagement: React.FC = () => {
   return (
     <div className="w-full space-y-6">
       {/* Upper Stats Row */}
-      <NoticeStats notices={noticesData?.data || []} loading={noticesLoading} />
+      <NoticeStats
+        notices={noticesData?.data?.notices || []}
+        loading={noticesLoading}
+      />
 
       {/* Filter / Control Panel */}
       <NoticeFilterBar
@@ -135,6 +145,11 @@ const NoticeManagement: React.FC = () => {
         openViewModal={openViewModal}
         openEditModal={openEditModal}
         openDeleteModal={openDeleteModal}
+        currentPage={page}
+        totalPages={noticesData?.data?.meta?.totalPages}
+        onPageChange={setPage}
+        totalCount={noticesData?.data?.meta?.totalCount}
+        limit={limit}
       />
 
       {/* Warning Modal for deletion */}

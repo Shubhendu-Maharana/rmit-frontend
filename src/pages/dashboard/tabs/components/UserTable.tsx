@@ -2,6 +2,7 @@ import React from "react";
 import { FiEye, FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { User } from "../../../../types/dataTypes";
 import SkeletonTable from "../../../../components/ui/SkeletonTable";
+import { Pagination } from "../../../../components/ui/Pagination";
 
 interface UserTableProps {
   users: User[];
@@ -14,6 +15,11 @@ interface UserTableProps {
   openEditModal: (user: User) => void;
   openDeleteModal: (user: User) => void;
   handleRestoreUser: (userId: string) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  totalCount?: number;
+  limit?: number;
 }
 
 export const UserTable: React.FC<UserTableProps> = ({
@@ -27,6 +33,11 @@ export const UserTable: React.FC<UserTableProps> = ({
   openEditModal,
   openDeleteModal,
   handleRestoreUser,
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalCount,
+  limit,
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -225,6 +236,20 @@ export const UserTable: React.FC<UserTableProps> = ({
           <span>Updating list...</span>
         </div>
       )}
+      {currentPage !== undefined &&
+        totalPages !== undefined &&
+        onPageChange !== undefined &&
+        totalCount !== undefined &&
+        limit !== undefined && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            limit={limit}
+            loading={fetching}
+          />
+        )}
     </div>
   );
 };

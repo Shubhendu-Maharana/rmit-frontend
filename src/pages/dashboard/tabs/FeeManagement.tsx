@@ -14,7 +14,6 @@ import {
   FeeReceipt,
 } from "../../../store/api/feeApi";
 import { useGetCoursesQuery } from "../../../store/api/courseApi";
-import { useGetUsersQuery } from "../../../store/api/userApi";
 import { FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
 import WarningModal from "../../../components/ui/WarningModal";
@@ -32,6 +31,10 @@ const FeeManagement: React.FC = () => {
   const isStudent = currentUser?.role === "STUDENT";
   const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
 
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+
   // Modal & Selection state
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteOpen] = useState(false);
@@ -47,27 +50,29 @@ const FeeManagement: React.FC = () => {
     null,
   );
 
+  // Reset page when sub tab changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [activeSubTab]);
+
   // RTK Query API Hooks
   // Query 1: Student Fee status
   const { data: studentFeesData, isLoading: isStudentFeesLoading } =
-    useGetStudentFeesQuery(undefined, { skip: !isStudent });
+    useGetStudentFeesQuery({ page, limit }, { skip: !isStudent });
 
   // Query 2: Fee Structures list
   const {
     data: feeStructuresData,
     isLoading: isFeeStructuresLoading,
     isFetching: isFeeStructuresFetching,
-  } = useGetFeeStructuresQuery(undefined, { skip: isStudent });
+  } = useGetFeeStructuresQuery({ page, limit }, { skip: isStudent });
 
-  // Query 3: Courses (for Assignment panel)
-  const { data: coursesData } = useGetCoursesQuery(undefined, {
-    skip: isStudent,
-  });
-
-  // Query 4: Students lookup (for Assignment panel)
-  const { data: studentsData } = useGetUsersQuery(
-    { role: "STUDENT" },
-    { skip: isStudent },
+  // Query 3: Courses (for Assignment panel - fetch up to 50 for dropdowns)
+  const { data: coursesData } = useGetCoursesQuery(
+    { limit: 50 },
+    {
+      skip: isStudent,
+    },
   );
 
   // Mutations
@@ -123,17 +128,22 @@ const FeeManagement: React.FC = () => {
       <div className="w-full space-y-6">
         <FeeStats
           feeStructures={[]}
-          feeReceipts={studentFeesData?.data || []}
+          feeReceipts={studentFeesData?.data?.feeReceipts || []}
           isStudent={true}
           loading={isStudentFeesLoading}
         />
 
         <StudentFeeDashboard
-          receipts={studentFeesData?.data || []}
+          receipts={studentFeesData?.data?.feeReceipts || []}
           loading={isStudentFeesLoading}
           createPaymentOrder={createPaymentOrder}
           verifyPayment={verifyPayment}
           openReceiptModal={openReceiptModal}
+          currentPage={page}
+          totalPages={studentFeesData?.data?.meta?.totalPages}
+          onPageChange={setPage}
+          totalCount={studentFeesData?.data?.meta?.totalCount}
+          limit={limit}
         />
 
         <TransactionDetailsModal
@@ -153,7 +163,7 @@ const FeeManagement: React.FC = () => {
     <div className="w-full space-y-6">
       {/* Metrics */}
       <FeeStats
-        feeStructures={feeStructuresData?.data || []}
+        feeStructures={feeStructuresData?.data?.feeStructures || []}
         isStudent={false}
         loading={isFeeStructuresLoading}
       />
@@ -205,19 +215,23 @@ const FeeManagement: React.FC = () => {
           </div>
 
           <FeeStructureTable
-            feeStructures={feeStructuresData?.data || []}
+            feeStructures={feeStructuresData?.data?.feeStructures || []}
             loading={isFeeStructuresLoading}
             fetching={isFeeStructuresFetching}
             isSuperAdmin={isSuperAdmin}
             openEditModal={openEditModal}
             openDeleteModal={openDeleteModal}
+            currentPage={page}
+            totalPages={feeStructuresData?.data?.meta?.totalPages}
+            onPageChange={setPage}
+            totalCount={feeStructuresData?.data?.meta?.totalCount}
+            limit={limit}
           />
         </div>
       ) : (
         <div className="max-w-2xl">
           <FeeAssignmentPanel
-            feeStructures={feeStructuresData?.data || []}
-            students={studentsData?.data || []}
+            feeStructures={feeStructuresData?.data?.feeStructures || []}
             assignFee={assignFee}
             isAssigning={isAssigning}
             isSuperAdmin={isSuperAdmin}
@@ -248,7 +262,7 @@ const FeeManagement: React.FC = () => {
         selectedFee={selectedFee}
         createFeeStructure={createFeeStructure}
         updateFeeStructure={updateFeeStructure}
-        courses={coursesData?.data || []}
+        courses={coursesData?.data?.courses || []}
         isCreating={isCreating}
         isUpdating={isUpdating}
       />

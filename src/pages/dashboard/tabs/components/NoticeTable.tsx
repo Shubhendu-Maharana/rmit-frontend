@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 import { Notice, User } from "../../../../types/dataTypes";
 import SkeletonTable from "../../../../components/ui/SkeletonTable";
+import { Pagination } from "../../../../components/ui/Pagination";
 
 interface NoticeTableProps {
   notices: Notice[];
@@ -19,6 +20,11 @@ interface NoticeTableProps {
   openViewModal: (notice: Notice) => void;
   openEditModal: (notice: Notice) => void;
   openDeleteModal: (notice: Notice) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  totalCount?: number;
+  limit?: number;
 }
 
 export const NoticeTable: React.FC<NoticeTableProps> = ({
@@ -31,6 +37,11 @@ export const NoticeTable: React.FC<NoticeTableProps> = ({
   openViewModal,
   openEditModal,
   openDeleteModal,
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalCount,
+  limit,
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -164,6 +175,20 @@ export const NoticeTable: React.FC<NoticeTableProps> = ({
           <span>Updating list...</span>
         </div>
       )}
+      {currentPage !== undefined &&
+        totalPages !== undefined &&
+        onPageChange !== undefined &&
+        totalCount !== undefined &&
+        limit !== undefined && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            limit={limit}
+            loading={fetching}
+          />
+        )}
     </div>
   );
 };

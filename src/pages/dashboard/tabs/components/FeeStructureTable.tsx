@@ -2,6 +2,7 @@ import React from "react";
 import { FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { FeeStructure } from "../../../../store/api/feeApi";
 import SkeletonTable from "../../../../components/ui/SkeletonTable";
+import { Pagination } from "../../../../components/ui/Pagination";
 
 interface FeeStructureTableProps {
   feeStructures: FeeStructure[];
@@ -10,6 +11,11 @@ interface FeeStructureTableProps {
   isSuperAdmin: boolean;
   openEditModal: (fee: FeeStructure) => void;
   openDeleteModal: (fee: FeeStructure) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  totalCount?: number;
+  limit?: number;
 }
 
 export const FeeStructureTable: React.FC<FeeStructureTableProps> = ({
@@ -19,6 +25,11 @@ export const FeeStructureTable: React.FC<FeeStructureTableProps> = ({
   isSuperAdmin,
   openEditModal,
   openDeleteModal,
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalCount,
+  limit,
 }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -126,6 +137,20 @@ export const FeeStructureTable: React.FC<FeeStructureTableProps> = ({
           <span>Updating structures...</span>
         </div>
       )}
+      {currentPage !== undefined &&
+        totalPages !== undefined &&
+        onPageChange !== undefined &&
+        totalCount !== undefined &&
+        limit !== undefined && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            limit={limit}
+            loading={fetching}
+          />
+        )}
     </div>
   );
 };

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { FiClock, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { FeeReceipt } from "../../../../store/api/feeApi";
-
 import { initiateRazorpayCheckout } from "../../../../utils/payment";
+import { Pagination } from "../../../../components/ui/Pagination";
 
 interface StudentFeeDashboardProps {
   receipts: FeeReceipt[];
@@ -13,6 +13,11 @@ interface StudentFeeDashboardProps {
   };
   verifyPayment: (payload: any) => { unwrap: () => Promise<any> };
   openReceiptModal: (receipt: FeeReceipt) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  totalCount?: number;
+  limit?: number;
 }
 
 export const StudentFeeDashboard: React.FC<StudentFeeDashboardProps> = ({
@@ -21,6 +26,11 @@ export const StudentFeeDashboard: React.FC<StudentFeeDashboardProps> = ({
   createPaymentOrder,
   verifyPayment,
   openReceiptModal,
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalCount,
+  limit,
 }) => {
   const [processingFeeId, setProcessingFeeId] = useState<string | null>(null);
 
@@ -218,6 +228,19 @@ export const StudentFeeDashboard: React.FC<StudentFeeDashboardProps> = ({
           </tbody>
         </table>
       </div>
+      {currentPage !== undefined &&
+        totalPages !== undefined &&
+        onPageChange !== undefined &&
+        totalCount !== undefined &&
+        limit !== undefined && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={onPageChange}
+            totalCount={totalCount}
+            limit={limit}
+          />
+        )}
     </div>
   );
 };

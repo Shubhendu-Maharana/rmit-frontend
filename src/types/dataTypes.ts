@@ -256,3 +256,12 @@ export interface Notice {
   file_path: string;
   important: boolean;
 }
+
+export interface PaginationMeta {
+  currentPage: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
