@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@store/index";
 import {
   useGetSubjectsQuery,
   useCreateSubjectMutation,
   useUpdateSubjectMutation,
   useDeleteSubjectMutation,
-} from "../../../store/api/subjectApi";
-import { useGetCoursesQuery } from "../../../store/api/courseApi";
-import { Institute, Subject } from "../../../types/dataTypes";
+} from "@store/api/subjectApi";
+import { useGetCoursesQuery } from "@store/api/courseApi";
+import { Institute, Subject } from "@type/dataTypes";
 import { toast } from "react-toastify";
-import WarningModal from "../../../components/ui/WarningModal";
+import WarningModal from "@components/ui/WarningModal";
 
 // Modular Sub-components
 import { SubjectStats } from "./components/SubjectStats";

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@store/index";
 import {
   useGetFeeStructuresQuery,
   useCreateFeeStructureMutation,
@@ -12,11 +12,11 @@ import {
   useVerifyPaymentMutation,
   FeeStructure,
   FeeReceipt,
-} from "../../../store/api/feeApi";
-import { useGetCoursesQuery } from "../../../store/api/courseApi";
+} from "@store/api/feeApi";
+import { useGetCoursesQuery } from "@store/api/courseApi";
 import { FiPlus } from "react-icons/fi";
 import { toast } from "react-toastify";
-import WarningModal from "../../../components/ui/WarningModal";
+import WarningModal from "@components/ui/WarningModal";
 
 // Subcomponents
 import { FeeStats } from "./components/FeeStats";

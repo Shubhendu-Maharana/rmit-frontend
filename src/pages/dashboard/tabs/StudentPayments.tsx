@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@store/index";
 import {
   useGetStudentPaymentsQuery,
   useMarkPaymentManuallyMutation,
   useGetFeeStructuresQuery,
   FeeReceipt,
-} from "../../../store/api/feeApi";
-import { Institute } from "../../../types/dataTypes";
+} from "@store/api/feeApi";
+import { Institute } from "@type/dataTypes";
 import {
   FiSearch,
   FiFilter,
@@ -17,9 +17,9 @@ import {
   FiAlertCircle,
   FiRefreshCw,
 } from "react-icons/fi";
-import SkeletonTable from "../../../components/ui/SkeletonTable";
+import SkeletonTable from "@components/ui/SkeletonTable";
 
-import { Pagination } from "../../../components/ui/Pagination";
+import { Pagination } from "@components/ui/Pagination";
 import { ManualPaymentModal } from "./components/ManualPaymentModal";
 import { TransactionDetailsModal } from "./components/TransactionDetailsModal";
 

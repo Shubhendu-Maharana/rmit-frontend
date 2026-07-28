@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@store/index";
 import {
   useGetCoursesQuery,
   useCreateCourseMutation,
   useUpdateCourseMutation,
   useDeleteCourseMutation,
-} from "../../../store/api/courseApi";
-import { Institute, Course } from "../../../types/dataTypes";
+} from "@store/api/courseApi";
+import { Institute, Course } from "@type/dataTypes";
 import { toast } from "react-toastify";
-import WarningModal from "../../../components/ui/WarningModal";
+import WarningModal from "@components/ui/WarningModal";
 
 // Modular Sub-components
 import { CourseStats } from "./components/CourseStats";

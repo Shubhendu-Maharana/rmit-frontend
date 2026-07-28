@@ -23,8 +23,12 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@services/*": ["src/services/*"],
-      "@app/types/*": ["src/types/*"],
+      "@src/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
+      "@store/*": ["src/store/*"],
+      "@type/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"],
       "@assets/*": ["src/assets/*"]
     }
   },

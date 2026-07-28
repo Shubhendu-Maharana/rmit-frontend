@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@store/index";
 import {
   useGetNoticesQuery,
   useCreateNoticeMutation,
   useUpdateNoticeMutation,
   useDeleteNoticeMutation,
-} from "../../../store/api/noticeApi";
-import { useUploadFileMutation } from "../../../store/api/userApi";
-import { Institute, Notice } from "../../../types/dataTypes";
+} from "@store/api/noticeApi";
+import { useUploadFileMutation } from "@store/api/userApi";
+import { Institute, Notice } from "@type/dataTypes";
 import { toast } from "react-toastify";
-import WarningModal from "../../../components/ui/WarningModal";
+import WarningModal from "@components/ui/WarningModal";
 
 // Modular Sub-components
 import { NoticeStats } from "./components/NoticeStats";

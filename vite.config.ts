@@ -9,8 +9,12 @@ export default defineConfig({
   base: "./",
   resolve: {
     alias: {
-      "@services": path.resolve(__dirname, "src/services"),
-      "@app/types": path.resolve(__dirname, "src/types"),
+      "@src": path.resolve(__dirname, "src"),
+      "@components": path.resolve(__dirname, "src/components"),
+      "@pages": path.resolve(__dirname, "src/pages"),
+      "@store": path.resolve(__dirname, "src/store"),
+      "@type": path.resolve(__dirname, "src/types"),
+      "@utils": path.resolve(__dirname, "src/utils"),
       "@assets": path.resolve(__dirname, "src/assets"),
     },
   },

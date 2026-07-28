@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { RootState } from "@store/index";
 import {
   useGetUsersQuery,
   useCreateUserMutation,
@@ -8,11 +8,11 @@ import {
   useDeleteUserMutation,
   useRestoreUserMutation,
   useUploadFileMutation,
-} from "../../../store/api/userApi";
-import { useGetCoursesQuery } from "../../../store/api/courseApi";
-import { Role, Institute, User } from "../../../types/dataTypes";
+} from "@store/api/userApi";
+import { useGetCoursesQuery } from "@store/api/courseApi";
+import { Role, Institute, User } from "@type/dataTypes";
 import { toast } from "react-toastify";
-import WarningModal from "../../../components/ui/WarningModal";
+import WarningModal from "@components/ui/WarningModal";
 
 // Modular Sub-components
 import { UserStats } from "./components/UserStats";
