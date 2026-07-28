@@ -104,6 +104,7 @@ export const UserTable: React.FC<UserTableProps> = ({
                           <img
                             src={profile.photo}
                             alt={profile.name}
+                            loading="lazy"
                             className="w-10 h-10 rounded-full object-cover border-2 border-gray-100 shadow-sm"
                           />
                         ) : (

@@ -10,7 +10,15 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import { toast } from "react-toastify";
-import { Role, Institute, Gender, User } from "../../../../types/dataTypes";
+import {
+  Role,
+  Institute,
+  Gender,
+  User,
+  Course,
+  PaginationMeta,
+} from "@type/dataTypes";
+import { compressAndConvertToWebP } from "@utils/imageCompression";
 
 interface FormState {
   email: string;
@@ -81,8 +89,16 @@ interface UserFormModalProps {
   selectedUser: User | null;
   isSuperAdmin: boolean;
   isAdmin: boolean;
-  currentUser: any;
-  coursesData: any;
+  currentUser: User | null;
+  coursesData:
+    | {
+        success: boolean;
+        data: {
+          courses: Course[];
+          meta: PaginationMeta;
+        };
+      }
+    | undefined;
   createUser: (payload: any) => { unwrap: () => Promise<any> };
   updateUser: (args: { id: string; body: any }) => {
     unwrap: () => Promise<any>;
@@ -217,49 +233,61 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
     : ["FACULTY", "STUDENT"];
 
   const filteredCourses =
-    coursesData?.data?.filter(
+    coursesData?.data?.courses?.filter(
       (c: any) => c.institute === formState.institute,
     ) || [];
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size cannot exceed 5MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size cannot exceed 10MB.");
       return;
     }
 
-    setSelectedPhotoFile(file);
+    const processedFile = await compressAndConvertToWebP(file);
+    if (!processedFile) {
+      e.target.value = "";
+      return;
+    }
+
+    setSelectedPhotoFile(processedFile);
     const reader = new FileReader();
     reader.onloadend = () => {
       setPhotoPreview(reader.result as string);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(processedFile);
   };
 
-  const handleDocumentChange = (
+  const handleDocumentChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldName: keyof FormState,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size cannot exceed 5MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size cannot exceed 10MB.");
+      return;
+    }
+
+    const processedFile = await compressAndConvertToWebP(file);
+    if (!processedFile) {
+      e.target.value = "";
       return;
     }
 
     if (fieldName === "resumeUrl") {
-      setSelectedResumeFile(file);
+      setSelectedResumeFile(processedFile);
     } else if (fieldName === "joiningLetterUrl") {
-      setSelectedJoiningLetterFile(file);
+      setSelectedJoiningLetterFile(processedFile);
     } else if (fieldName === "tenthMarksheetUrl") {
-      setSelectedTenthMarksheetFile(file);
+      setSelectedTenthMarksheetFile(processedFile);
     } else if (fieldName === "twelfthMarksheetUrl") {
-      setSelectedTwelfthMarksheetFile(file);
+      setSelectedTwelfthMarksheetFile(processedFile);
     } else if (fieldName === "identityProofUrl") {
-      setSelectedIdentityProofFile(file);
+      setSelectedIdentityProofFile(processedFile);
     }
   };
 
@@ -802,6 +830,7 @@ export const UserFormModal: React.FC<UserFormModalProps> = ({
                       <img
                         src={photoPreview || formState.photo}
                         alt="Preview"
+                        loading="lazy"
                         className="w-14 h-14 rounded-full object-cover border border-gray-200 shrink-0"
                       />
                     ) : (

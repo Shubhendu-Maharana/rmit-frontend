@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiX, FiCheckCircle, FiRefreshCw, FiUploadCloud } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { Institute, Notice, User } from "../../../../types/dataTypes";
+import { compressAndConvertToWebP } from "@utils/imageCompression";
 
 interface NoticeFormModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ export const NoticeFormModal: React.FC<NoticeFormModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -71,7 +72,12 @@ export const NoticeFormModal: React.FC<NoticeFormModalProps> = ({
       return;
     }
 
-    setSelectedFile(file);
+    const processedFile = await compressAndConvertToWebP(file);
+    if (processedFile) {
+      setSelectedFile(processedFile);
+    } else {
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

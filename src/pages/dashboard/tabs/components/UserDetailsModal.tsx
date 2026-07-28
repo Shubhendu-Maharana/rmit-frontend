@@ -49,6 +49,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
                 <img
                   src={profile.photo}
                   alt={profile.name}
+                  loading="lazy"
                   className="w-28 h-28 rounded-2xl border-4 border-white object-cover shadow-lg"
                 />
               ) : (

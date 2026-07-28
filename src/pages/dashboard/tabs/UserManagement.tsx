@@ -69,7 +69,7 @@ const UserManagement: React.FC = () => {
     limit,
   });
 
-  const { data: coursesData } = useGetCoursesQuery();
+  const { data: coursesData } = useGetCoursesQuery({ limit: 50 });
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();

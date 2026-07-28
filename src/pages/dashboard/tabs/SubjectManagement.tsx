@@ -59,7 +59,7 @@ const SubjectManagement: React.FC = () => {
   } = useGetSubjectsQuery(queryParams);
 
   // Load all courses for dropdowns
-  const { data: coursesData } = useGetCoursesQuery();
+  const { data: coursesData } = useGetCoursesQuery({ limit: 50 });
 
   const [createSubject, { isLoading: isCreating }] = useCreateSubjectMutation();
   const [updateSubject, { isLoading: isUpdating }] = useUpdateSubjectMutation();
