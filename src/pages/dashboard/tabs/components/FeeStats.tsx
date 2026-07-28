@@ -19,10 +19,10 @@ export const FeeStats: React.FC<FeeStatsProps> = ({
     const totalAssigned = feeReceipts.length;
     const paidAmount = feeReceipts
       .filter((r) => r.status === "PAID")
-      .reduce((sum, r) => sum + r.feeStructure!.amount, 0);
+      .reduce((sum, r) => sum + Number(r.feeStructure?.amount ?? 0), 0);
     const pendingAmount = feeReceipts
       .filter((r) => r.status !== "PAID")
-      .reduce((sum, r) => sum + r.feeStructure!.amount, 0);
+      .reduce((sum, r) => sum + Number(r.feeStructure?.amount ?? 0), 0);
 
     const stats = [
       {
